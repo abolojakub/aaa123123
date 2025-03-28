@@ -1,47 +1,17 @@
-body {
-    font-family: Arial, sans-serif;
-    line-height: 1.6;
-    margin: 0;
-    padding: 0;
-    background-color: #f4f4f4;
-}
-
-header {
-    background-color: #343;
-    color: white;
-    padding: 10px 0;
-    text-align: center;
-}
-
-nav ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-nav ul li {
-    display: inline;
-    margin: 0 10px;
-}
-
-nav ul li a {
-    color: white;
-    text-decoration: none;
-}
-
-main {
-    padding: 20px;
-}
-
-section {
-    margin-bottom: 20px;
-}
-
-footer {
-    text-align: center;
-    padding: 10px 0;
-    background-color: #363;
-    color: white;
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-}
+{
+    "name": "x-frame-bypass",
+    "version": "1.0.2",
+    "description": "Web Component extending IFrame to bypass X-Frame-Options: deny/sameorigin",
+    "main": "x-frame-bypass.js",
+    "keywords": [
+      "iframe",
+      "cors",
+      "x-frame-options",
+      "web-components",
+      "custom-elements"
+    ],
+    "author": "niu tech",
+    "homepage": "https://github.com/niutech/x-frame-bypass",
+    "repository": "github:niutech/x-frame-bypass",
+    "license": "Apache-2.0"
+  }
