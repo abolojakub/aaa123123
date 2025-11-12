@@ -1038,7 +1038,7 @@
             gap: 1rem;
         }
 
-        /* NOWY STYL DLA FUNKCJI WYMAGAJĄCYCH WERYFIKACJI */
+        /* NOWY STYL DLA FUNKCJI WYMAGAJĄCYCH WERYFIKACJI - BEZ KŁÓDKI */
         .verification-required {
             background: rgba(255, 255, 255, 0.05);
             border-radius: 20px;
@@ -1047,16 +1047,16 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             text-align: center;
             margin-top: 2rem;
-        }
-
-        .verification-required-icon {
-            font-size: 4rem;
-            margin-bottom: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 400px;
         }
 
         .verification-required h2 {
             font-size: 2rem;
-            margin-bottom: 1rem;
+            margin-bottom: 1.5rem;
             background: linear-gradient(135deg, #fff, #a8b1ff);
             background-clip: text;
             -webkit-background-clip: text;
@@ -1566,12 +1566,7 @@
                         <p>Rozmawiaj twarzą w twarz z ludźmi z całego świata</p>
                     </div>
                     
-                    <div class="section-placeholder">
-                        <div class="section-placeholder-icon">🎥</div>
-                        <h2>Video Chat</h2>
-                        <p>Rozpocznij losowe rozmowy wideo z użytkownikami z całego świata. Połącz się z interesującymi ludźmi i nawiąż nowe znajomości.</p>
-                        <button class="feature-btn" onclick="startVideoChat()">Rozpocznij losową rozmowę</button>
-                    </div>
+                    <!-- Zawartość Video Chat będzie dynamicznie ładowana w zależności od statusu weryfikacji -->
                 </div>
 
                 <!-- Sekcja Randki -->
@@ -1581,12 +1576,7 @@
                         <p>Znajdź swoją drugą połówkę</p>
                     </div>
                     
-                    <div class="section-placeholder">
-                        <div class="section-placeholder-icon">💕</div>
-                        <h2>Randki</h2>
-                        <p>Odkryj funkcje randkowe, które pomogą Ci znaleźć idealnego partnera. Przeglądaj profile, dopasowuj preferencje i poznawaj nowych ludzi.</p>
-                        <button class="feature-btn" onclick="startDating()">Znajdź dopasowanie</button>
-                    </div>
+                    <!-- Zawartość Randki będzie dynamicznie ładowana w zależności od statusu weryfikacji -->
                 </div>
 
                 <!-- Sekcja Znajomi -->
@@ -1596,12 +1586,7 @@
                         <p>Poszerzaj swoją sieć kontaktów</p>
                     </div>
                     
-                    <div class="section-placeholder">
-                        <div class="section-placeholder-icon">👥</div>
-                        <h2>Znajomi</h2>
-                        <p>Zarządzaj swoją listą znajomych, przeglądaj profile innych użytkowników i rozwijaj swoją sieć społecznościową.</p>
-                        <button class="feature-btn" onclick="browseProfiles()">Przeglądaj profile</button>
-                    </div>
+                    <!-- Zawartość Znajomi będzie dynamicznie ładowana w zależności od statusu weryfikacji -->
                 </div>
 
                 <!-- Sekcja Grupy -->
@@ -1611,12 +1596,7 @@
                         <p>Dołącz do społeczności o wspólnych zainteresowaniach</p>
                     </div>
                     
-                    <div class="section-placeholder">
-                        <div class="section-placeholder-icon">👨‍👩‍👧‍👦</div>
-                        <h2>Grupy</h2>
-                        <p>Odkryj grupy tematyczne, dołącz do społeczności o podobnych zainteresowaniach i uczestnicz w fascynujących dyskusjach.</p>
-                        <button class="feature-btn" onclick="browseGroups()">Przeglądaj grupy</button>
-                    </div>
+                    <!-- Zawartość Grupy będzie dynamicznie ładowana w zależności od statusu weryfikacji -->
                 </div>
 
                 <!-- Sekcja Premium -->
@@ -1626,12 +1606,7 @@
                         <p>Odkryj pełnię możliwości naszej platformy</p>
                     </div>
                     
-                    <div class="section-placeholder">
-                        <div class="section-placeholder-icon">⭐</div>
-                        <h2>Premium</h2>
-                        <p>Odkryj ekskluzywne funkcje premium, które uczynią Twoje doświadczenie jeszcze lepszym. Bez reklam, zaawansowane filtry i wiele więcej!</p>
-                        <button class="feature-btn" onclick="showPremiumFeatures()">Zobacz funkcje premium</button>
-                    </div>
+                    <!-- Zawartość Premium będzie dynamicznie ładowana w zależności od statusu weryfikacji -->
                 </div>
 
                 <!-- Sekcja Pomocy -->
@@ -2011,6 +1986,59 @@
             }
         }
 
+        // Funkcje sprawdzające weryfikację dla sekcji
+        function checkVerificationForSection(sectionName) {
+            if (!currentUser) return false;
+            
+            const status = currentUser.verificationStatus || 'unverified';
+            
+            // Jeśli użytkownik jest zweryfikowany, pozwól na dostęp
+            if (status === 'verified') {
+                return true;
+            }
+            
+            // Jeśli nie jest zweryfikowany, pokaż komunikat
+            const section = document.getElementById(sectionName + '-section');
+            if (section) {
+                section.innerHTML = `
+                    <div class="content-header">
+                        <h1>${getSectionTitle(sectionName)}</h1>
+                        <p>${getSectionDescription(sectionName)}</p>
+                    </div>
+                    
+                    <div class="verification-required">
+                        <h2>Wymagana weryfikacja konta</h2>
+                        <p>Aby korzystać z funkcji ${getSectionTitle(sectionName)}, musisz najpierw zweryfikować swoje konto. Weryfikacja zapewnia bezpieczeństwo wszystkich użytkowników i pozwala nam oferować najwyższej jakości usługi.</p>
+                        <button class="go-to-dashboard-btn" onclick="showSection('dashboard')">Przejdź do weryfikacji konta</button>
+                    </div>
+                `;
+            }
+            
+            return false;
+        }
+
+        function getSectionTitle(sectionName) {
+            const titles = {
+                'videoChat': 'Video Chat',
+                'dating': 'Randki',
+                'friends': 'Znajomi',
+                'groups': 'Grupy',
+                'premium': 'Premium'
+            };
+            return titles[sectionName] || sectionName;
+        }
+
+        function getSectionDescription(sectionName) {
+            const descriptions = {
+                'videoChat': 'Rozmawiaj twarzą w twarz z ludźmi z całego świata',
+                'dating': 'Znajdź swoją drugą połówkę',
+                'friends': 'Poszerzaj swoją sieć kontaktów',
+                'groups': 'Dołącz do społeczności o wspólnych zainteresowaniach',
+                'premium': 'Odkryj pełnię możliwości naszej platformy'
+            };
+            return descriptions[sectionName] || '';
+        }
+
         // Nawigacja między sekcjami
         function showSection(sectionName) {
             // Ukryj wszystkie sekcje
@@ -2019,6 +2047,23 @@
                 section.classList.remove('active');
             });
 
+            // Sprawdź czy sekcja wymaga weryfikacji
+            const sectionsRequiringVerification = ['videoChat', 'dating', 'friends', 'groups', 'premium'];
+            
+            if (sectionsRequiringVerification.includes(sectionName)) {
+                if (!checkVerificationForSection(sectionName)) {
+                    // Jeśli użytkownik nie jest zweryfikowany, pokaż komunikat
+                    const targetSection = document.getElementById(sectionName + '-section');
+                    if (targetSection) {
+                        targetSection.classList.add('active');
+                    }
+                    
+                    // Aktualizuj aktywne menu
+                    updateActiveNavItem(sectionName);
+                    return;
+                }
+            }
+
             // Pokaż wybraną sekcję
             const targetSection = document.getElementById(sectionName + '-section');
             if (targetSection) {
@@ -2026,6 +2071,10 @@
             }
 
             // Aktualizuj aktywne menu
+            updateActiveNavItem(sectionName);
+        }
+
+        function updateActiveNavItem(sectionName) {
             const navItems = document.querySelectorAll('.nav-item');
             navItems.forEach(item => {
                 item.classList.remove('active');
