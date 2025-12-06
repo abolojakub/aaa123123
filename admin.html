@@ -5,30 +5,71 @@
   <title>Panel Admin</title>
   <style>
     body { font-family: Arial; margin: 40px; }
-    .box { padding: 10px; border: 1px solid #ccc; margin-bottom: 10px; }
+    .box { padding: 10px; border: 1px solid #ccc; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+    .btn { padding: 6px 10px; cursor: pointer; border: none; margin-left: 5px; color: white; }
+    .acc { background: green; }
+    .rej { background: red; }
   </style>
 </head>
 <body>
 
-<h2>Panel Admin — zapisane imiona</h2>
-
+<h2>Panel Admin — zgłoszenia</h2>
 <div id="list">Ładowanie...</div>
 
-<script>
-  const data = JSON.parse(localStorage.getItem("names") || "[]");
-  const list = document.getElementById("list");
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
+  import { getDatabase, ref, get, child, set } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
 
-  if (data.length === 0) {
-    list.textContent = "Brak wpisów.";
-  } else {
+  const firebaseConfig = {
+    apiKey: "AIzaSyAchP5CdU3vI2SGlbE1EHG2RRiY6x22Er8",
+    authDomain: "test1-f789e.firebaseapp.com",
+    databaseURL: "https://test1-f789e-default-rtdb.firebaseio.com",
+    projectId: "test1-f789e",
+    storageBucket: "test1-f789e.firebasestorage.app",
+    messagingSenderId: "70327501208",
+    appId: "1:70327501208:web:2cdab4787128b79e232bed",
+    measurementId: "G-3390TKDWJB"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getDatabase(app);
+
+  async function load() {
+    const snap = await get(ref(db, 'submissions'));
+    const data = snap.val() || {};
+    const list = document.getElementById("list");
     list.innerHTML = "";
-    data.forEach(entry => {
+
+    if (Object.keys(data).length === 0) {
+      list.textContent = "Brak wpisów.";
+      return;
+    }
+
+    Object.values(data).forEach(entry => {
       const div = document.createElement("div");
       div.className = "box";
-      div.textContent = entry.name + " (czas: " + entry.time + ")";
+      div.innerHTML = `
+        <div>
+          <strong>${entry.name}</strong> (${new Date(entry.time).toLocaleString()}) — <i>${entry.status}</i>
+        </div>
+        <div>
+          <button class="btn acc" onclick="updateStatus('${entry.id}','accepted')">✔</button>
+          <button class="btn rej" onclick="updateStatus('${entry.id}','rejected')">✖</button>
+        </div>
+      `;
       list.appendChild(div);
     });
   }
+
+  async function updateStatus(id, status){
+    await set(ref(db, 'submissions/' + id + '/status'), status);
+    load();
+  }
+
+  setInterval(load, 2000);
+  load();
+
+  window.updateStatus = updateStatus; // potrzebne dla onclick
 </script>
 
 </body>
