@@ -1,76 +1,532 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="utf-8">
-  <title>Panel Admin</title>
-  <style>
-    body { font-family: Arial; margin: 40px; }
-    .box { padding: 10px; border: 1px solid #ccc; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-    .btn { padding: 6px 10px; cursor: pointer; border: none; margin-left: 5px; color: white; }
-    .acc { background: green; }
-    .rej { background: red; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkyLine Admin – Panel edycji</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#0f0e17;color:#fff;font-family:'Inter',sans-serif;min-height:100vh;}
+
+/* ===== TOP BAR ===== */
+.topbar{background:#1a1830;border-bottom:1px solid rgba(255,255,255,0.08);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;}
+.topbar-logo{display:flex;align-items:center;gap:12px;}
+.topbar-logo svg{height:26px;width:auto;}
+.topbar-badge{background:#2d1b69;color:#a78bfa;font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:4px 10px;border-radius:6px;border:1px solid rgba(167,139,250,0.3);}
+.topbar-actions{display:flex;align-items:center;gap:10px;}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:9px 18px;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;border:none;text-decoration:none;}
+.btn-ghost{background:transparent;color:rgba(255,255,255,0.6);border:1px solid rgba(255,255,255,0.12);}
+.btn-ghost:hover{background:rgba(255,255,255,0.06);color:white;}
+.btn-success{background:#059669;color:white;}
+.btn-success:hover{background:#10b981;}
+.btn svg{width:15px;height:15px;fill:currentColor;}
+
+/* ===== GŁÓWNY LAYOUT ===== */
+.layout{
+  display:grid;
+  grid-template-columns:370px 1fr;
+  gap:24px;
+  padding:28px 24px 60px 16px;
+  max-width:1700px;
+  margin:0 auto;
+}
+@media(max-width:960px){.layout{grid-template-columns:1fr;padding:16px 12px 40px;gap:16px;max-width:600px;}}
+
+/* ===== MOBILE ===== */
+@media(max-width:600px){
+  .topbar{padding:10px 12px;flex-wrap:wrap;gap:8px;}
+  .topbar-logo svg{height:20px;}
+  .topbar-badge{display:none;}
+  .save-status span{display:none;}
+  .btn{padding:8px 11px;font-size:12px;}
+
+  .layout{padding:10px 10px 40px;gap:10px;}
+
+  .card-edit{padding:13px;}
+  .price-card{padding:13px;}
+  .row3{grid-template-columns:1fr 1fr;}
+
+  .save-toast{bottom:10px;right:10px;left:10px;font-size:13px;justify-content:center;}
+}
+
+/* ===== LEWA KOLUMNA ===== */
+.left-col{min-width:0;}
+.section{margin-bottom:22px;}
+.section-label{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#7c3aed;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.section-label::after{content:'';flex:1;height:1px;background:rgba(124,58,237,0.25);}
+.card-edit{background:#1a1830;border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:18px;margin-bottom:14px;}
+.card-edit h3{font-size:13px;font-weight:600;color:rgba(255,255,255,0.85);margin-bottom:14px;display:flex;align-items:center;gap:7px;}
+.card-edit h3 svg{width:14px;height:14px;fill:#7c3aed;flex-shrink:0;}
+.field{margin-bottom:12px;}
+.field:last-child{margin-bottom:0;}
+.field label{display:block;font-size:10px;font-weight:700;color:rgba(255,255,255,0.4);margin-bottom:5px;letter-spacing:0.06em;text-transform:uppercase;}
+.field input,.field select{width:100%;background:#0f0e17;border:1.5px solid rgba(255,255,255,0.09);border-radius:8px;padding:9px 12px;font-size:13px;color:white;font-family:'Inter',sans-serif;outline:none;transition:border-color 0.2s;}
+.field input:focus,.field select:focus{border-color:#7c3aed;box-shadow:0 0 0 3px rgba(124,58,237,0.12);}
+.field input::placeholder{color:rgba(255,255,255,0.2);}
+.field select option{background:#1a1830;}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.price-card{background:linear-gradient(135deg,#1e1040 0%,#2d1b69 100%);border:1px solid rgba(167,139,250,0.2);border-radius:14px;padding:18px;margin-bottom:14px;}
+.price-card h3{font-size:13px;font-weight:600;color:rgba(255,255,255,0.9);margin-bottom:14px;display:flex;align-items:center;gap:7px;}
+.price-card h3 svg{width:14px;height:14px;fill:#a78bfa;}
+.price-input-wrap{position:relative;display:flex;align-items:center;}
+.price-input-wrap .currency{position:absolute;right:12px;color:#a78bfa;font-weight:700;font-size:14px;pointer-events:none;}
+.price-input-wrap input{width:100%;background:rgba(0,0,0,0.3);border:1.5px solid rgba(167,139,250,0.3);border-radius:8px;padding:12px 44px 12px 14px;font-size:20px;font-weight:700;color:white;font-family:'Inter',sans-serif;outline:none;transition:border-color 0.2s;}
+.price-input-wrap input:focus{border-color:#a78bfa;box-shadow:0 0 0 3px rgba(167,139,250,0.12);}
+.price-hint{font-size:11px;color:rgba(255,255,255,0.35);margin-top:6px;}
+.save-status{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,0.35);transition:all 0.3s;}
+.save-status.saved{color:#10b981;}
+.save-status svg{width:13px;height:13px;fill:currentColor;}
+.save-toast{position:fixed;bottom:24px;right:24px;background:#059669;color:white;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:600;display:flex;align-items:center;gap:8px;box-shadow:0 8px 24px rgba(0,0,0,0.3);opacity:0;transform:translateY(8px);transition:all 0.3s;pointer-events:none;z-index:999;}
+.save-toast.show{opacity:1;transform:translateY(0);}
+.save-toast svg{width:18px;height:18px;fill:currentColor;}
+
+/* ===== PRAWA KOLUMNA — PODGLĄD ===== */
+.preview-panel{position:sticky;top:20px;}
+.preview-label{font-size:10px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:#7c3aed;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.preview-label::after{content:'';flex:1;height:1px;background:rgba(124,58,237,0.25);}
+.preview-shell{background:#f4f5f9;border-radius:16px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,0.5);}
+.preview-topbar{background:#2d1b69;padding:12px 18px;display:flex;align-items:center;gap:8px;}
+.preview-dot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,0.25);}
+.preview-url{font-size:11px;color:rgba(255,255,255,0.4);margin-left:4px;}
+/* preview-body: padding jak .container w index.html */
+.preview-body{padding:28px 28px;color:#1e1e2f;font-family:'Inter',sans-serif;}
+
+/* === STYLE PODGLĄDU: kopiowane 1:1 z index.html === */
+/* === PODGLĄD: dokładne klasy z index.html scopowane przez .preview-body === */
+.preview-body{padding:28px 28px;color:#1e1e2f;font-family:'Inter',sans-serif;}
+.preview-body .container-inner{margin-bottom:16px;}
+.preview-body #prev-title{font-size:28px;font-weight:600;color:#1e1e2f;margin-bottom:4px;display:block;}
+.preview-body #prev-sub{font-size:14px;color:#666;margin-top:4px;margin-bottom:24px;display:block;}
+.preview-body .flight-summary-card{background:#fff;border-radius:16px;padding:28px;border:1.5px solid #e5e7eb;margin-bottom:0;width:100%;}
+.preview-body .card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.preview-body .card-title{font-size:20px;font-weight:600;color:#1e1e2f;}
+.preview-body .divider{height:1px;background:#e5e7eb;margin:14px 0 18px 0;}
+.preview-body .header{font-size:22px;font-weight:600;margin-bottom:18px;color:#1e1e2f;}
+.preview-body .clickable-area{cursor:pointer;}
+.preview-body .flight{display:grid;grid-template-columns:70px 40px 1fr auto;gap:20px 12px;align-items:flex-start;}
+.preview-body .times{font-size:14px;display:flex;flex-direction:column;align-self:flex-start;justify-content:space-between;}
+.preview-body .time{font-weight:600;font-size:16px;color:#1e1e2f;}
+.preview-body .date{color:#777;}
+.preview-body .line-col{display:flex;flex-direction:column;align-items:center;align-self:flex-start;}
+.preview-body .dot{width:8px;height:8px;background:#555;border-radius:50%;flex-shrink:0;}
+.preview-body .line{width:2px;height:42px;background:#cfcfcf;flex-shrink:0;}
+.preview-body .plane{width:18px;height:18px;fill:#444;flex-shrink:0;}
+.preview-body .main{font-size:14px;align-self:flex-start;display:flex;flex-direction:column;}
+.preview-body .block{margin-bottom:0;}
+.preview-body .code{font-weight:600;line-height:1.4;color:#1e1e2f;}
+.preview-body .sub{color:#666;font-size:13px;line-height:1.4;}
+.preview-body .airline{display:flex;align-items:center;gap:8px;margin:0;padding:13px 0;font-size:13px;}
+.preview-body .airline img{width:20px;}
+.preview-body .toggle{cursor:pointer;border:none;background:none;padding:4px;display:flex;align-items:center;justify-content:center;align-self:flex-start;padding-top:2px;}
+.preview-body .toggle svg{width:18px;height:18px;fill:#666;transition:transform 0.2s ease;}
+.preview-body .toggle.open svg{transform:rotate(180deg);}
+.preview-body .details{margin-top:10px;padding-top:12px;border-top:1px solid #eee;display:none;}
+.preview-body .details.open{display:block;}
+.preview-body .detail-row{display:flex;align-items:center;gap:8px;font-size:13px;margin-top:8px;}
+.preview-body .detail-row svg{width:16px;height:16px;fill:#666;flex-shrink:0;}
+.preview-body .label{color:#666;min-width:130px;}
+.preview-body .value{font-weight:500;color:#1e1e2f;}
+/* stopka podglądu */
+.prev-footer{display:flex;justify-content:space-between;align-items:center;margin-top:20px;}
+.prev-price-label{font-size:14px;color:#555;font-family:'DM Sans',sans-serif;}
+.prev-price{font-size:26px;font-weight:600;color:#1e1e2f;}
+.prev-next-btn{background:#e11d74;color:white;border:none;padding:16px 48px;border-radius:12px;font-size:16px;font-weight:600;display:flex;align-items:center;gap:6px;cursor:default;white-space:nowrap;}
+/* mobile podglądu */
+@media(max-width:960px){
+  .preview-panel{display:none;}
+  .preview-body{padding:20px 16px;}
+  .preview-body .flight{grid-template-columns:70px 24px 1fr auto;gap:6px 10px;}
+  .preview-body .line{height:40px;}
+  .preview-body .time{font-size:14px;}
+  .preview-body .date{font-size:11px;white-space:nowrap;}
+  .preview-body .times{justify-content:space-between;}
+  .preview-body .toggle{justify-self:end;padding-top:0;}
+  .preview-body .sub{font-size:12px;}
+  .preview-body .details{margin-left:calc(-70px - 24px - 10px - 10px);margin-right:0;padding-left:8px;}
+  .preview-body .detail-row{flex-wrap:nowrap;align-items:flex-start;}
+  .preview-body .label{min-width:120px;flex-shrink:0;}
+  .preview-body .value{flex:1;text-align:left;}
+  .preview-body .flight-summary-card{padding:16px;}
+  .prev-footer{flex-direction:column;align-items:stretch;gap:12px;}
+  .prev-next-btn{width:100%;justify-content:center;padding:16px;}
+}</style>
 </head>
 <body>
 
-<h2>Panel Admin — zgłoszenia</h2>
-<div id="list">Ładowanie...</div>
+<div class="topbar">
+  <div class="topbar-logo">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 150">
+      <path fill="white" d="M100.1 127c2.1 0 4.1-.5 6-1.6l21.9-12.6c4.4-2.5 9.5-3.6 14.6-3 26.6 3.1 45.2 8.1 50.7 9.7 1.1.3 2.4-.1 3.1-1 .9-1.1 2-2.9 2.9-5.5.8-2.5.9-4.6.8-6.1-.1-1.2-.9-2.3-2.1-2.6-8.6-2.5-46.7-12.8-97.9-12.8s-89.3 10.3-97.9 12.8c-1.2.3-2 1.4-2.1 2.6-.1 1.4 0 3.5.8 6.1.8 2.6 2 4.4 2.9 5.5.7.9 2 1.3 3.1 1 5.5-1.6 24.2-6.6 50.7-9.7 5.1-.6 10.2.5 14.6 3l21.9 12.6c1.9 1.1 4 1.6 6 1.6zM63.6 56.1c1.2 2.1 3.1 3.5 5.3 4.1 2.2.6 4.5.3 6.6-.9 2.1-1.2 3.5-3.1 4.1-5.3.6-2.2.3-4.5-.9-6.6L59 13.3c-.6-1.1-1.9-1.5-3.1-1.4-1.6.1-3.8.9-6.4 2.4-2.6 1.5-4.4 3-5.3 4.3-.7 1-.9 2.3-.3 3.4l19.7 34.1zm-18 24.4c2.1 1.2 4.5 1.4 6.6.9 2.2-.6 4.1-2 5.3-4.1 1.2-2.1 1.4-4.5-.9-6.6-.5-2.1-2-4.1-4.1-5.3L20.2 45.7c-1.1-.6-2.4-.4-3.4.3-1.3.9-2.8 2.7-4.3 5.3-1.5 2.6-2.3 4.8-2.4 6.4-.1 1.3.4 2.5 1.4 3.1l34.1 19.7zM108.8 44c0 2.4-1 4.6-2.5 6.2-1.6 1.6-3.7 2.5-6.2 2.5-2.4 0-4.6-1-6.2-2.5-1.6-1.6-2.5-3.7-2.5-6.2V4.7c0-1.3.8-2.3 2-2.8 1.4-.7 3.7-1.1 6.7-1.1s5.3.4 6.7 1.1c1.1.6 2 1.5 2 2.8V44zm27.8 12.1c-1.2 2.1-3.1 3.5-5.3 4.1-2.2.6-4.5.3-6.6-.9-2.1-1.2-3.5-3.1-4.1-5.3-.6-2.2-.3-4.5.9-6.6l19.7-34.1c.6-1.1 1.9-1.5 3.1-1.4 1.6.1 3.8.9 6.4 2.4 2.6 1.5 4.4 3 5.3 4.3.7 1 .9 2.3.3 3.4l-19.7 34.1zm18 24.4c-2.1 1.2-4.5 1.4-6.6.9-2.2-.6-4.1-2-5.3-4.1-1.2-2.1-1.4-4.5-.9-6.6.6-2.2 2-4.1 4.1-5.3L180 45.7c1.1-.6 2.4-.4 3.4.3 1.3.9 2.8 2.7 4.3 5.3 1.5 2.6 2.3 4.8 2.4 6.4.1 1.3-.4 2.5-1.4 3.1l-34.1 19.7z"/>
+      <text x="210" y="115" font-family="Inter,Arial,sans-serif" font-size="120" font-weight="700" fill="white">SkyLine</text>
+    </svg>
+    <span class="topbar-badge">Panel Admina</span>
+  </div>
+  <div class="topbar-actions">
+    <span class="save-status" id="saveStatus">
+      <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15l-5-5 1.41-1.41L11 14.17l7.59-7.59L20 8l-9 9z"/></svg>
+      Zapisano
+    </span>
+    <button class="btn btn-ghost" onclick="window.open('index.html','_blank')">
+      <svg viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+      Podgląd live
+    </button>
+    <button class="btn btn-success" id="saveBtn">
+      <svg viewBox="0 0 24 24"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
+      Zapisz zmiany
+    </button>
+  </div>
+</div>
 
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-app.js";
-  import { getDatabase, ref, get, child, set } from "https://www.gstatic.com/firebasejs/12.6.0/firebase-database.js";
+<div class="layout">
 
-  const firebaseConfig = {
-    apiKey: "AIzaSyAchP5CdU3vI2SGlbE1EHG2RRiY6x22Er8",
-    authDomain: "test1-f789e.firebaseapp.com",
-    databaseURL: "https://test1-f789e-default-rtdb.firebaseio.com",
-    projectId: "test1-f789e",
-    storageBucket: "test1-f789e.firebasestorage.app",
-    messagingSenderId: "70327501208",
-    appId: "1:70327501208:web:2cdab4787128b79e232bed",
-    measurementId: "G-3390TKDWJB"
-  };
+  <!-- ===== LEWA — FORMULARZE ===== -->
+  <div class="left-col">
 
-  const app = initializeApp(firebaseConfig);
-  const db = getDatabase(app);
-
-  async function load() {
-    const snap = await get(ref(db, 'submissions'));
-    const data = snap.val() || {};
-    const list = document.getElementById("list");
-    list.innerHTML = "";
-
-    if (Object.keys(data).length === 0) {
-      list.textContent = "Brak wpisów.";
-      return;
-    }
-
-    Object.values(data).forEach(entry => {
-      const div = document.createElement("div");
-      div.className = "box";
-      div.innerHTML = `
-        <div>
-          <strong>${entry.name}</strong> (${new Date(entry.time).toLocaleString()}) — <i>${entry.status}</i>
+    <div class="section">
+      <div class="section-label">Nagłówek strony</div>
+      <div class="card-edit">
+        <h3><svg viewBox="0 0 24 24"><path d="M5 4v3h5.5v12h3V7H19V4z"/></svg>Tytuł i data odlotu</h3>
+        <div class="field">
+          <label>Tytuł trasy</label>
+          <input type="text" id="pageTitle" placeholder="Berlin – Warszawa">
         </div>
-        <div>
-          <button class="btn acc" onclick="updateStatus('${entry.id}','accepted')">✔</button>
-          <button class="btn rej" onclick="updateStatus('${entry.id}','rejected')">✖</button>
+        <div class="row2">
+          <div class="field">
+            <label>Dzień tygodnia</label>
+            <select id="pageWeekday">
+              <option>poniedziałek</option><option>wtorek</option><option>środa</option>
+              <option>czwartek</option><option>piątek</option><option selected>sobota</option><option>niedziela</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Data (np. 4 kwietnia)</label>
+            <input type="text" id="pageDate" placeholder="4 kwietnia">
+          </div>
         </div>
-      `;
-      list.appendChild(div);
-    });
+        <div class="field">
+          <label>Godzina odlotu</label>
+          <input type="text" id="pageDepartTime" placeholder="07:45">
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Karta „Podsumowanie trasy przelotu"</div>
+
+      <div class="card-edit">
+        <h3><svg viewBox="0 0 24 24"><path d="M12 3.42c.894 0 1.424 1.104 1.424 2.263V9.26c0 .356.178.624.445.802l6.685 3.654c.268.179.446.446.446.803v.575c0 .624-.624 1.07-1.159.803l-5.793-1.961a.486.486 0 0 0-.624.445v2.992c0 .357.178.539.445.717l1.694 1.07c.356.178.592.466.475.676-.026.048-.069.25-.315.304-.246.055-1.228-.176-2.665-.425l-.082-.012q-.367.875-.976.875-.61 0-.983-.878l-.075.011c-1.437.25-2.42.48-2.665.425s-.289-.256-.315-.304c-.117-.21.119-.498.475-.676l1.694-1.07c.267-.178.445-.535.445-.802v-2.992c0-.356-.356-.535-.624-.445l-5.793 1.96C3.624 16.075 3 15.63 3 15.005v-.575c0-.268.178-.624.446-.714l6.685-3.654c.267-.178.445-.446.445-.802V5.594c0-1.337.53-2.174 1.424-2.174"/></svg>Lot i godziny</h3>
+        <div class="field">
+          <label>Nagłówek trasy w karcie</label>
+          <input type="text" id="cardRouteTitle" placeholder="Berlin → Warszawa">
+        </div>
+        <div class="row3">
+          <div class="field"><label>Godz. odlotu</label><input type="text" id="depTime" placeholder="07:45"></div>
+          <div class="field"><label>Czas lotu</label><input type="text" id="duration" placeholder="1h 10m"></div>
+          <div class="field"><label>Godz. przylotu</label><input type="text" id="arrTime" placeholder="08:55"></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label>Data odlotu</label><input type="text" id="depDate" placeholder="sob. 4 kwi"></div>
+          <div class="field"><label>Data przylotu</label><input type="text" id="arrDate" placeholder="sob. 4 kwi"></div>
+        </div>
+      </div>
+
+      <div class="card-edit">
+        <h3><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>Port odlotu</h3>
+        <div class="row2">
+          <div class="field"><label>Kod IATA</label><input type="text" id="depCode" placeholder="BER" maxlength="3" style="text-transform:uppercase"></div>
+          <div class="field"><label>Miasto</label><input type="text" id="depCity" placeholder="Berlin"></div>
+        </div>
+        <div class="field"><label>Pełna nazwa lotniska</label><input type="text" id="depAirport" placeholder="Port lotniczy Berlin-Brandenburg"></div>
+      </div>
+
+      <div class="card-edit">
+        <h3><svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>Port przylotu</h3>
+        <div class="row2">
+          <div class="field"><label>Kod IATA</label><input type="text" id="arrCode" placeholder="WAW" maxlength="3" style="text-transform:uppercase"></div>
+          <div class="field"><label>Miasto</label><input type="text" id="arrCity" placeholder="Warszawa"></div>
+        </div>
+        <div class="field"><label>Pełna nazwa lotniska</label><input type="text" id="arrAirport" placeholder="Lotnisko Chopina w Warszawie"></div>
+      </div>
+
+      <div class="card-edit">
+        <h3><svg viewBox="0 0 24 24"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>Linia lotnicza</h3>
+        <div class="row2">
+          <div class="field"><label>Nazwa przewoźnika</label><input type="text" id="airline" placeholder="LOT Polish Airlines"></div>
+          <div class="field"><label>Numer lotu</label><input type="text" id="flightNum" placeholder="LO 392"></div>
+        </div>
+        <div class="field"><label>Kod IATA linii (do logo)</label><input type="text" id="airlineCode" placeholder="LO" maxlength="2" style="text-transform:uppercase"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Cena biletu</div>
+      <div class="price-card">
+        <h3><svg viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>Cena biletu</h3>
+        <div class="price-input-wrap">
+          <input type="text" id="ticketPrice" placeholder="450,00">
+          <span class="currency">zł</span>
+        </div>
+        <div class="price-hint">Wpisz kwotę z przecinkiem, np. 450,00</div>
+      </div>
+    </div>
+
+  </div><!-- /left-col -->
+
+  <!-- ===== PRAWA — PODGLĄD ===== -->
+  <div class="preview-panel">
+    <div class="preview-label">Podgląd na żywo</div>
+    <div class="preview-shell">
+      <div class="preview-topbar">
+        <div class="preview-dot"></div><div class="preview-dot"></div><div class="preview-dot"></div>
+        <div class="preview-url">skyline.pl/checkout</div>
+      </div>
+      <div class="preview-body">
+
+        <div class="container-inner">
+          <div id="prev-title">Berlin – Warszawa</div>
+          <div id="prev-sub">Odlot: sobota, 4 kwietnia, 07:45</div>
+        </div>
+
+        <div class="flight-summary-card">
+          <div class="card-header">
+            <div class="card-title">Podsumowanie trasy przelotu</div>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="#aaa" style="flex-shrink:0"><path d="m15.744 16.369-6.77-3.604q.004-.053.011-.105Q9 12.581 9 12.5c0-.148-.02-.291-.041-.434l-.009-.057 6.938-4.203A3.48 3.48 0 0 0 18.5 9C20.43 9 22 7.43 22 5.5S20.43 2 18.5 2 15 3.57 15 5.5c0 .148.02.291.041.434l.009.057-6.938 4.203A3.48 3.48 0 0 0 5.5 9C3.57 9 2 10.57 2 12.5S3.57 16 5.5 16a3.48 3.48 0 0 0 2.756-1.369l6.77 3.604q-.004.053-.011.105-.013.079-.015.16c0 1.93 1.57 3.5 3.5 3.5s3.5-1.57 3.5-3.5-1.57-3.5-3.5-3.5a3.48 3.48 0 0 0-2.756 1.369m4.338-10.881a1.594 1.594 0 1 1-3.188 0 1.594 1.594 0 0 1 3.188 0M7.097 12.512a1.594 1.594 0 1 1-3.188 0 1.594 1.594 0 0 1 3.188 0m11.39 7.57a1.594 1.594 0 1 1 0-3.188 1.594 1.594 0 0 1 0 3.188"/></svg>
+          </div>
+          <div class="divider"></div>
+          <div class="clickable-area" id="prevClickable">
+            <div class="header" id="prev-route">Berlin → Warszawa</div>
+            <div class="flight">
+              <div class="times" id="prev-times-col">
+                <div>
+                  <div class="time" id="prev-depTime">07:45</div>
+                  <div class="date" id="prev-depDate">sob. 4 kwi</div>
+                </div>
+                <div style="color:#666;font-size:14px;" id="prev-dur">1h 10m</div>
+                <div>
+                  <div class="time" id="prev-arrTime">08:55</div>
+                  <div class="date" id="prev-arrDate">sob. 4 kwi</div>
+                </div>
+              </div>
+              <div class="line-col" id="prev-line-col">
+                <div class="dot"></div>
+                <div class="line"></div>
+                <svg class="plane" viewBox="0 0 24 24"><path d="M12 3.42c.894 0 1.424 1.104 1.424 2.263V9.26c0 .356.178.624.445.802l6.685 3.654c.268.179.446.446.446.803v.575c0 .624-.624 1.07-1.159.803l-5.793-1.961a.486.486 0 0 0-.624.445v2.992c0 .357.178.539.445.717l1.694 1.07c.356.178.592.466.475.676-.026.048-.069.25-.315.304-.246.055-1.228-.176-2.665-.425l-.082-.012q-.367.875-.976.875-.61 0-.983-.878l-.075.011c-1.437.25-2.42.48-2.665.425s-.289-.256-.315-.304c-.117-.21.119-.498.475-.676l1.694-1.07c.267-.178.445-.535.445-.802v-2.992c0-.356-.356-.535-.624-.445l-5.793 1.96C3.624 16.075 3 15.63 3 15.005v-.575c0-.268.178-.624.446-.714l6.685-3.654c.267-.178.445-.446.445-.802V5.594c0-1.337.53-2.174 1.424-2.174"/></svg>
+                <div class="line"></div>
+                <div class="dot"></div>
+              </div>
+              <div class="main">
+                <div class="block">
+                  <div class="code" id="prev-depCode">Berlin · BER</div>
+                  <div class="sub" id="prev-depAirport">Port lotniczy Berlin-Brandenburg</div>
+                </div>
+                <div class="airline">
+                  <img id="prev-airlineLogo" src="https://images.kiwi.com/airlines/32x32/LO.png" alt="logo">
+                  <span id="prev-airline">LOT Polish Airlines</span>
+                </div>
+                <div class="block">
+                  <div class="code" id="prev-arrCode">Warszawa · WAW</div>
+                  <div class="sub" id="prev-arrAirport">Lotnisko Chopina w Warszawie</div>
+                  <div class="details" id="prev-details">
+                    <div class="detail-row">
+                      <svg viewBox="0 0 24 24"><path d="M12 3.42c.894 0 1.424 1.104 1.424 2.263V9.26c0 .356.178.624.445.802l6.685 3.654c.268.179.446.446.446.803v.575c0 .624-.624 1.07-1.159.803l-5.793-1.961a.486.486 0 0 0-.624.445v2.992c0 .357.178.539.445.717l1.694 1.07c.356.178.592.466.475.676-.026.048-.069.25-.315.304-.246.055-1.228-.176-2.665-.425l-.082-.012q-.367.875-.976.875-.61 0-.983-.878l-.075.011c-1.437.25-2.42.48-2.665.425s-.289-.256-.315-.304c-.117-.21.119-.498.475-.676l1.694-1.07c.267-.178.445-.535.445-.802v-2.992c0-.356-.356-.535-.624-.445l-5.793 1.96C3.624 16.075 3 15.63 3 15.005v-.575c0-.268.178-.624.446-.714l6.685-3.654c.267-.178.445-.446.445-.802V5.594c0-1.337.53-2.174 1.424-2.174"/></svg>
+                      <span class="label">Przewoźnik:</span>
+                      <span class="value" id="prev-detail-airline">LOT Polish Airlines</span>
+                    </div>
+                    <div class="detail-row">
+                      <svg viewBox="0 0 24 24"><path d="M13.6 7.3c0 .693-.52 1.3-1.3 1.3S11 7.993 11 7.3 11.607 6 12.3 6s1.3.607 1.3 1.3M10.833 17c-.5 0-.833-.315-.833-.787 0-.471.333-.786.833-.786h.667c.083 0 .166-.079.166-.157v-3.54c0-.078-.083-.157-.166-.157h-.667c-.5 0-.833-.315-.833-.787 0-.471.333-.786.833-.786h.833c.917 0 1.667.708 1.667 1.573v3.775c0 .079.083.158.167.158h.666c.5 0 .834.314.834.786s-.334.708-.834.708zM12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2"/></svg>
+                      <span class="label">Numer połączenia:</span>
+                      <span class="value" id="prev-detail-flight">LO 392</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <button class="toggle" id="prevToggle">
+                <svg viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet"><path d="M7.165 8.153a1.07 1.07 0 0 0-1.507-.078A1.063 1.063 0 0 0 5.58 9.58l5.672 6.27a1.07 1.07 0 0 0 1.587-.002l5.583-6.217a1.06 1.06 0 0 0-.083-1.503 1.07 1.07 0 0 0-1.507.083l-4.37 4.865a.57.57 0 0 1-.843.002z"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="prev-footer">
+          <div>
+            <div class="prev-price-label">Cena biletu</div>
+            <div class="prev-price" id="prev-price">450,00 zł</div>
+          </div>
+          <div class="prev-next-btn">DALEJ
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none"><path d="M10 7L15 12L10 17" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+
+      </div><!-- /preview-body -->
+    </div><!-- /preview-shell -->
+  </div><!-- /preview-panel -->
+
+</div><!-- /layout -->
+
+<div class="save-toast" id="toast">
+  <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+  Zmiany zapisane!
+</div>
+
+<script>
+const STORAGE_KEY = 'skylineFlightData';
+const defaults = {
+  pageTitle:'Berlin – Warszawa', pageWeekday:'sobota', pageDate:'4 kwietnia', pageDepartTime:'07:45',
+  cardRouteTitle:'Berlin → Warszawa',
+  depTime:'07:45', duration:'1h 10m', arrTime:'08:55',
+  depDate:'sob. 4 kwi', arrDate:'sob. 4 kwi',
+  depCode:'BER', depCity:'Berlin', depAirport:'Port lotniczy Berlin-Brandenburg',
+  arrCode:'WAW', arrCity:'Warszawa', arrAirport:'Lotnisko Chopina w Warszawie',
+  airline:'LOT Polish Airlines', flightNum:'LO 392', airlineCode:'LO',
+  ticketPrice:'450,00'
+};
+
+function loadData(){
+  try{ return Object.assign({},defaults,JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}')); }
+  catch(e){ return {...defaults}; }
+}
+
+function saveData(){
+  const d={};
+  Object.keys(defaults).forEach(k=>{
+    const el=document.getElementById(k);
+    if(el) d[k]=el.value;
+  });
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(d));
+  showToast();
+}
+
+function fillForm(d){
+  Object.keys(defaults).forEach(k=>{
+    const el=document.getElementById(k);
+    if(!el) return;
+    if(el.tagName==='SELECT'){
+      [...el.options].forEach(o=>{ o.selected=(o.value===d[k]); });
+    } else { el.value=d[k]||''; }
+  });
+}
+
+function syncTimesHeight(){
+  const main    = document.querySelector('.preview-body .main');
+  const times   = document.getElementById('prev-times-col');
+  const lineCol = document.getElementById('prev-line-col');
+  const details = document.getElementById('prev-details');
+  const airline = document.querySelector('.preview-body .airline');
+  if(!main || !times) return;
+
+  // Ukryj szczegóły żeby zmierzyć wysokość bez nich
+  const detailsVisible = details && details.classList.contains('open');
+  if(detailsVisible) details.style.display = 'none';
+
+  times.style.height = '';
+  const h = main.offsetHeight;
+
+  if(detailsVisible) details.style.display = '';
+
+  times.style.height = h + 'px';
+
+  if(lineCol && airline){
+    // Zmierz środek wiersza airline względem .main — tam jest samolot
+    const mainTop  = main.getBoundingClientRect().top;
+    const airTop   = airline.getBoundingClientRect().top;
+    const airH     = airline.getBoundingClientRect().height;
+    const airMid   = airTop + airH / 2 - mainTop; // środek airline od góry .main
+
+    const dot = 8, plane = 18;
+    // linia górna: od dołu górnej kropki do góry samolota
+    const lineTop = Math.max(8, Math.round(airMid - plane / 2 - dot));
+    // linia dolna: od dołu samolota do górnej dolnej kropki
+    const lineBot = Math.max(8, Math.round(h - airMid - plane / 2 - dot));
+
+    const lines = lineCol.querySelectorAll('.line');
+    if(lines[0]) lines[0].style.height = lineTop + 'px';
+    if(lines[1]) lines[1].style.height = lineBot + 'px';
   }
+}
 
-  async function updateStatus(id, status){
-    await set(ref(db, 'submissions/' + id + '/status'), status);
-    load();
-  }
+function updatePreview(){
+  const g=id=>(document.getElementById(id)?.value||'');
+  const set=(id,val)=>{ const el=document.getElementById(id); if(el) el.textContent=val; };
 
-  setInterval(load, 2000);
-  load();
+  set('prev-title', g('pageTitle'));
+  set('prev-sub', `Odlot: ${g('pageWeekday')}, ${g('pageDate')}, ${g('pageDepartTime')}`);
+  set('prev-route', g('cardRouteTitle'));
+  set('prev-depTime', g('depTime'));
+  set('prev-depDate', g('depDate'));
+  set('prev-dur', g('duration'));
+  set('prev-arrTime', g('arrTime'));
+  set('prev-arrDate', g('arrDate'));
+  set('prev-depCode', `${g('depCity')} · ${g('depCode').toUpperCase()}`);
+  set('prev-depAirport', g('depAirport'));
+  set('prev-airline', g('airline'));
+  set('prev-arrCode', `${g('arrCity')} · ${g('arrCode').toUpperCase()}`);
+  set('prev-arrAirport', g('arrAirport'));
+  set('prev-detail-airline', g('airline'));
+  set('prev-detail-flight', g('flightNum'));
+  set('prev-price', `${g('ticketPrice')} zł`);
 
-  window.updateStatus = updateStatus; // potrzebne dla onclick
+  const code=g('airlineCode').toUpperCase();
+  const logo=document.getElementById('prev-airlineLogo');
+  if(logo&&code) logo.src=`https://images.kiwi.com/airlines/32x32/${code}.png`;
+
+  ['depCode','arrCode','airlineCode'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.value=el.value.toUpperCase();
+  });
+
+  requestAnimationFrame(syncTimesHeight);
+}
+
+function showToast(){
+  document.getElementById('toast').classList.add('show');
+  setTimeout(()=>document.getElementById('toast').classList.remove('show'),2500);
+  const s=document.getElementById('saveStatus');
+  s.classList.add('saved');
+  setTimeout(()=>s.classList.remove('saved'),3000);
+}
+
+// ===== TOGGLE ROZWINIĘCIA =====
+const prevClickable=document.getElementById('prevClickable');
+const prevToggle=document.getElementById('prevToggle');
+const prevDetails=document.getElementById('prev-details');
+
+function doToggle(e){
+  e.stopPropagation();
+  prevDetails.classList.toggle('open');
+  prevToggle.classList.toggle('open');
+  // dwa rAF: pierwszy czeka na paint, drugi na layout po paint
+  requestAnimationFrame(()=>requestAnimationFrame(syncTimesHeight));
+}
+prevClickable.addEventListener('click', doToggle);
+
+// MutationObserver — obserwuje .main w podglądzie
+const observer = new MutationObserver(()=>{
+  requestAnimationFrame(()=>{ syncTimesHeight(); setTimeout(syncTimesHeight, 50); });
+});
+const prevMain = document.querySelector('.preview-body .main');
+if(prevMain) observer.observe(prevMain, {subtree:true, childList:true, attributes:true, attributeFilter:['class']});
+
+// Init
+const data=loadData();
+fillForm(data);
+updatePreview();
+
+document.querySelectorAll('input,select').forEach(el=>{
+  el.addEventListener('input', updatePreview);
+  el.addEventListener('change', updatePreview);
+});
+
+document.getElementById('saveBtn').addEventListener('click', saveData);
+document.addEventListener('keydown', e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key==='s'){ e.preventDefault(); saveData(); }
+});
+
+document.fonts.ready.then(syncTimesHeight);
+window.addEventListener('resize', syncTimesHeight);
+// wywołaj też po rozwinięciu — DOM musi się wyrenderować
+document.addEventListener('click', () => requestAnimationFrame(syncTimesHeight));
 </script>
-
 </body>
 </html>
