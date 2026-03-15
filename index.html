@@ -332,7 +332,7 @@ function applyFlightData() {
 applyFlightData();
 
 function getPassengers() {
-  try { return JSON.parse(sessionStorage.getItem('passengers') || '[]'); } catch(e) { return []; }
+  try { return JSON.parse(localStorage.getItem('passengers') || '[]'); } catch(e) { return []; }
 }
 function renderPaxGrid() {
   const passengers = getPassengers();
