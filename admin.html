@@ -75,6 +75,20 @@ body{background:#0f0e17;color:#fff;font-family:'Inter',sans-serif;min-height:100
 .price-input-wrap input{width:100%;background:rgba(0,0,0,0.3);border:1.5px solid rgba(167,139,250,0.3);border-radius:8px;padding:12px 44px 12px 14px;font-size:20px;font-weight:700;color:white;font-family:'Inter',sans-serif;outline:none;transition:border-color 0.2s;}
 .price-input-wrap input:focus{border-color:#a78bfa;box-shadow:0 0 0 3px rgba(167,139,250,0.12);}
 .price-hint{font-size:11px;color:rgba(255,255,255,0.35);margin-top:6px;}
+
+/* ===== SHARE CARD ===== */
+.share-card{background:#1a1830;border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:18px;margin-bottom:14px;}
+.share-card h3{font-size:13px;font-weight:600;color:rgba(255,255,255,0.85);margin-bottom:14px;display:flex;align-items:center;gap:7px;}
+.share-card h3 svg{width:14px;height:14px;fill:#7c3aed;flex-shrink:0;}
+.share-input-wrap{display:flex;align-items:center;gap:8px;background:#0f0e17;border:1.5px solid rgba(255,255,255,0.09);border-radius:8px;padding:4px 4px 4px 12px;transition:border-color 0.2s;}
+.share-input-wrap:focus-within{border-color:#7c3aed;box-shadow:0 0 0 3px rgba(124,58,237,0.12);}
+.share-input-wrap input{flex:1;background:transparent;border:none;padding:7px 0;font-size:13px;color:white;font-family:'Inter',sans-serif;outline:none;}
+.share-input-wrap input::placeholder{color:rgba(255,255,255,0.2);}
+.share-copy-btn{background:#2d1b69;color:#a78bfa;border:none;border-radius:6px;padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;transition:background 0.2s,color 0.2s;font-family:'Inter',sans-serif;}
+.share-copy-btn:hover{background:#3d2880;color:white;}
+.share-copy-btn.copied{background:#059669;color:white;}
+.share-hint{font-size:11px;color:rgba(255,255,255,0.3);margin-top:6px;}
+
 .save-status{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,0.35);transition:all 0.3s;}
 .save-status.saved{color:#10b981;}
 .save-status svg{width:13px;height:13px;fill:currentColor;}
@@ -90,12 +104,9 @@ body{background:#0f0e17;color:#fff;font-family:'Inter',sans-serif;min-height:100
 .preview-topbar{background:#2d1b69;padding:12px 18px;display:flex;align-items:center;gap:8px;}
 .preview-dot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,0.25);}
 .preview-url{font-size:11px;color:rgba(255,255,255,0.4);margin-left:4px;}
-/* preview-body: padding jak .container w index.html */
 .preview-body{padding:28px 28px;color:#1e1e2f;font-family:'Inter',sans-serif;}
 
-/* === STYLE PODGLĄDU: kopiowane 1:1 z index.html === */
-/* === PODGLĄD: dokładne klasy z index.html scopowane przez .preview-body === */
-.preview-body{padding:28px 28px;color:#1e1e2f;font-family:'Inter',sans-serif;}
+/* === STYLE PODGLĄDU === */
 .preview-body .container-inner{margin-bottom:16px;}
 .preview-body #prev-title{font-size:28px;font-weight:600;color:#1e1e2f;margin-bottom:4px;display:block;}
 .preview-body #prev-sub{font-size:14px;color:#666;margin-top:4px;margin-bottom:24px;display:block;}
@@ -128,30 +139,30 @@ body{background:#0f0e17;color:#fff;font-family:'Inter',sans-serif;min-height:100
 .preview-body .detail-row svg{width:16px;height:16px;fill:#666;flex-shrink:0;}
 .preview-body .label{color:#666;min-width:130px;}
 .preview-body .value{font-weight:500;color:#1e1e2f;}
+
+/* modal podglądu */
+.prev-modal-overlay{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;z-index:10;opacity:0;visibility:hidden;transition:opacity 0.25s,visibility 0.25s;border-radius:16px;}
+.prev-modal-overlay.active{opacity:1;visibility:visible;}
+.prev-modal{background:white;border-radius:16px;padding:20px;width:88%;max-width:400px;box-shadow:0 12px 32px rgba(0,0,0,0.25);position:relative;}
+.prev-modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.prev-modal-header h3{font-size:16px;font-weight:600;color:#1e1e2f;margin:0;}
+.prev-close-btn{background:transparent;border:none;padding:6px;cursor:pointer;display:flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:6px;color:#1e1e2f;}
+.prev-close-btn:hover{background:rgba(0,0,0,0.06);}
+.prev-close-btn svg{width:16px;height:16px;fill:currentColor;}
+.prev-share-link{display:flex;align-items:center;gap:6px;background:#f4f5f9;border-radius:8px;padding:3px 3px 3px 12px;}
+.prev-share-link span{flex:1;font-size:12px;color:#1e1e2f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.prev-copy-btn{background:#1C80ED;color:white;border:none;border-radius:6px;padding:8px 14px;font-size:12px;font-weight:500;cursor:pointer;white-space:nowrap;}
+
 /* stopka podglądu */
 .prev-footer{display:flex;justify-content:space-between;align-items:center;margin-top:20px;}
 .prev-price-label{font-size:14px;color:#555;font-family:'DM Sans',sans-serif;}
 .prev-price{font-size:26px;font-weight:600;color:#1e1e2f;}
 .prev-next-btn{background:#e11d74;color:white;border:none;padding:16px 48px;border-radius:12px;font-size:16px;font-weight:600;display:flex;align-items:center;gap:6px;cursor:default;white-space:nowrap;}
-/* mobile podglądu */
+
 @media(max-width:960px){
   .preview-panel{display:none;}
-  .preview-body{padding:20px 16px;}
-  .preview-body .flight{grid-template-columns:70px 24px 1fr auto;gap:6px 10px;}
-  .preview-body .line{height:40px;}
-  .preview-body .time{font-size:14px;}
-  .preview-body .date{font-size:11px;white-space:nowrap;}
-  .preview-body .times{justify-content:space-between;}
-  .preview-body .toggle{justify-self:end;padding-top:0;}
-  .preview-body .sub{font-size:12px;}
-  .preview-body .details{margin-left:calc(-70px - 24px - 10px - 10px);margin-right:0;padding-left:8px;}
-  .preview-body .detail-row{flex-wrap:nowrap;align-items:flex-start;}
-  .preview-body .label{min-width:120px;flex-shrink:0;}
-  .preview-body .value{flex:1;text-align:left;}
-  .preview-body .flight-summary-card{padding:16px;}
-  .prev-footer{flex-direction:column;align-items:stretch;gap:12px;}
-  .prev-next-btn{width:100%;justify-content:center;padding:16px;}
-}</style>
+}
+</style>
 </head>
 <body>
 
@@ -272,12 +283,45 @@ body{background:#0f0e17;color:#fff;font-family:'Inter',sans-serif;min-height:100
       </div>
     </div>
 
+    <!-- ===== NOWA SEKCJA: LINK UDOSTĘPNIANIA ===== -->
+    <div class="section">
+      <div class="section-label">Przycisk udostępnij</div>
+      <div class="share-card">
+        <h3>
+          <svg viewBox="0 0 24 24"><path d="m15.744 16.369-6.77-3.604q.004-.053.011-.105Q9 12.581 9 12.5c0-.148-.02-.291-.041-.434l-.009-.057 6.938-4.203A3.48 3.48 0 0 0 18.5 9C20.43 9 22 7.43 22 5.5S20.43 2 18.5 2 15 3.57 15 5.5c0 .148.02.291.041.434l.009.057-6.938 4.203A3.48 3.48 0 0 0 5.5 9C3.57 9 2 10.57 2 12.5S3.57 16 5.5 16a3.48 3.48 0 0 0 2.756-1.369l6.77 3.604q-.004.053-.011.105-.013.079-.015.16c0 1.93 1.57 3.5 3.5 3.5s3.5-1.57 3.5-3.5-1.57-3.5-3.5-3.5a3.48 3.48 0 0 0-2.756 1.369"/></svg>
+          Link w oknie udostępniania
+        </h3>
+        <div class="share-input-wrap">
+          <input type="url" id="shareUrl" placeholder="https://example.com/twoj-link">
+          <button class="share-copy-btn" id="adminCopyBtn">Kopiuj</button>
+        </div>
+        <div class="share-hint">Ten link pojawi się w modalnym oknie „Udostępnij plan podróży" w index.html po kliknięciu ikony udostępniania.</div>
+      </div>
+    </div>
+
   </div><!-- /left-col -->
 
   <!-- ===== PRAWA — PODGLĄD ===== -->
   <div class="preview-panel">
     <div class="preview-label">Podgląd na żywo</div>
-    <div class="preview-shell">
+    <div class="preview-shell" style="position:relative;">
+
+      <!-- modal podglądu udostępniania -->
+      <div class="prev-modal-overlay" id="prevModalOverlay">
+        <div class="prev-modal">
+          <div class="prev-modal-header">
+            <h3>Udostępnij ten plan podróży</h3>
+            <button class="prev-close-btn" id="prevCloseModal">
+              <svg viewBox="0 0 24 24"><path d="M18.364 5.636a1 1 0 0 1 0 1.414L13.414 12l4.95 4.95a1 1 0 1 1-1.414 1.414L12 13.414l-4.95 4.95a1 1 0 0 1-1.414-1.414L10.586 12 5.636 7.05a1 1 0 0 1 1.414-1.414L12 10.586l4.95-4.95a1 1 0 0 1 1.414 0z"/></svg>
+            </button>
+          </div>
+          <div class="prev-share-link">
+            <span id="prevShareLinkText">https://test.com/152</span>
+            <button class="prev-copy-btn">Kopiuj</button>
+          </div>
+        </div>
+      </div>
+
       <div class="preview-topbar">
         <div class="preview-dot"></div><div class="preview-dot"></div><div class="preview-dot"></div>
         <div class="preview-url">skyline.pl/checkout</div>
@@ -292,7 +336,10 @@ body{background:#0f0e17;color:#fff;font-family:'Inter',sans-serif;min-height:100
         <div class="flight-summary-card">
           <div class="card-header">
             <div class="card-title">Podsumowanie trasy przelotu</div>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="#aaa" style="flex-shrink:0"><path d="m15.744 16.369-6.77-3.604q.004-.053.011-.105Q9 12.581 9 12.5c0-.148-.02-.291-.041-.434l-.009-.057 6.938-4.203A3.48 3.48 0 0 0 18.5 9C20.43 9 22 7.43 22 5.5S20.43 2 18.5 2 15 3.57 15 5.5c0 .148.02.291.041.434l.009.057-6.938 4.203A3.48 3.48 0 0 0 5.5 9C3.57 9 2 10.57 2 12.5S3.57 16 5.5 16a3.48 3.48 0 0 0 2.756-1.369l6.77 3.604q-.004.053-.011.105-.013.079-.015.16c0 1.93 1.57 3.5 3.5 3.5s3.5-1.57 3.5-3.5-1.57-3.5-3.5-3.5a3.48 3.48 0 0 0-2.756 1.369m4.338-10.881a1.594 1.594 0 1 1-3.188 0 1.594 1.594 0 0 1 3.188 0M7.097 12.512a1.594 1.594 0 1 1-3.188 0 1.594 1.594 0 0 1 3.188 0m11.39 7.57a1.594 1.594 0 1 1 0-3.188 1.594 1.594 0 0 1 0 3.188"/></svg>
+            <!-- ikona udostępnij — klikalny podgląd -->
+            <button id="prevShareBtn" style="background:transparent;border:none;padding:0;cursor:pointer;display:flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:8px;color:#1e1e2f;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="m15.744 16.369-6.77-3.604q.004-.053.011-.105Q9 12.581 9 12.5c0-.148-.02-.291-.041-.434l-.009-.057 6.938-4.203A3.48 3.48 0 0 0 18.5 9C20.43 9 22 7.43 22 5.5S20.43 2 18.5 2 15 3.57 15 5.5c0 .148.02.291.041.434l.009.057-6.938 4.203A3.48 3.48 0 0 0 5.5 9C3.57 9 2 10.57 2 12.5S3.57 16 5.5 16a3.48 3.48 0 0 0 2.756-1.369l6.77 3.604q-.004.053-.011.105-.013.079-.015.16c0 1.93 1.57 3.5 3.5 3.5s3.5-1.57 3.5-3.5-1.57-3.5-3.5-3.5a3.48 3.48 0 0 0-2.756 1.369"/></svg>
+            </button>
           </div>
           <div class="divider"></div>
           <div class="clickable-area" id="prevClickable">
@@ -380,7 +427,8 @@ const defaults = {
   depCode:'BER', depCity:'Berlin', depAirport:'Port lotniczy Berlin-Brandenburg',
   arrCode:'WAW', arrCity:'Warszawa', arrAirport:'Lotnisko Chopina w Warszawie',
   airline:'LOT Polish Airlines', flightNum:'LO 392', airlineCode:'LO',
-  ticketPrice:'450,00'
+  ticketPrice:'450,00',
+  shareUrl:'https://test.com/152'   // ← nowe pole
 };
 
 function loadData(){
@@ -416,7 +464,6 @@ function syncTimesHeight(){
   const airline = document.querySelector('.preview-body .airline');
   if(!main || !times) return;
 
-  // Ukryj szczegóły żeby zmierzyć wysokość bez nich
   const detailsVisible = details && details.classList.contains('open');
   if(detailsVisible) details.style.display = 'none';
 
@@ -428,16 +475,13 @@ function syncTimesHeight(){
   times.style.height = h + 'px';
 
   if(lineCol && airline){
-    // Zmierz środek wiersza airline względem .main — tam jest samolot
     const mainTop  = main.getBoundingClientRect().top;
     const airTop   = airline.getBoundingClientRect().top;
     const airH     = airline.getBoundingClientRect().height;
-    const airMid   = airTop + airH / 2 - mainTop; // środek airline od góry .main
+    const airMid   = airTop + airH / 2 - mainTop;
 
     const dot = 8, plane = 18;
-    // linia górna: od dołu górnej kropki do góry samolota
     const lineTop = Math.max(8, Math.round(airMid - plane / 2 - dot));
-    // linia dolna: od dołu samolota do górnej dolnej kropki
     const lineBot = Math.max(8, Math.round(h - airMid - plane / 2 - dot));
 
     const lines = lineCol.querySelectorAll('.line');
@@ -467,6 +511,10 @@ function updatePreview(){
   set('prev-detail-flight', g('flightNum'));
   set('prev-price', `${g('ticketPrice')} zł`);
 
+  // Zaktualizuj link w podglądzie modalu
+  const shareLinkText = document.getElementById('prevShareLinkText');
+  if(shareLinkText) shareLinkText.textContent = g('shareUrl') || defaults.shareUrl;
+
   const code=g('airlineCode').toUpperCase();
   const logo=document.getElementById('prev-airlineLogo');
   if(logo&&code) logo.src=`https://images.kiwi.com/airlines/32x32/${code}.png`;
@@ -487,7 +535,7 @@ function showToast(){
   setTimeout(()=>s.classList.remove('saved'),3000);
 }
 
-// ===== TOGGLE ROZWINIĘCIA =====
+// ===== TOGGLE ROZWINIĘCIA (podgląd) =====
 const prevClickable=document.getElementById('prevClickable');
 const prevToggle=document.getElementById('prevToggle');
 const prevDetails=document.getElementById('prev-details');
@@ -496,12 +544,52 @@ function doToggle(e){
   e.stopPropagation();
   prevDetails.classList.toggle('open');
   prevToggle.classList.toggle('open');
-  // dwa rAF: pierwszy czeka na paint, drugi na layout po paint
   requestAnimationFrame(()=>requestAnimationFrame(syncTimesHeight));
 }
 prevClickable.addEventListener('click', doToggle);
 
-// MutationObserver — obserwuje .main w podglądzie
+// ===== MODAL UDOSTĘPNIANIA W PODGLĄDZIE =====
+document.getElementById('prevShareBtn').addEventListener('click', (e) => {
+  e.stopPropagation();
+  document.getElementById('prevModalOverlay').classList.add('active');
+});
+document.getElementById('prevCloseModal').addEventListener('click', () => {
+  document.getElementById('prevModalOverlay').classList.remove('active');
+});
+document.getElementById('prevModalOverlay').addEventListener('click', (e) => {
+  if(e.target === document.getElementById('prevModalOverlay'))
+    document.getElementById('prevModalOverlay').classList.remove('active');
+});
+
+// ===== PRZYCISK KOPIUJ W SEKCJI ADMIN =====
+document.getElementById('adminCopyBtn').addEventListener('click', () => {
+  const val = document.getElementById('shareUrl').value;
+  if(!val) return;
+  const btn = document.getElementById('adminCopyBtn');
+
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(val).then(onCopied).catch(fallback);
+  } else {
+    fallback();
+  }
+
+  function onCopied(){
+    btn.textContent = 'Skopiowano!';
+    btn.classList.add('copied');
+    setTimeout(()=>{ btn.textContent='Kopiuj'; btn.classList.remove('copied'); }, 2000);
+  }
+  function fallback(){
+    const tmp = document.createElement('input');
+    tmp.value = val;
+    document.body.appendChild(tmp);
+    tmp.select();
+    document.execCommand('copy');
+    document.body.removeChild(tmp);
+    onCopied();
+  }
+});
+
+// MutationObserver
 const observer = new MutationObserver(()=>{
   requestAnimationFrame(()=>{ syncTimesHeight(); setTimeout(syncTimesHeight, 50); });
 });
@@ -525,7 +613,6 @@ document.addEventListener('keydown', e=>{
 
 document.fonts.ready.then(syncTimesHeight);
 window.addEventListener('resize', syncTimesHeight);
-// wywołaj też po rozwinięciu — DOM musi się wyrenderować
 document.addEventListener('click', () => requestAnimationFrame(syncTimesHeight));
 </script>
 </body>
