@@ -70,7 +70,7 @@ input:focus::placeholder{color:transparent;}
           <text x="250" y="115" font-family="Inter, Arial, sans-serif" font-size="120" font-weight="600" fill="white">SkyLine</text>
         </svg>
       </div>
-      <button onclick="history.back()" class="base-button">
+      <button onclick="goBack()" class="base-button">
         <svg viewBox="0 0 1200 1200"><path d="m133.66 650.53 311.32 311.33c26.785 26.773 70.223 26.773 96.973 0 26.785-26.762 26.785-70.199 0-96.984l-194.25-194.25h659.04c37.871 0 68.578-30.707 68.578-68.578 0-37.871-30.707-68.578-68.578-68.578h-659.04l194.26-194.26c26.785-26.762 26.785-70.211 0-96.984-13.379-13.379-30.949-20.09-48.492-20.09-17.543 0-35.113 6.707-48.492 20.09l-311.32 311.32c-26.797 26.773-26.797 70.199 0 96.984z"/></svg>
         Twoje połączenie
       </button>
@@ -161,8 +161,18 @@ input:focus::placeholder{color:transparent;}
 const urlParams = new URLSearchParams(window.location.search);
 const editIndex = urlParams.has('edit') ? parseInt(urlParams.get('edit')) : -1;
 
+// ← localStorage zamiast sessionStorage
 function getPassengers() {
-  try { return JSON.parse(sessionStorage.getItem('passengers') || '[]'); } catch(e) { return []; }
+  try { return JSON.parse(localStorage.getItem('passengers') || '[]'); } catch(e) { return []; }
+}
+
+function goBack() {
+  // Jeśli jest historia — cofnij, w przeciwnym razie idź do index.html
+  if (document.referrer && document.referrer !== window.location.href) {
+    history.back();
+  } else {
+    window.location.href = 'index.html';
+  }
 }
 
 if (editIndex >= 0) {
@@ -171,10 +181,10 @@ if (editIndex >= 0) {
     const [first, ...rest] = p.name.split(' ');
     document.getElementById('firstName').value = first || '';
     document.getElementById('lastName').value = rest.join(' ') || '';
-    if (p.birthDay) document.getElementById('birthDay').value = p.birthDay;
+    if (p.birthDay)   document.getElementById('birthDay').value   = p.birthDay;
     if (p.birthMonth) document.getElementById('birthMonth').value = p.birthMonth;
-    if (p.birthYear) document.getElementById('birthYear').value = p.birthYear;
-    if (p.gender) document.getElementById('gender').value = p.gender;
+    if (p.birthYear)  document.getElementById('birthYear').value  = p.birthYear;
+    if (p.gender)     document.getElementById('gender').value     = p.gender;
   }
   document.getElementById('saveBtn').textContent = 'Zapisz zmiany';
   document.getElementById('deleteBtn').style.display = 'inline-flex';
@@ -187,8 +197,8 @@ function confirmDelete() {
   if (editIndex < 0) return;
   const passengers = getPassengers();
   passengers.splice(editIndex, 1);
-  sessionStorage.setItem('passengers', JSON.stringify(passengers));
-  history.back();
+  localStorage.setItem('passengers', JSON.stringify(passengers)); // ← localStorage
+  window.location.href = 'index.html';
 }
 
 document.querySelectorAll('input, select').forEach(el => {
@@ -197,7 +207,6 @@ document.querySelectorAll('input, select').forEach(el => {
     el.style.boxShadow = '';
     const field = el.closest('.field');
     if (field) field.querySelectorAll('.field-error').forEach(e => e.remove());
-    // dla daty: usuń też komunikat błędu poniżej flex-row
     const row = el.closest('div[style*="display:flex"]');
     if (row) {
       const next = row.nextElementSibling;
@@ -222,38 +231,38 @@ function markError(id, msg) {
 }
 
 function savePassenger() {
-  const firstName = document.getElementById('firstName').value.trim();
-  const lastName  = document.getElementById('lastName').value.trim();
-  const birthDay  = document.getElementById('birthDay').value.trim();
+  const firstName  = document.getElementById('firstName').value.trim();
+  const lastName   = document.getElementById('lastName').value.trim();
+  const birthDay   = document.getElementById('birthDay').value.trim();
   const birthMonth = document.getElementById('birthMonth').value;
-  const birthYear = document.getElementById('birthYear').value.trim();
-  const gender    = document.getElementById('gender').value;
+  const birthYear  = document.getElementById('birthYear').value.trim();
+  const gender     = document.getElementById('gender').value;
 
   document.querySelectorAll('input, select').forEach(el => { el.style.borderColor = ''; el.style.boxShadow = ''; });
   document.querySelectorAll('.field-error').forEach(el => el.remove());
 
   let hasError = false;
-  if (!firstName) { markError('firstName', 'To pole nie może być puste.'); hasError = true; }
-  if (!lastName)  { markError('lastName',  'To pole nie może być puste.'); hasError = true; }
+  if (!firstName) { markError('firstName', 'To pole nie mo\u017ce by\u0107 puste.'); hasError = true; }
+  if (!lastName)  { markError('lastName',  'To pole nie mo\u017ce by\u0107 puste.'); hasError = true; }
 
-  const dayOk  = birthDay && !isNaN(birthDay) && parseInt(birthDay) >= 1 && parseInt(birthDay) <= 31;
+  const dayOk  = birthDay  && !isNaN(birthDay)  && parseInt(birthDay)  >= 1  && parseInt(birthDay)  <= 31;
   const yearOk = birthYear && !isNaN(birthYear) && parseInt(birthYear) >= 1900;
   if (!dayOk || !birthMonth || !yearOk) {
-    if (!dayOk)   markError('birthDay', null);
+    if (!dayOk)      markError('birthDay',   null);
     if (!birthMonth) markError('birthMonth', null);
-    if (!yearOk)  markError('birthYear', null);
+    if (!yearOk)     markError('birthYear',  null);
     const row = document.getElementById('birthDay').closest('div[style*="display:flex"]');
     if (row && !row.nextElementSibling?.classList.contains('field-error')) {
       const div = Object.assign(document.createElement('div'), {
         className: 'field-error',
-        textContent: (!birthDay && !birthMonth && !birthYear) ? 'Uzupełnij datę.' : 'Data urodzenia jest nieprawidłowa.'
+        textContent: (!birthDay && !birthMonth && !birthYear) ? 'Uzupe\u0142nij dat\u0119.' : 'Data urodzenia jest nieprawi\u0142owa.'
       });
       div.style.cssText = 'color:#e11d74;font-size:12px;margin-top:5px;font-family:DM Sans,sans-serif;';
       row.insertAdjacentElement('afterend', div);
     }
     hasError = true;
   }
-  if (!gender) { markError('gender', 'Wybierz płeć.'); hasError = true; }
+  if (!gender) { markError('gender', 'Wybierz p\u0142e\u0107.'); hasError = true; }
   if (hasError) return;
 
   const birth = new Date(parseInt(birthYear), parseInt(birthMonth) - 1, parseInt(birthDay));
@@ -265,19 +274,26 @@ function savePassenger() {
     ['birthDay','birthMonth','birthYear'].forEach(id => markError(id, null));
     const row = document.getElementById('birthDay').closest('div[style*="display:flex"]');
     const div = Object.assign(document.createElement('div'), {
-      className: 'field-error', textContent: 'Pasażer musi mieć co najmniej 16 lat.'
+      className: 'field-error', textContent: 'Pasa\u017cer musi mie\u0107 co najmniej 16 lat.'
     });
     div.style.cssText = 'color:#e11d74;font-size:12px;margin-top:5px;font-family:DM Sans,sans-serif;';
     row.insertAdjacentElement('afterend', div);
     return;
   }
 
-  const passengerData = { name: `${firstName} ${lastName}`, ticket: 'Bilet ekonomiczny', price: '+450,00 zł', birthDay, birthMonth, birthYear, gender };
+  const passengerData = {
+    name: `${firstName} ${lastName}`,
+    ticket: 'Bilet ekonomiczny',
+    price: '+450,00 zł',
+    birthDay, birthMonth, birthYear, gender
+  };
+
   const passengers = getPassengers();
   if (editIndex >= 0) passengers[editIndex] = passengerData;
   else passengers.push(passengerData);
-  sessionStorage.setItem('passengers', JSON.stringify(passengers));
-  history.back();
+
+  localStorage.setItem('passengers', JSON.stringify(passengers)); // ← localStorage
+  window.location.href = 'index.html'; // jawne przekierowanie zamiast history.back()
 }
 </script>
 </body>
