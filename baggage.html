@@ -8,8 +8,6 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Inter',sans-serif;}
 body{background:#f4f5f9;color:#1e1e2f;}
-
-/* ===== TOP BAR ===== */
 .top-header{background:#2d1b69;padding:18px 0;color:white;width:100%;}
 @media(max-width:768px){.top-header{padding:0;}}
 .header-content{max-width:1270px;margin:0 auto;padding:0 30px;display:flex;align-items:center;justify-content:space-between;position:relative;}
@@ -18,7 +16,7 @@ body{background:#f4f5f9;color:#1e1e2f;}
 .logo svg{height:30px;width:auto;}
 .base-button{display:inline-flex;align-items:center;gap:10px;padding:10px 20px;border:1px solid rgba(255,255,255,0.35);border-radius:10px;background:transparent;color:white;font-size:14px;cursor:pointer;width:fit-content;text-decoration:none;white-space:nowrap;}
 .base-button:hover{background:rgba(255,255,255,0.12);}
-.base-button__icon{width:16px;height:16px;display:flex;align-items:center;flex-shrink:0;}
+<!-- .base-button__icon{width:16px;height:16px;display:flex;align-items:center;flex-shrink:0;} -->
 .base-button__icon svg{width:16px;height:16px;fill:white;}
 .steps{display:flex;align-items:center;gap:14px;font-size:13px;position:absolute;left:50%;transform:translateX(-50%);flex-wrap:nowrap;padding:5px 0;margin:0 20px;}
 .step{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,0.5);white-space:nowrap;flex-shrink:0;}
@@ -32,8 +30,6 @@ body{background:#f4f5f9;color:#1e1e2f;}
 ._nav-help a:hover::after{width:100%;}
 @media(max-width:1400px){.steps{gap:10px;font-size:12px;}.step{gap:5px;}.number{width:21px;height:21px;min-width:21px;font-size:11px;}.arrow-icon{width:13px;height:13px;min-width:13px;}.logo-section{margin-right:20px;}._nav-help{margin-left:16px;}}
 @media(max-width:1200px){.steps{gap:7px;font-size:11px;}.step{gap:4px;}.number{width:19px;height:19px;min-width:19px;font-size:10px;}.arrow-icon{width:11px;height:11px;min-width:11px;}.logo-section{margin-right:16px;}.base-button{padding:8px 14px;font-size:12px;}}
-
-/* ===== MOBILE HEADER ===== */
 .mobile-header{display:none;flex-direction:column;width:100%;}
 .mobile-header-top{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 8px;}
 .mobile-header-logo svg{height:32px;width:auto;display:block;}
@@ -42,79 +38,46 @@ body{background:#f4f5f9;color:#1e1e2f;}
 .mobile-back-btn svg{width:13px;height:13px;fill:white;flex-shrink:0;}
 .mobile-step-pill{display:inline-flex;align-items:center;border:1px solid rgba(255,255,255,0.35);border-radius:10px;color:white;padding:7px 12px;font-size:13px;margin-left:8px;white-space:nowrap;}
 @media(max-width:768px){.header-content{display:none;}.mobile-header{display:flex;}}
-
-/* ===== CONTAINER ===== */
 .container{max-width:1270px;margin:40px auto 140px;padding:0 30px;width:100%;}
 @media(max-width:768px){.container{margin:20px auto 140px;padding:0 16px;}}
-
 .section-heading{display:flex;align-items:center;gap:10px;margin-bottom:16px;}
 .section-heading h2{font-size:18px;font-weight:600;color:#1e1e2f;}
 .section-block{margin-bottom:36px;width:100%;}
-
-.desc-mobile{display:none;}
-.desc-desktop{display:inline;}
-.dim-desktop{display:inline;}
-@media(max-width:768px){.desc-mobile{display:inline;}.desc-desktop{display:none;}.dim-desktop{display:none;}}
-
-/* ===== INFO BUTTON & POPUP ===== */
 .info-btn{display:inline-flex;align-items:center;background:none;border:none;cursor:pointer;padding:0;margin-left:6px;vertical-align:middle;line-height:1;}
 .info-btn svg{width:18px;height:18px;display:block;}
 .bag-card-title{position:relative;}
-
-/* Desktop tooltip */
 .info-popup{display:none;position:absolute;top:calc(100% + 10px);left:0;background:#1e1e2f;border:none;border-radius:10px;padding:12px 14px;font-size:13px;color:#fff;line-height:1.5;font-weight:400;z-index:50;box-shadow:0 4px 20px rgba(0,0,0,0.25);width:260px;}
 .info-popup::before{content:'';position:absolute;top:-6px;left:16px;width:12px;height:12px;background:#1e1e2f;transform:rotate(45deg);border-radius:2px;}
 .info-popup strong{color:#fff;}
 .info-popup.visible{display:block;}
-
-/* Mobile modal overlay */
 .info-modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:300;align-items:flex-end;justify-content:center;padding:0 16px 16px;}
 .info-modal-overlay.active{display:flex;}
 .info-modal-box{background:#fff;border-radius:16px;padding:24px 24px 20px;width:100%;max-width:480px;font-size:15px;color:#1e1e2f;line-height:1.6;}
 .info-modal-text{margin-bottom:24px;color:#444;font-size:14px;line-height:1.6;}
 .info-modal-close{width:100%;padding:14px;border:none;border-radius:12px;background:#2d1b69;color:#fff;font-size:15px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;}
 .info-modal-close:hover{background:#3d2a85;}
-
-@media(max-width:768px){
-  .info-popup.visible{display:none !important;}
-}
-
+@media(max-width:768px){.info-popup.visible{display:none !important;}}
 .bag-cards{display:flex;flex-direction:column;gap:12px;margin-bottom:36px;}
-
 .bag-card{background:#fff;border-radius:14px;border:1.5px solid #e5e7eb;padding:20px 24px;}
-
 .bag-card-top{margin-bottom:16px;}
 .bag-card-title{font-size:16px;font-weight:700;color:#1e1e2f;margin-bottom:3px;}
 .bag-card-desc{font-size:13px;color:#666;line-height:1.4;}
-
 .bag-card-body{display:flex;gap:20px;align-items:flex-start;}
 .bag-card-img{flex-shrink:0;display:flex;align-items:center;justify-content:flex-start;}
 .bag-card-img svg{display:block;}
-
 .bag-options{flex:1;display:flex;flex-direction:column;gap:0;}
-
-/* Pojedyncza opcja */
 .bag-opt{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 0;cursor:pointer;border-bottom:none;}
 .bag-opt:first-child{padding-top:0;}
 .bag-opt-left{display:flex;align-items:center;gap:12px;flex:1;min-width:0;}
-
-/* Radio */
 .opt-radio{width:20px;height:20px;min-width:20px;border-radius:50%;border:2px solid #d1d5db;flex-shrink:0;position:relative;transition:border-color 0.15s;}
 .opt-radio.checked{border-color:#2563eb;}
 .opt-radio.checked::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:10px;height:10px;border-radius:50%;background:#2563eb;}
-
 .opt-label{font-size:13.5px;color:#1e1e2f;}
 .opt-price{font-size:13px;font-weight:700;color:#1e1e2f;white-space:nowrap;flex-shrink:0;}
-
-/* W cenie pill */
 .pill-free{display:inline-flex;align-items:center;padding:4px 12px;border-radius:20px;background:#e6f4ec;font-size:13px;font-weight:500;color:#1a5c35;}
-
-/* Promo tekst */
 .bag-promo{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:#2563eb;margin-top:12px;}
 .bag-promo svg{width:16px;height:16px;flex-shrink:0;}
-
-/* ===== UBEZPIECZENIE ===== */
-.insur-card{background:#fff;border:1.5px solid #e5e7eb;border-radius:14px;padding:20px 24px;cursor:pointer;transition:border-color 0.15s;display:flex;align-items:center;gap:16px;}
+.insur-card{background:#fff;border:2px solid #e5e7eb;border-radius:14px;padding:20px 24px;cursor:pointer;transition:border-color 0.15s;display:flex;align-items:center;gap:16px;}
 .insur-card.selected{border-color:#2563eb;}
 @media(hover:hover){.insur-card:not(.selected):hover{border-color:#93c5fd;}}
 .insur-icon{width:44px;height:44px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:#eff6ff;border-radius:10px;}
@@ -129,8 +92,6 @@ body{background:#f4f5f9;color:#1e1e2f;}
 .insur-details-link{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:#2563eb;background:none;border:none;cursor:pointer;padding:0;margin-top:6px;font-family:'Inter',sans-serif;}
 .insur-details-link:hover{text-decoration:underline;}
 .insur-details-link svg{width:13px;height:13px;stroke:currentColor;}
-
-/* ===== UBEZPIECZENIE PODRÓŻY ===== */
 .travel-insur-card{background:#fff;border-radius:14px;padding:24px;border:1.5px solid #e5e7eb;}
 .travel-insur-title{font-size:18px;font-weight:700;color:#1e1e2f;margin-bottom:6px;line-height:1.4;}
 .travel-insur-title span{color:#2563eb;}
@@ -155,8 +116,6 @@ body{background:#f4f5f9;color:#1e1e2f;}
 .ti-radio{width:20px;height:20px;border-radius:50%;border:2px solid #d1d5db;flex-shrink:0;position:relative;transition:border-color 0.15s;}
 .ti-choice.selected-no .ti-radio,.ti-choice.selected-yes .ti-radio{border-color:#2563eb;}
 .ti-choice.selected-no .ti-radio::after,.ti-choice.selected-yes .ti-radio::after{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:10px;height:10px;border-radius:50%;background:#2563eb;}
-
-/* ===== MODAL ===== */
 .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:200;opacity:0;visibility:hidden;transition:opacity 0.25s,visibility 0.25s;}
 .modal-overlay.active{opacity:1;visibility:visible;}
 .modal-box{background:#fff;border-radius:16px;padding:28px 28px 24px;width:90%;max-width:520px;max-height:85vh;overflow-y:auto;position:relative;box-shadow:0 20px 50px rgba(0,0,0,0.18);}
@@ -172,8 +131,6 @@ body{background:#f4f5f9;color:#1e1e2f;}
 .modal-list{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;}
 .modal-list li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:#444;line-height:1.5;}
 .modal-list li::before{content:'';width:16px;height:16px;min-width:16px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none'%3E%3Cpath d='M5 13l4 4L19 7' stroke='%232563eb' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;margin-top:1px;}
-
-/* ===== STOPKA ===== */
 .summary{position:fixed;bottom:0;left:0;width:100%;background:white;padding:20px 0;box-shadow:0 -3px 15px rgba(0,0,0,0.08);z-index:100;}
 .summary-content{max-width:1270px;margin:0 auto;padding:0 30px;display:flex;justify-content:space-between;align-items:center;}
 .summary-price-row{display:none;}
@@ -193,7 +150,6 @@ body{background:#f4f5f9;color:#1e1e2f;}
 </head>
 <body>
 
-<!-- TOP BAR -->
 <div class="top-header">
   <div class="header-content">
     <div class="logo-section">
@@ -242,38 +198,33 @@ body{background:#f4f5f9;color:#1e1e2f;}
   </div>
 </div>
 
-<!-- MAIN -->
 <div class="container">
 
   <div class="section-heading"><h2>Wyb&#243;r baga&#380;u</h2></div>
 
   <div class="bag-cards">
 
-    <!-- 1. BAGAŻ PODRĘCZNY -->
+    <!-- BAGAŻ PODRĘCZNY -->
     <div class="bag-card">
       <div class="bag-card-top">
         <div class="bag-card-title">
           Baga&#380; podr&#281;czny
           <button class="info-btn" onclick="toggleInfo(event,'infoPopup')" aria-label="Szczegóły">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="#2563eb" stroke-width="2.2"/><path d="M12 11v5" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="7.5" r="1.1" fill="#2563eb"/></svg>
+            <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#2563eb" stroke-width="2.2"/><path d="M12 11v5" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="7.5" r="1.1" fill="#2563eb"/></svg>
           </button>
           <div class="info-popup" id="infoPopup">
             <strong>Torba pod siedzenie:</strong> 12 × 35 × 40 cm, do 2 kg<br><br>
             <strong>Walizka kabinowa:</strong> 23 × 40 × 55 cm, do 8 kg
           </div>
         </div>
-        <div class="bag-card-desc">
-          Mała torba mieszcząca się pod siedzeniem z przodu oraz walizka kabinowa, którą należy umieścić w schowku na bagaż podręczny.
-        </div>
+        <div class="bag-card-desc">Mała torba mieszcząca się pod siedzeniem z przodu oraz walizka kabinowa, którą należy umieścić w schowku na bagaż podręczny.</div>
       </div>
       <div class="bag-card-body" style="align-items:flex-end;">
         <div class="bag-card-img" style="display:flex;align-items:center;gap:6px;width:auto;">
-          <!-- torba osobista -->
           <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 24 24" fill="none">
             <path fill-rule="evenodd" clip-rule="evenodd" d="M8.58178 4.79063C8.90584 3.20026 10.3153 2 12 2C13.6843 2 15.0941 3.20026 15.4182 4.79063H16.6529C18.0636 4.79063 19.211 5.93841 19.211 7.34872V9.20914C19.211 9.25183 19.2103 9.29438 19.2091 9.33678V14.0932H20.837C21.2222 14.0932 21.5347 14.4057 21.5347 14.7909V17.1164C21.5347 17.5933 21.5347 17.8322 21.4865 18.0784C21.283 19.0994 20.4936 19.8879 19.4753 20.0896C19.362 20.1127 19.2498 20.1251 19.1147 20.1318C18.8129 21.2084 17.8229 22 16.6511 22H7.34894C6.17713 22 5.18708 21.2084 4.88531 20.1318C4.74988 20.1251 4.63698 20.1127 4.52243 20.0896C3.50592 19.8879 2.71696 19.0994 2.51439 18.0802C2.46533 17.8331 2.46533 17.5933 2.46533 17.1164V14.7909C2.46533 14.4057 2.77782 14.0932 3.16299 14.0932H4.79086V7.34872C4.79086 5.93841 5.93864 4.79063 7.34894 4.79063H8.58178ZM7.34894 6.18595C6.7076 6.18595 6.18618 6.70738 6.18618 7.34872V9.20914C6.18618 10.8765 7.54243 12.2328 9.20936 12.2328H14.7925C16.4241 12.2328 17.758 10.9334 17.8138 9.3147V9.20914C17.8138 9.19209 17.8144 9.17518 17.8156 9.15843V7.34872C17.8156 6.70738 17.2942 6.18595 16.6529 6.18595H7.34894ZM12 3.39532C11.0904 3.39532 10.3145 3.9785 10.0266 4.79063H13.9734C13.6854 3.9785 12.9093 3.39532 12 3.39532ZM7.34894 20.6047C6.7076 20.6047 6.18618 20.0833 6.18618 19.4419V12.4291C6.81645 13.0213 7.62005 13.431 8.51171 13.5731V14.7909C8.51171 15.176 8.8242 15.4885 9.20936 15.4885C9.59453 15.4885 9.90702 15.176 9.90702 14.7909V13.6281H14.093V14.7909C14.093 15.176 14.4055 15.4885 14.7906 15.4885C15.1758 15.4885 15.4883 15.176 15.4883 14.7909V13.5734C16.3798 13.4317 17.1834 13.0225 17.8138 12.4308V19.4419C17.8138 20.0833 17.2924 20.6047 16.6511 20.6047H7.34894ZM20.1175 17.8077C20.0254 18.2686 19.6707 18.6261 19.2091 18.7201V15.4885H20.1393V17.1164C20.1393 17.4779 20.1393 17.696 20.1175 17.8077ZM3.88291 17.8077C3.86065 17.695 3.86065 17.477 3.86065 17.1164V15.4885H4.79086V18.7205C4.33066 18.627 3.97475 18.2692 3.88291 17.8077Z" fill="#2b6cb0"/>
           </svg>
           <span style="font-size:18px;color:#aaa;font-weight:400;">+</span>
-          <!-- walizka kabinowa -->
           <svg xmlns="http://www.w3.org/2000/svg" width="60" height="76" viewBox="0 0 24 24" fill="none">
             <path d="M10.1393 10.3721C10.5246 10.3721 10.837 10.6845 10.837 11.0698V17.1163C10.837 17.5016 10.5246 17.814 10.1393 17.814C9.75399 17.814 9.44163 17.5016 9.44163 17.1163V11.0698C9.44163 10.6845 9.75399 10.3721 10.1393 10.3721Z" fill="#2b6cb0"/>
             <path d="M14.5579 11.0698C14.5579 10.6845 14.2456 10.3721 13.8602 10.3721C13.4749 10.3721 13.1626 10.6845 13.1626 11.0698V17.1163C13.1626 17.5016 13.4749 17.814 13.8602 17.814C14.2456 17.814 14.5579 17.5016 14.5579 17.1163V11.0698Z" fill="#2b6cb0"/>
@@ -289,13 +240,13 @@ body{background:#f4f5f9;color:#1e1e2f;}
       </div>
     </div>
 
-    <!-- 3. BAGAŻ NADAWANY -->
+    <!-- BAGAŻ REJESTROWANY -->
     <div class="bag-card">
       <div class="bag-card-top">
         <div class="bag-card-title">
           Baga&#380; rejestrowany
           <button class="info-btn" onclick="toggleInfo(event,'infoPopup2')" aria-label="Szczegóły">
-            <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="10" stroke="#2563eb" stroke-width="2.2"/><path d="M12 11v5" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="7.5" r="1.1" fill="#2563eb"/></svg>
+            <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" stroke="#2563eb" stroke-width="2.2"/><path d="M12 11v5" stroke="#2563eb" stroke-width="2.2" stroke-linecap="round"/><circle cx="12" cy="7.5" r="1.1" fill="#2563eb"/></svg>
           </button>
           <div class="info-popup" id="infoPopup2">
             Obejmuje bagaże, które trzeba nadać podczas odprawy bagażowej przed przejściem przez kontrolę bezpieczeństwa na lotnisku.
@@ -305,7 +256,6 @@ body{background:#f4f5f9;color:#1e1e2f;}
       </div>
       <div class="bag-card-body">
         <div class="bag-card-img">
-          <!-- duża walizka -->
           <svg xmlns="http://www.w3.org/2000/svg" width="60" height="76" viewBox="0 0 24 24" fill="none">
             <path fill-rule="evenodd" clip-rule="evenodd" d="M8.15328 5.72087L8.39168 4.29046C8.52251 3.5055 9.20165 2.93018 9.99744 2.93018H14.0028C14.7986 2.93018 15.4777 3.5055 15.6086 4.29041L15.847 5.72087H19.4419C20.8547 5.72087 22 6.8662 22 8.27901V18.5116C22 19.9244 20.8547 21.0697 19.4419 21.0697H4.55814C3.14532 21.0697 2 19.9244 2 18.5116V8.27901C2 6.86619 3.14532 5.72087 4.55814 5.72087H8.15328ZM9.56787 5.72087L9.76804 4.51986C9.78673 4.40772 9.88376 4.32552 9.99744 4.32552H14.0028C14.1164 4.32552 14.2135 4.40773 14.2322 4.5199L14.4324 5.72087H9.56787ZM8.73282 7.11622C8.74105 7.11637 8.74926 7.11637 8.75744 7.11622H15.2428C15.251 7.11637 15.2592 7.11637 15.2674 7.11622H16.8837V19.6744H7.11628V7.11622H8.73282ZM3.39535 18.5116C3.39535 19.1538 3.91594 19.6744 4.55814 19.6744H5.72093V7.11622H4.55814C3.91595 7.11622 3.39535 7.63682 3.39535 8.27901V18.5116ZM20.6047 8.27901C20.6047 7.63681 20.0841 7.11622 19.4419 7.11622H18.2791V19.6744H19.4419C20.0841 19.6744 20.6047 19.1538 20.6047 18.5116V8.27901Z" fill="#2b6cb0"/>
           </svg>
@@ -390,7 +340,7 @@ body{background:#f4f5f9;color:#1e1e2f;}
 
 </div>
 
-<!-- MODAL -->
+<!-- MODAL UBEZPIECZENIE -->
 <div class="modal-overlay" id="insurModal">
   <div class="modal-box">
     <button class="modal-close" onclick="closeInsurModal()"><svg viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke-width="2" stroke-linecap="round"/></svg></button>
@@ -431,92 +381,128 @@ body{background:#f4f5f9;color:#1e1e2f;}
 </div>
 
 <script>
-const STORAGE_KEY='skylineFlightData';
-const BAGGAGE_KEY='skylineBaggage';
-const PRICES_CHECKED=[0,264.99,469.99,489.99];
-const PRICE_CABIN=[0,394.50];
-const PRICE_INSUR=39;
-const PRICE_TRAVEL=29;
-let checkedIdx=0,cabinIdx=0,insurSelected=false,travelSelected=false;
+const STORAGE_KEY = 'skylineFlightData';
+const BAGGAGE_KEY = 'skylineBaggage';
+const PRICES_CHECKED = [0, 264.99, 469.99, 489.99];
+const PRICE_CABIN = [0, 394.50];
+const PRICE_INSUR = 39;
+const PRICE_TRAVEL = 29;
+let checkedIdx = 0, cabinIdx = 0, insurSelected = false, travelSelected = false;
 
-function getTicketPrice(){try{const d=JSON.parse(localStorage.getItem(STORAGE_KEY)||'{}');return parseFloat((d.ticketPrice||'450,00').replace(',','.'))||450;}catch(e){return 450;}}
-function fmt(v){return v.toFixed(2).replace('.',',')+' zł';}
-
-function selectChecked(idx){
-  checkedIdx=idx;
-  for(let i=0;i<4;i++){const r=document.getElementById('chk'+i);if(r)r.className='opt-radio'+(i===idx?' checked':'');}
-  document.getElementById('insurSection').style.display=idx>0?'block':'none';
-  if(idx===0&&insurSelected){insurSelected=false;document.getElementById('insurCard').classList.remove('selected');}
-  updatePrice();save();
+function getBaseTicketPrice() {
+  try {
+    const d = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
+    return parseFloat((d.ticketPrice || '450,00').replace(',', '.')) || 450;
+  } catch(e) { return 450; }
 }
 
-function selectCabin(idx){
-  cabinIdx=idx;
-  for(let i=0;i<2;i++){const r=document.getElementById('cab'+i);if(r)r.className='opt-radio'+(i===idx?' checked':'');}
-  updatePrice();save();
+function fmt(v) { return v.toFixed(2).replace('.', ',') + ' zł'; }
+
+function calcTotal() {
+  return getBaseTicketPrice()
+    + PRICES_CHECKED[checkedIdx]
+    + PRICE_CABIN[cabinIdx]
+    + (insurSelected ? PRICE_INSUR : 0)
+    + (travelSelected ? PRICE_TRAVEL : 0);
 }
 
-function toggleInsur(){
-  insurSelected=!insurSelected;
-  document.getElementById('insurCard').classList.toggle('selected',insurSelected);
-  updatePrice();save();
+function selectChecked(idx) {
+  checkedIdx = idx;
+  for (let i = 0; i < 4; i++) {
+    const r = document.getElementById('chk' + i);
+    if (r) r.className = 'opt-radio' + (i === idx ? ' checked' : '');
+  }
+  document.getElementById('insurSection').style.display = idx > 0 ? 'block' : 'none';
+  if (idx === 0 && insurSelected) {
+    insurSelected = false;
+    document.getElementById('insurCard').classList.remove('selected');
+  }
+  updatePrice(); save();
 }
 
-function selectTravel(val){
-  travelSelected=(val==='yes');
-  document.getElementById('tiNo').className='ti-choice'+(travelSelected?'':' selected-no');
-  document.getElementById('tiYes').className='ti-choice'+(travelSelected?' selected-yes':'');
-  updatePrice();save();
+function selectCabin(idx) {
+  cabinIdx = idx;
+  for (let i = 0; i < 2; i++) {
+    const r = document.getElementById('cab' + i);
+    if (r) r.className = 'opt-radio' + (i === idx ? ' checked' : '');
+  }
+  updatePrice(); save();
 }
 
-function updatePrice(){
-  const total=getTicketPrice()+PRICES_CHECKED[checkedIdx]+PRICE_CABIN[cabinIdx]+(insurSelected?PRICE_INSUR:0)+(travelSelected?PRICE_TRAVEL:0);
-  document.getElementById('totalPrice').textContent=fmt(total);
-  const m=document.getElementById('totalPriceMobile');if(m)m.textContent=fmt(total);
+function toggleInsur() {
+  insurSelected = !insurSelected;
+  document.getElementById('insurCard').classList.toggle('selected', insurSelected);
+  updatePrice(); save();
 }
 
-function save(){localStorage.setItem(BAGGAGE_KEY,JSON.stringify({checked:checkedIdx,cabin:cabinIdx,insur:insurSelected,travel:travelSelected}));}
-function goNext(){save();window.location.href='place.html';}
+function selectTravel(val) {
+  travelSelected = (val === 'yes');
+  document.getElementById('tiNo').className = 'ti-choice' + (travelSelected ? '' : ' selected-no');
+  document.getElementById('tiYes').className = 'ti-choice' + (travelSelected ? ' selected-yes' : '');
+  updatePrice(); save();
+}
+
+function updatePrice() {
+  const total = calcTotal();
+  document.getElementById('totalPrice').textContent = fmt(total);
+  const m = document.getElementById('totalPriceMobile');
+  if (m) m.textContent = fmt(total);
+}
+
+function save() {
+  localStorage.setItem(BAGGAGE_KEY, JSON.stringify({
+    checked: checkedIdx,
+    cabin: cabinIdx,
+    insur: insurSelected,
+    travel: travelSelected
+  }));
+}
+
+function goNext() { save(); window.location.href = 'place.html'; }
+
 const infoContents = {
   infoPopup: '<strong>Torba pod siedzenie:</strong> 12 × 35 × 40 cm, do 2 kg<br><br><strong>Walizka kabinowa:</strong> 23 × 40 × 55 cm, do 8 kg',
   infoPopup2: 'Obejmuje bagaże, które trzeba nadać podczas odprawy bagażowej przed przejściem przez kontrolę bezpieczeństwa na lotnisku.'
 };
-function toggleInfo(e, id){
+
+function toggleInfo(e, id) {
   e.stopPropagation();
-  if(window.innerWidth <= 768){
+  if (window.innerWidth <= 768) {
     document.getElementById('infoModalText').innerHTML = infoContents[id];
     document.getElementById('infoModal').classList.add('active');
-    document.body.style.overflow='hidden';
+    document.body.style.overflow = 'hidden';
   } else {
     const popup = document.getElementById(id);
     const isVisible = popup.classList.contains('visible');
     document.querySelectorAll('.info-popup').forEach(p => p.classList.remove('visible'));
-    if(!isVisible) popup.classList.add('visible');
+    if (!isVisible) popup.classList.add('visible');
   }
 }
-function closeInfoModal(e){
-  if(!e || e.target===document.getElementById('infoModal')||e.target.classList.contains('info-modal-close')){
+
+function closeInfoModal(e) {
+  if (!e || e.target === document.getElementById('infoModal') || e.target.classList.contains('info-modal-close')) {
     document.getElementById('infoModal').classList.remove('active');
-    document.body.style.overflow='';
+    document.body.style.overflow = '';
   }
 }
-document.addEventListener('click',function(){
+
+document.addEventListener('click', function() {
   document.querySelectorAll('.info-popup').forEach(p => p.classList.remove('visible'));
 });
 
-function openInsurModal(){document.getElementById('insurModal').classList.add('active');document.body.style.overflow='hidden';}
-function closeInsurModal(){document.getElementById('insurModal').classList.remove('active');document.body.style.overflow='';}
-document.getElementById('insurModal').addEventListener('click',function(e){if(e.target===this)closeInsurModal();});
-document.addEventListener('keydown',function(e){if(e.key==='Escape')closeInsurModal();});
+function openInsurModal() { document.getElementById('insurModal').classList.add('active'); document.body.style.overflow = 'hidden'; }
+function closeInsurModal() { document.getElementById('insurModal').classList.remove('active'); document.body.style.overflow = ''; }
+document.getElementById('insurModal').addEventListener('click', function(e) { if (e.target === this) closeInsurModal(); });
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeInsurModal(); });
 
-(function init(){
-  try{
-    const s=JSON.parse(localStorage.getItem(BAGGAGE_KEY)||'{}');
-    if(s.checked)selectChecked(s.checked);
-    if(s.cabin)selectCabin(s.cabin);
-    if(s.insur){insurSelected=true;document.getElementById('insurCard').classList.add('selected');}
-    if(s.travel){travelSelected=true;selectTravel('yes');}
-  }catch(e){}
+(function init() {
+  try {
+    const s = JSON.parse(localStorage.getItem(BAGGAGE_KEY) || '{}');
+    if (s.checked) selectChecked(s.checked);
+    if (s.cabin) selectCabin(s.cabin);
+    if (s.insur) { insurSelected = true; document.getElementById('insurCard').classList.add('selected'); }
+    if (s.travel) { travelSelected = true; selectTravel('yes'); }
+  } catch(e) {}
   updatePrice();
 })();
 </script>
