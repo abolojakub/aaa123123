@@ -54,7 +54,6 @@ body{background:#f4f5f9;color:#1e1e2f;}
 .legend-item{display:flex;align-items:center;gap:10px;font-size:13px;color:#444;}
 .legend-swatch{width:24px;height:24px;border-radius:6px;flex-shrink:0;}
 .swatch-standard{background:#e0f2f1;border:1.5px solid #b2dfdb;}
-.swatch-legroom{background:#bfdbfe;border:1.5px solid #60a5fa;}
 .swatch-free{background:#e8f5e9;border:1.5px solid #a5d6a7;}
 .swatch-unavail{background:#e5e7eb;border:1.5px solid #d1d5db;}
 .swatch-selected{background:#2d1b69;border:1.5px solid #2d1b69;}
@@ -63,7 +62,6 @@ body{background:#f4f5f9;color:#1e1e2f;}
 .right-panel{flex:1;padding:24px;overflow-x:auto;display:flex;align-items:flex-start;justify-content:center;}
 .seatmap-center{display:inline-block;}
 
-/* 3+3: A gap B gap C | num | D gap E gap F */
 .col-headers{display:grid;grid-template-columns:44px 8px 44px 8px 44px 36px 44px 8px 44px 8px 44px;margin-bottom:6px;text-align:center;}
 .col-header{font-size:13px;font-weight:700;color:#9990ba;}
 
@@ -75,8 +73,6 @@ body{background:#f4f5f9;color:#1e1e2f;}
 .seat-price{font-size:10px;color:#666;line-height:1;margin-top:1px;}
 .seat--standard{background:#e0f2f1;border:1.5px solid #b2dfdb;}
 .seat--standard:hover{background:#b2dfdb;transform:scale(1.08);box-shadow:0 3px 10px rgba(0,150,136,0.2);}
-.seat--legroom{background:#bfdbfe;border:1.5px solid #60a5fa;}
-.seat--legroom:hover{background:#93c5fd;transform:scale(1.08);box-shadow:0 3px 10px rgba(59,130,246,0.3);}
 .seat--free{background:#e8f5e9;border:1.5px solid #a5d6a7;}
 .seat--free:hover{background:#a5d6a7;transform:scale(1.08);box-shadow:0 3px 10px rgba(76,175,80,0.2);}
 .seat--unavail{background:#e5e7eb;border:1.5px solid #d1d5db;cursor:not-allowed;}
@@ -113,9 +109,7 @@ body{background:#f4f5f9;color:#1e1e2f;}
   .left-panel{width:100%;border-right:none;border-bottom:1.5px solid #e5e7eb;padding:16px;}
   .right-panel{padding:12px;overflow-x:auto;justify-content:center;}
   .seatmap-center{display:block;width:100%;}
-  .col-headers,.seat-row,.exit-row,.col-headers-repeat{
-    grid-template-columns:1fr 4px 1fr 4px 1fr 28px 1fr 4px 1fr 4px 1fr;
-  }
+  .col-headers,.seat-row,.exit-row,.col-headers-repeat{grid-template-columns:1fr 4px 1fr 4px 1fr 28px 1fr 4px 1fr 4px 1fr;}
   .seat{width:100%;height:auto;aspect-ratio:1;margin:1px auto;min-width:0;}
   .seat-price{font-size:9px;}
   .row-num{font-size:11px;}
@@ -124,7 +118,6 @@ body{background:#f4f5f9;color:#1e1e2f;}
 @media(hover:none){
   .seat--standard:hover{background:#e0f2f1;transform:none;box-shadow:none;}
   .seat--free:hover{background:#e8f5e9;transform:none;box-shadow:none;}
-  .seat--legroom:hover{background:#bfdbfe;transform:none;box-shadow:none;}
   .seat--unavail:hover{transform:none;box-shadow:none;}
   .seat--selected:hover{background:#2d1b69!important;transform:none;box-shadow:none;}
 }
@@ -185,37 +178,37 @@ body{background:#f4f5f9;color:#1e1e2f;}
     <div style="width:100%;">
       <div style="font-size:20px;font-weight:700;color:#1e1e2f;margin-bottom:14px;">Wyb&#243;r miejsca</div>
       <div class="main-card">
-      <div class="left-panel">
-        <div>
-          <div class="pax-name" id="paxName">Pasa&#380;er</div>
-          <div class="pax-seat" id="paxSeat">Nie wybrano miejsca</div>
+        <div class="left-panel">
+          <div>
+            <div class="pax-name" id="paxName">Pasa&#380;er</div>
+            <div class="pax-seat" id="paxSeat">Nie wybrano miejsca</div>
+          </div>
+          <div class="left-divider"></div>
+          <div>
+            <div class="left-section-title">Opcje miejsc</div>
+            <div class="legend-list">
+              <div class="legend-item"><div class="legend-swatch swatch-standard"></div><span>Standardowe (123&ndash;150 z&#322;)</span></div>
+              <div class="legend-item"><div class="legend-swatch swatch-free"></div><span>Dost&#281;pne miejsce (bezp&#322;atnie)</span></div>
+              <div class="legend-item"><div class="legend-swatch swatch-unavail"></div><span>Niedost&#281;pne</span></div>
+              <div class="legend-item"><div class="legend-swatch swatch-selected"></div><span>Wybrane miejsce</span></div>
+            </div>
+          </div>
         </div>
-        <div class="left-divider"></div>
-        <div>
-          <div class="left-section-title">Opcje miejsc</div>
-          <div class="legend-list">
-            <div class="legend-item"><div class="legend-swatch swatch-standard"></div><span>Standardowe (123&ndash;150 z&#322;)</span></div>
-            <div class="legend-item"><div class="legend-swatch swatch-free"></div><span>Dost&#281;pne miejsce (bezp&#322;atnie)</span></div>
-            <div class="legend-item"><div class="legend-swatch swatch-unavail"></div><span>Niedost&#281;pne</span></div>
-            <div class="legend-item"><div class="legend-swatch swatch-selected"></div><span>Wybrane miejsce</span></div>
+        <div class="right-panel">
+          <div class="seatmap-center">
+            <div class="col-headers">
+              <div class="col-header">A</div><div></div>
+              <div class="col-header">B</div><div></div>
+              <div class="col-header">C</div>
+              <div></div>
+              <div class="col-header">D</div><div></div>
+              <div class="col-header">E</div><div></div>
+              <div class="col-header">F</div>
+            </div>
+            <div id="seatMap"></div>
           </div>
         </div>
       </div>
-      <div class="right-panel">
-        <div class="seatmap-center">
-          <div class="col-headers">
-            <div class="col-header">A</div><div></div>
-            <div class="col-header">B</div><div></div>
-            <div class="col-header">C</div>
-            <div></div>
-            <div class="col-header">D</div><div></div>
-            <div class="col-header">E</div><div></div>
-            <div class="col-header">F</div>
-          </div>
-          <div id="seatMap"></div>
-        </div>
-      </div>
-    </div>
     </div>
   </div>
 </div>
@@ -249,7 +242,6 @@ body{background:#f4f5f9;color:#1e1e2f;}
 </div>
 
 <script>
-// seats: [A, B, C, null(aisle), D, E, F]
 const ROWS = [
   { num: 8,  seats: ['X','X','S',null,'X','S','S'], exit: false },
   { num: 9,  seats: ['S','X','X',null,'X','X','S'], exit: false },
@@ -274,35 +266,67 @@ const ROWS = [
   { num: 28, seats: ['F','F','F',null,'F','F','F'], exit: false },
 ];
 
-const PRICES = { L: 181, S8_11: 150, S: 123, F: 0, X: 0 };
+const PRICES = { S8_11: 150, S: 123, F: 0, X: 0 };
 const PREMIUM_ROWS = [8, 9, 10, 11];
+
+/* ─── KLUCZOWA POPRAWKA ─────────────────────────────────────────────────
+   Czyta cenę bazową z skylineFlightData ORAZ dodatki z skylineBaggage
+   i sumuje je, żeby cena w place.html zgadzała się z baggage.html      */
+function getBasePrice() {
+  let base = 450;
+  try {
+    const d = JSON.parse(localStorage.getItem('skylineFlightData') || '{}');
+    base = parseFloat((d.ticketPrice || '450,00').replace(',', '.')) || 450;
+  } catch(e) {}
+
+  const PRICES_CHECKED = [0, 264.99, 469.99, 489.99];
+  const PRICE_CABIN    = [0, 394.50];
+  const PRICE_INSUR    = 39;
+  const PRICE_TRAVEL   = 29;
+
+  try {
+    const b = JSON.parse(localStorage.getItem('skylineBaggage') || '{}');
+    base += (PRICES_CHECKED[b.checked || 0] || 0);
+    base += (PRICE_CABIN[b.cabin || 0] || 0);
+    if (b.insur)  base += PRICE_INSUR;
+    if (b.travel) base += PRICE_TRAVEL;
+  } catch(e) {}
+
+  return base;
+}
+/* ────────────────────────────────────────────────────────────────────── */
+
 let selectedSeat = null;
-let basePrice = 450;
+const basePrice = getBasePrice();
 
-function getTicketPrice(){try{const d=JSON.parse(localStorage.getItem('skylineFlightData')||'{}');return parseFloat((d.ticketPrice||'450,00').replace(',','.'))||450;}catch(e){return 450;}}
-function fmt(v){return v.toFixed(2).replace('.',',')+' zł';}
+function fmt(v) { return v.toFixed(2).replace('.', ',') + ' zł'; }
 
-function updatePrice(){
+function updatePrice() {
   const extra = selectedSeat ? PRICES[selectedSeat.type] : 0;
   const total = basePrice + extra;
   document.getElementById('totalPrice').textContent = fmt(total);
-  const m = document.getElementById('totalPriceMobile'); if(m) m.textContent = fmt(total);
+  const m = document.getElementById('totalPriceMobile');
+  if (m) m.textContent = fmt(total);
 }
 
-function updatePaxCard(){
+function updatePaxCard() {
   const el = document.getElementById('paxSeat');
-  if(selectedSeat){ el.textContent='Rząd '+selectedSeat.row+', miejsce '+selectedSeat.col; el.className='pax-seat chosen'; }
-  else { el.textContent='Nie wybrano miejsca'; el.className='pax-seat'; }
+  if (selectedSeat) {
+    el.textContent = 'Rząd ' + selectedSeat.row + ', miejsce ' + selectedSeat.col;
+    el.className = 'pax-seat chosen';
+  } else {
+    el.textContent = 'Nie wybrano miejsca';
+    el.className = 'pax-seat';
+  }
 }
 
-function renderMap(){
+function renderMap() {
   const map = document.getElementById('seatMap');
   map.innerHTML = '';
-  // seats indices: A=0, B=1, C=2, aisle=3(null), D=4, E=5, F=6
-  const colLetters = ['A','B','C',null,'D','E','F'];
+  const colLetters = ['A', 'B', 'C', null, 'D', 'E', 'F'];
 
   ROWS.forEach(row => {
-    if(row.exit){
+    if (row.exit) {
       const er = document.createElement('div'); er.className = 'exit-row';
       const eL = document.createElement('div'); eL.className = 'exit-lbl exit-lbl-l';
       eL.innerHTML = '<span>&#171;</span> Wyj&#347;cie';
@@ -320,34 +344,32 @@ function renderMap(){
     }
 
     const rowDiv = document.createElement('div'); rowDiv.className = 'seat-row';
-    // order: A gap B gap C | num | D gap E gap F
     const order = [0, null, 1, null, 2, 'num', 4, null, 5, null, 6];
+
     order.forEach(i => {
-      if(i === 'num'){
+      if (i === 'num') {
         const n = document.createElement('div'); n.className = 'row-num'; n.textContent = row.num; rowDiv.appendChild(n);
-      } else if(i === null){
+      } else if (i === null) {
         const g = document.createElement('div'); g.className = 'seat-gap'; rowDiv.appendChild(g);
       } else {
         const type = row.seats[i];
         const s = document.createElement('div'); s.className = 'seat';
         const isPremium = PREMIUM_ROWS.includes(row.num);
-        if(type === null){
+
+        if (type === null) {
           s.style.visibility = 'hidden';
-        } else if(type === 'X'){
+        } else if (type === 'X') {
           s.classList.add('seat--unavail');
           s.innerHTML = '<span class="seat-x">&#215;</span>';
-        } else if(type === 'L'){
-          s.classList.add('seat--legroom');
-          s.innerHTML = '<span class="seat-price">181</span>';
-          s.addEventListener('click', () => selectSeat(s, 'L', row.num, colLetters[i]));
-        } else if(type === 'F'){
+        } else if (type === 'F') {
           s.classList.add('seat--free');
           s.innerHTML = '<span class="seat-price">0</span>';
           s.addEventListener('click', () => selectSeat(s, 'F', row.num, colLetters[i]));
         } else {
           s.classList.add('seat--standard');
-          s.innerHTML = '<span class="seat-price">'+(isPremium?'150':'123')+'</span>';
-          s.addEventListener('click', () => selectSeat(s, isPremium?'S8_11':'S', row.num, colLetters[i]));
+          const price = isPremium ? '150' : '123';
+          s.innerHTML = '<span class="seat-price">' + price + '</span>';
+          s.addEventListener('click', () => selectSeat(s, isPremium ? 'S8_11' : 'S', row.num, colLetters[i]));
         }
         rowDiv.appendChild(s);
       }
@@ -356,63 +378,58 @@ function renderMap(){
   });
 }
 
-function selectSeat(el, type, row, col){
-  if(selectedSeat && selectedSeat.el){
+function selectSeat(el, type, row, col) {
+  if (selectedSeat && selectedSeat.el) {
     selectedSeat.el.classList.remove('seat--selected');
-    const p = selectedSeat.type==='L'?'181':selectedSeat.type==='S8_11'?'150':selectedSeat.type==='F'?'0':'123';
-    selectedSeat.el.innerHTML = '<span class="seat-price">'+p+'</span>';
-    if(selectedSeat.type==='F') selectedSeat.el.classList.add('seat--free');
-    else if(selectedSeat.type==='L') selectedSeat.el.classList.add('seat--legroom');
+    const p = selectedSeat.type === 'S8_11' ? '150' : selectedSeat.type === 'F' ? '0' : '123';
+    selectedSeat.el.innerHTML = '<span class="seat-price">' + p + '</span>';
+    if (selectedSeat.type === 'F') selectedSeat.el.classList.add('seat--free');
     else selectedSeat.el.classList.add('seat--standard');
   }
-  if(selectedSeat && selectedSeat.el === el){ selectedSeat=null; updatePrice(); updatePaxCard(); return; }
+  if (selectedSeat && selectedSeat.el === el) {
+    selectedSeat = null; updatePrice(); updatePaxCard(); return;
+  }
   el.classList.add('seat--selected');
   el.innerHTML = '<span class="seat-check">&#10003;</span>';
-  selectedSeat = {el, type, row, col};
+  selectedSeat = { el, type, row, col };
   updatePrice(); updatePaxCard();
 }
 
-function openSkipModal(){ document.getElementById('skipModal').style.display='flex'; document.body.style.overflow='hidden'; }
-function closeSkipModal(){ document.getElementById('skipModal').style.display='none'; document.body.style.overflow=''; }
-document.getElementById('skipModal').addEventListener('click', function(e){ if(e.target===this) closeSkipModal(); });
+function openSkipModal() { document.getElementById('skipModal').style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+function closeSkipModal() { document.getElementById('skipModal').style.display = 'none'; document.body.style.overflow = ''; }
+document.getElementById('skipModal').addEventListener('click', function(e) { if (e.target === this) closeSkipModal(); });
 
-function getRandomFreeSeat(){
+function getRandomFreeSeat() {
   const freeSeats = [];
-  const colLetters = ['A','B','C',null,'D','E','F'];
+  const colLetters = ['A', 'B', 'C', null, 'D', 'E', 'F'];
   ROWS.forEach(row => {
     row.seats.forEach((type, i) => {
-      if(type === 'F') freeSeats.push({row: row.num, col: colLetters[i], type: 'F'});
+      if (type === 'F') freeSeats.push({ row: row.num, col: colLetters[i], type: 'F' });
     });
   });
   return freeSeats[Math.floor(Math.random() * freeSeats.length)];
 }
 
-function skipAndGo(){
-  const randomSeat = getRandomFreeSeat();
-  localStorage.setItem('skylineSeat', JSON.stringify({row: randomSeat.row, col: randomSeat.col, type: 'F', random: true}));
+function skipAndGo() {
+  const r = getRandomFreeSeat();
+  localStorage.setItem('skylineSeat', JSON.stringify({ row: r.row, col: r.col, type: 'F', random: true }));
   window.location.href = 'summation.html';
 }
 
-function goNext(){
-  if(!selectedSeat){ openSkipModal(); return; }
-  localStorage.setItem('skylineSeat', JSON.stringify({row:selectedSeat.row, col:selectedSeat.col, type:selectedSeat.type, random:false}));
+function goNext() {
+  if (!selectedSeat) { openSkipModal(); return; }
+  localStorage.setItem('skylineSeat', JSON.stringify({ row: selectedSeat.row, col: selectedSeat.col, type: selectedSeat.type, random: false }));
   window.location.href = 'summation.html';
 }
 
-function loadPax(){
-  try{
-    const p=JSON.parse(localStorage.getItem('passengers')||'[]');
-    if(p.length>0){
-      document.getElementById('paxName').textContent = p[0].name || 'Pasażer';
-      const ticketEl = document.getElementById('paxSeat');
-      if(!selectedSeat && p[0].ticket){
-        // show ticket type below name until seat is chosen
-      }
-    }
-  }catch(e){}
+function loadPax() {
+  try {
+    const p = JSON.parse(localStorage.getItem('passengers') || '[]');
+    if (p.length > 0) document.getElementById('paxName').textContent = p[0].name || 'Pasażer';
+  } catch(e) {}
 }
 
-basePrice=getTicketPrice(); loadPax(); renderMap(); updatePrice();
+loadPax(); renderMap(); updatePrice();
 </script>
 </body>
 </html>
