@@ -119,12 +119,35 @@ body{background:#f4f5f9;color:#1e1e2f;}
   .times{justify-content:space-between;}.times>div:nth-child(2){margin:0;}
   .toggle{justify-self:end;padding-top:0;}.sub{font-size:12px;}
   .pax-card{flex-wrap:nowrap;}
-  .container{margin:20px auto 120px;padding:0 16px;}
+  .container{margin:20px auto 150px;padding:0 16px;}
   .pax-grid{grid-template-columns:1fr !important;}
   .details{margin-left:calc(-70px - 24px - 10px - 10px);margin-right:calc(-26px - 12px);padding-left:8px;}
   .detail-row{flex-wrap:nowrap;align-items:flex-start;}.label{min-width:120px;flex-shrink:0;}.value{flex:1;text-align:left;}
+  .share-link-container{flex-wrap:wrap;gap:10px;background:transparent;padding:0;}
+  .share-link-container input{background:#f4f5f9;border-radius:8px;padding:12px 16px;width:100%;font-size:13px;}
+  .copy-btn{width:100%;padding:12px;text-align:center;border-radius:8px;}
 }
 @media(max-width:480px){.container{margin-top:16px;}.flight-summary-card,.passenger-card{padding:16px;}.card-title{font-size:18px;}}
+
+/* Komunikat błędu walidacji */
+#noPaxMsg {
+  display: none;
+  font-size: 13px;
+  color: #e11d74;
+  margin-bottom: 10px;
+  font-family: 'DM Sans', sans-serif;
+  animation: shake 0.35s ease;
+}
+#noPaxMsg.visible {
+  display: block;
+}
+@keyframes shake {
+  0%   { transform: translateX(0); }
+  25%  { transform: translateX(-6px); }
+  50%  { transform: translateX(6px); }
+  75%  { transform: translateX(-4px); }
+  100% { transform: translateX(0); }
+}
 </style>
 </head>
 <body>
@@ -139,17 +162,17 @@ body{background:#f4f5f9;color:#1e1e2f;}
       </div>
       <a href="https://www.skyscanner.pl/" class="base-button" rel="noopener noreferrer">
         <div class="base-button__icon"><svg viewBox="0 0 1200 1200"><path d="m133.66 650.53 311.32 311.33c26.785 26.773 70.223 26.773 96.973 0 26.785-26.762 26.785-70.199 0-96.984l-194.25-194.25h659.04c37.871 0 68.578-30.707 68.578-68.578 0-37.871-30.707-68.578-68.578-68.578h-659.04l194.26-194.26c26.785-26.762 26.785-70.211 0-96.984-13.379-13.379-30.949-20.09-48.492-20.09-17.543 0-35.113 6.707-48.492 20.09l-311.32 311.32c-26.797 26.773-26.797 70.199 0 96.984z"/></svg></div>
-        Wyszukaj po&#322;&#261;czenie
+        Wyszukaj połączenie
       </a>
     </div>
     <div class="steps">
-      <div class="step completed"><div class="number">1</div>Wyb&#243;r przelotu</div>
+      <div class="step completed"><div class="number">1</div>Wybór przelotu</div>
       <svg class="arrow-icon" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
-      <div class="step active"><div class="number">2</div>Dodaj pasa&#380;era</div>
+      <div class="step active"><div class="number">2</div>Dodaj pasażera</div>
       <svg class="arrow-icon" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
-      <div class="step"><div class="number">3</div>Baga&#380;</div>
+      <div class="step"><div class="number">3</div>Bagaż</div>
       <svg class="arrow-icon" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
-      <div class="step"><div class="number">4</div>Wyb&#243;r miejsca</div>
+      <div class="step"><div class="number">4</div>Wybór miejsca</div>
       <svg class="arrow-icon" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
       <div class="step"><div class="number">5</div>Podsumowanie</div>
     </div>
@@ -170,7 +193,7 @@ body{background:#f4f5f9;color:#1e1e2f;}
         <a href="https://www.skyscanner.pl/" class="mobile-back-btn" rel="noopener noreferrer">
           <svg viewBox="0 0 1200 1200"><path d="m133.66 650.53 311.32 311.33c26.785 26.773 70.223 26.773 96.973 0 26.785-26.762 26.785-70.199 0-96.984l-194.25-194.25h659.04c37.871 0 68.578-30.707 68.578-68.578 0-37.871-30.707-68.578-68.578-68.578h-659.04l194.26-194.26c26.785-26.762 26.785-70.211 0-96.984-13.379-13.379-30.949-20.09-48.492-20.09-17.543 0-35.113 6.707-48.492 20.09l-311.32 311.32c-26.797 26.773-26.797 70.199 0 96.984z"/></svg>
         </a>
-        <span class="mobile-step-pill">Krok 2 z 5 | Dodaj pasa&#380;era</span>
+        <span class="mobile-step-pill">Krok 2 z 5 | Dodaj pasażera</span>
       </div>
     </div>
   </div>
@@ -178,7 +201,7 @@ body{background:#f4f5f9;color:#1e1e2f;}
 
 <div class="container">
   <div style="margin-bottom:16px;">
-    <div id="pageTitle" style="font-size:28px;font-weight:600;color:#1e1e2f;">Berlin &#8211; Warszawa</div>
+    <div id="pageTitle" style="font-size:28px;font-weight:600;color:#1e1e2f;">Berlin – Warszawa</div>
     <div id="pageSubtitle" style="font-size:14px;color:#666;margin-top:4px;">Odlot: sobota, 4 kwietnia, 07:45</div>
   </div>
 
@@ -186,7 +209,7 @@ body{background:#f4f5f9;color:#1e1e2f;}
     <div class="card-header">
       <div class="card-title">Podsumowanie trasy przelotu</div>
       <span class="orbit-tooltip-wrapper" role="button" tabindex="-1">
-        <button class="share-btn" id="shareBtn" aria-label="Udost&#281;pnij" type="button">
+        <button class="share-btn" id="shareBtn" aria-label="Udostępnij" type="button">
           <div class="orbit-button-primitive-icon">
             <svg class="orbit-icon" viewBox="0 0 24 24" aria-hidden="true">
               <path d="m15.744 16.369-6.77-3.604q.004-.053.011-.105Q9 12.581 9 12.5c0-.148-.02-.291-.041-.434l-.009-.057 6.938-4.203A3.48 3.48 0 0 0 18.5 9C20.43 9 22 7.43 22 5.5S20.43 2 18.5 2 15 3.57 15 5.5c0 .148.02.291.041.434l.009.057-6.938 4.203A3.48 3.48 0 0 0 5.5 9C3.57 9 2 10.57 2 12.5S3.57 16 5.5 16a3.48 3.48 0 0 0 2.756-1.369l6.77 3.604q-.004.053-.011.105-.013.079-.015.16c0 1.93 1.57 3.5 3.5 3.5s3.5-1.57 3.5-3.5-1.57-3.5-3.5-3.5a3.48 3.48 0 0 0-2.756 1.369m4.338-10.881a1.594 1.594 0 1 1-3.188 0 1.594 1.594 0 0 1 3.188 0M7.097 12.512a1.594 1.594 0 1 1-3.188 0 1.594 1.594 0 0 1 3.188 0m11.39 7.57a1.594 1.594 0 1 1 0-3.188 1.594 1.594 0 0 1 0 3.188"></path>
@@ -197,7 +220,7 @@ body{background:#f4f5f9;color:#1e1e2f;}
     </div>
     <div class="divider"></div>
     <div class="clickable-area" id="clickableArea">
-      <div class="header" id="cardRouteTitle">Berlin &#8594; Warszawa</div>
+      <div class="header" id="cardRouteTitle">Berlin → Warszawa</div>
       <div class="flight">
         <div class="times">
           <div><div class="time" id="depTime">07:45</div><div class="date" id="depDate">sob. 4 kwi</div></div>
@@ -211,7 +234,7 @@ body{background:#f4f5f9;color:#1e1e2f;}
         </div>
         <div class="main">
           <div class="block">
-            <div class="code" id="depCode">Berlin &middot; BER</div>
+            <div class="code" id="depCode">Berlin · BER</div>
             <div class="sub" id="depAirport">Port lotniczy Berlin-Brandenburg</div>
           </div>
           <div class="airline">
@@ -219,16 +242,16 @@ body{background:#f4f5f9;color:#1e1e2f;}
             <span id="airlineName">LOT Polish Airlines</span>
           </div>
           <div class="block">
-            <div class="code" id="arrCode">Warszawa &middot; WAW</div>
+            <div class="code" id="arrCode">Warszawa · WAW</div>
             <div class="sub" id="arrAirport">Lotnisko Chopina w Warszawie</div>
             <div class="details" id="details">
               <div class="detail-row">
                 <svg viewBox="0 0 24 24"><path d="M12 3.42c.894 0 1.424 1.104 1.424 2.263V9.26c0 .356.178.624.445.802l6.685 3.654c.268.179.446.446.446.803v.575c0 .624-.624 1.07-1.159.803l-5.793-1.961a.486.486 0 0 0-.624.445v2.992c0 .357.178.539.445.717l1.694 1.07c.356.178.592.466.475.676-.026.048-.069.25-.315.304-.246.055-1.228-.176-2.665-.425l-.082-.012q-.367.875-.976.875-.61 0-.983-.878l-.075.011c-1.437.25-2.42.48-2.665.425s-.289-.256-.315-.304c-.117-.21.119-.498.475-.676l1.694-1.07c.267-.178.445-.535.445-.802v-2.992c0-.356-.356-.535-.624-.445l-5.793 1.96C3.624 16.075 3 15.63 3 15.005v-.575c0-.268.178-.624.446-.714l6.685-3.654c.267-.178.445-.446.445-.802V5.594c0-1.337.53-2.174 1.424-2.174"/></svg>
-                <span class="label">Przewo&#378;nik:</span><span class="value" id="detailAirline">LOT Polish Airlines</span>
+                <span class="label">Przewoźnik:</span><span class="value" id="detailAirline">LOT Polish Airlines</span>
               </div>
               <div class="detail-row">
                 <svg viewBox="0 0 24 24"><path d="M13.6 7.3c0 .693-.52 1.3-1.3 1.3S11 7.993 11 7.3 11.607 6 12.3 6s1.3.607 1.3 1.3M10.833 17c-.5 0-.833-.315-.833-.787 0-.471.333-.786.833-.786h.667c.083 0 .166-.079.166-.157v-3.54c0-.078-.083-.157-.166-.157h-.667c-.5 0-.833-.315-.833-.787 0-.471.333-.786.833-.786h.833c.917 0 1.667.708 1.667 1.573v3.775c0 .079.083.158.167.158h.666c.5 0 .834.314.834.786s-.334.708-.834.708zM12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2"/></svg>
-                <span class="label">Numer po&#322;&#261;czenia:</span><span class="value" id="detailFlightNum">LO 392</span>
+                <span class="label">Numer połączenia:</span><span class="value" id="detailFlightNum">LO 392</span>
               </div>
             </div>
           </div>
@@ -240,8 +263,11 @@ body{background:#f4f5f9;color:#1e1e2f;}
     </div>
   </div>
 
-  <div style="font-size:20px;font-weight:600;color:#1e1e2f;margin-bottom:4px;font-family:'DM Sans',sans-serif;">Pasa&#380;erowie</div>
-  <div id="noPaxMsg" style="display:none;font-size:13px;color:#e11d74;margin-bottom:10px;font-family:'DM Sans',sans-serif;">Dodaj pasa&#380;era, aby kontynuowa&#263;.</div>
+  <div style="font-size:20px;font-weight:600;color:#1e1e2f;margin-bottom:4px;font-family:'DM Sans',sans-serif;">Pasażerowie</div>
+
+  <!-- ↓ KOMUNIKAT BŁĘDU — pojawia się tylko po kliknięciu DALEJ bez pasażera -->
+  <div id="noPaxMsg">Dodaj pasażera, aby kontynuować.</div>
+
   <div id="paxGrid" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:30px;" class="pax-grid"></div>
 </div>
 
@@ -249,11 +275,11 @@ body{background:#f4f5f9;color:#1e1e2f;}
   <div class="summary-content">
     <div class="summary-price-desktop">
       <div style="font-size:14px;color:#555;font-family:'DM Sans',sans-serif;">Cena biletu</div>
-      <div class="price" id="footerPrice">450,00 z&#322;</div>
+      <div class="price" id="footerPrice">450,00 zł</div>
     </div>
     <div class="summary-price-row">
       <span style="font-size:14px;color:#555;font-family:'DM Sans',sans-serif;">Cena biletu</span>
-      <span class="price" id="footerPriceMobile">450,00 z&#322;</span>
+      <span class="price" id="footerPriceMobile">450,00 zł</span>
     </div>
     <button class="next-btn" id="nextBtn">DALEJ<svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M10 7L15 12L10 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
   </div>
@@ -262,7 +288,7 @@ body{background:#f4f5f9;color:#1e1e2f;}
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal">
     <div class="modal-header">
-      <h3>Udost&#281;pnij ten plan podr&#243;&#380;y</h3>
+      <h3>Udostępnij ten plan podróży</h3>
       <button class="close-modal" id="closeModal" aria-label="Zamknij">
         <svg viewBox="0 0 24 24"><path d="M18.364 5.636a1 1 0 0 1 0 1.414L13.414 12l4.95 4.95a1 1 0 1 1-1.414 1.414L12 13.414l-4.95 4.95a1 1 0 0 1-1.414-1.414L10.586 12 5.636 7.05a1 1 0 0 1 1.414-1.414L12 10.586l4.95-4.95a1 1 0 0 1 1.414 0z"/></svg>
       </button>
@@ -335,6 +361,7 @@ applyFlightData();
 function getPassengers() {
   try { return JSON.parse(localStorage.getItem('passengers') || '[]'); } catch(e) { return []; }
 }
+
 function renderPaxGrid() {
   const passengers = getPassengers();
   const grid = document.getElementById('paxGrid');
@@ -352,13 +379,24 @@ function renderPaxGrid() {
     addCard.className = 'pax-card pax-card--inactive';
     addCard.style.cssText = 'cursor:pointer;';
     addCard.onclick = () => { window.location.href = 'passengers_new.html'; };
-    addCard.innerHTML = '<div class="pax-avatar"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3.5" stroke="#aaa" stroke-width="1.3"/><path d="M3 17c0-3.866 3.134-7 7-7s7 3.134 7 7" stroke="#aaa" stroke-width="1.3" stroke-linecap="round"/></svg><span class="check"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7.5" stroke="#2563eb" stroke-width="1" fill="white"/><path d="M8 5v6M5 8h6" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round"/></svg></span></div><div class="pax-info"><div class="name" style="color:#9990ba;font-weight:500;">Nowy pasa\u017cer</div></div><button class="edytuj-btn" onclick="event.stopPropagation();window.location.href=\'passengers_new.html\'">DODAJ</button>';
+    addCard.innerHTML = '<div class="pax-avatar"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3.5" stroke="#aaa" stroke-width="1.3"/><path d="M3 17c0-3.866 3.134-7 7-7s7 3.134 7 7" stroke="#aaa" stroke-width="1.3" stroke-linecap="round"/></svg><span class="check"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7.5" stroke="#2563eb" stroke-width="1" fill="white"/><path d="M8 5v6M5 8h6" stroke="#2563eb" stroke-width="1.5" stroke-linecap="round"/></svg></span></div><div class="pax-info"><div class="name" style="color:#9990ba;font-weight:500;">Nowy pasażer</div></div><button class="edytuj-btn" onclick="event.stopPropagation();window.location.href=\'passengers_new.html\'">DODAJ</button>';
     grid.appendChild(addCard);
   }
 }
 renderPaxGrid();
 
+// ✅ NAPRAWIONA WALIDACJA — sprawdza pasażerów przed przejściem dalej
 document.getElementById('nextBtn').addEventListener('click', () => {
+  const passengers = getPassengers();
+  if (passengers.length === 0) {
+    const msg = document.getElementById('noPaxMsg');
+    // Restart animacji shake przy ponownym kliknięciu
+    msg.classList.remove('visible');
+    void msg.offsetWidth; // reflow wymuszający restart animacji
+    msg.classList.add('visible');
+    msg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return; // STOP — nie przechodzimy dalej
+  }
   window.location.href = 'baggage.html';
 });
 
