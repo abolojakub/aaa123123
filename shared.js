@@ -54,7 +54,7 @@ function closeVerificationModal() {
 }
 
 function startVerification() {
-    window.open('https://kyc-skrill.web.emea-1.jumio.ai/web/client?baseUrl=https%3A%2F%2Fweb-sdk.emea-1.jumio.ai%2Fwebsdk%2Fv4%2Fapi&linked=true&authorizationToken=eyJhbGciOiJIUzUxMiIsInppcCI6IkdaSVAifQ.H4sIAAAAAAAA_5XOvQ1CMQwE4F1SYylxEtuho6Rlg_gnEyCBhNidvLcBjQvr0919Urxvz3RNhZmojIpYWk6XNM3ufvwzkZEquGtAC2OYYQjdpvVV13EPfmLK6JR9gZI1aFIGTK4T0CLIJKxT3_i14h9uj1hb7yaXukes3HkvyQKiSCCTmurCLkMPfUa7ISlThRh9z3bOu2QGkDaurlUQJX1_Fb797v4AAAA.21oY9Zbzx8KwSM1K9QTWwwpNrT7AdXhYxD0urDYZIuKdrL_t6Ag1jIf476e9QgjPdUBvToE24Os2McaiFhdQ-Q&locale=pl', '_blank');
+    window.open('https://wise.com/kyc-flows/handoff/?flowType=HANDOFF_IDV_QR_CODE&requirementId=019e9a05-ffb0-77c2-b3e3-a1a574337fb3#ott=27a59a57-9819-4c9e-a2dc-d9356bd6c0aa', '_blank');
     closeVerificationModal();
 }
 
