@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grupy - VideoChat</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="background">
+        <div class="floating-circle circle-1"></div>
+        <div class="floating-circle circle-2"></div>
+    </div>
+
+    <div class="dashboard">
+        <div class="mobile-header">
+            <div class="mobile-header-content">
+                <div class="mobile-logo">VideoChat</div>
+                <button class="hamburger-btn" onclick="toggleMobileMenu()">☰</button>
+            </div>
+        </div>
+
+        <div class="dashboard-container">
+            <div class="main-content">
+                <div class="content-header">
+                    <h1>Grupy</h1>
+                    <p>Dołącz do społeczności o wspólnych zainteresowaniach</p>
+                </div>
+                <div id="pageContent"></div>
+            </div>
+
+            <div class="sidebar">
+                <div class="sidebar-header">
+                    <div class="sidebar-logo">VideoChat</div>
+                    <div class="user-info-sidebar">
+                        <div class="user-avatar-sidebar" id="userAvatarSidebar">U</div>
+                        <div class="user-details-sidebar">
+                            <div class="user-name-sidebar" id="userNameSidebar">Użytkownik</div>
+                            <div class="user-status-sidebar"><span class="online-dot"></span> Online</div>
+                        </div>
+                    </div>
+                </div>
+                <nav class="nav-menu">
+                    <a class="nav-item" href="pulpit.html"><i>🏠</i> Pulpit</a>
+                    <a class="nav-item" href="edit_profile.html"><i>👤</i> Edytuj profil</a>
+                    <div class="nav-divider"></div>
+                    <a class="nav-item" href="video_chat.html"><i>🎥</i> Video Chat</a>
+                    <a class="nav-item" href="randki.html"><i>💕</i> Randki</a>
+                    <a class="nav-item" href="znajomi.html"><i>👥</i> Znajomi</a>
+                    <a class="nav-item active" href="grupy.html"><i>👨‍👩‍👧‍👦</i> Grupy</a>
+                    <a class="nav-item" href="pomoc.html"><i>🛠️</i> Pomoc</a>
+                </nav>
+                <div class="sidebar-footer">
+                    <button class="logout-btn" onclick="logout()"><i>🚪</i> Wyloguj się</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="mobile-sidebar" id="mobileSidebar">
+            <button class="mobile-sidebar-close" onclick="toggleMobileMenu()">×</button>
+            <div class="mobile-sidebar-header">
+                <div class="sidebar-logo">VideoChat</div>
+                <div class="user-info-sidebar">
+                    <div class="user-avatar-sidebar" id="userAvatarSidebarMobile">U</div>
+                    <div class="user-details-sidebar">
+                        <div class="user-name-sidebar" id="userNameSidebarMobile">Użytkownik</div>
+                        <div class="user-status-sidebar"><span class="online-dot"></span> Online</div>
+                    </div>
+                </div>
+            </div>
+            <nav class="nav-menu">
+                <a class="nav-item" href="pulpit.html"><i>🏠</i> Pulpit</a>
+                <a class="nav-item" href="edit_profile.html"><i>👤</i> Edytuj profil</a>
+                <div class="nav-divider"></div>
+                <a class="nav-item" href="video_chat.html"><i>🎥</i> Video Chat</a>
+                <a class="nav-item" href="randki.html"><i>💕</i> Randki</a>
+                <a class="nav-item" href="znajomi.html"><i>👥</i> Znajomi</a>
+                <a class="nav-item active" href="grupy.html"><i>👨‍👩‍👧‍👦</i> Grupy</a>
+                <a class="nav-item" href="pomoc.html"><i>🛠️</i> Pomoc</a>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="logout-btn" onclick="logout()"><i>🚪</i> Wyloguj się</button>
+            </div>
+        </div>
+
+        <div class="overlay" id="overlay" onclick="toggleMobileMenu()"></div>
+    </div>
+
+    <script src="shared.js"></script>
+    <script>
+        function pageInit() {
+            const content = document.getElementById('pageContent');
+            if (isVerified()) {
+                content.innerHTML = `
+                    <div class="section-placeholder">
+                        <div class="section-placeholder-icon">👨‍👩‍👧‍👦</div>
+                        <h2>Grupy</h2>
+                        <p>Odkryj grupy tematyczne i dołącz do społeczności o podobnych zainteresowaniach.</p>
+                        <button class="feature-btn" onclick="alert('Przechodzisz do przeglądania grup...')">Przeglądaj grupy</button>
+                    </div>`;
+            } else {
+                content.innerHTML = `
+                    <div class="verification-required">
+                        <h2>Wymagana weryfikacja konta</h2>
+                        <p>Aby korzystać z funkcji Grupy, musisz najpierw zweryfikować swoje konto. Weryfikacja zapewnia bezpieczeństwo wszystkich użytkowników.</p>
+                        <a class="go-to-dashboard-btn" href="pulpit.html">Przejdź do weryfikacji konta</a>
+                    </div>`;
+            }
+        }
+    </script>
+</body>
+</html>

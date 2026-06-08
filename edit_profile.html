@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edytuj Profil - VideoChat</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* ===== SEKCJE FORMULARZA ===== */
+        .ep-section {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+            backdrop-filter: blur(10px);
+            margin-bottom: 1rem;
+        }
+
+        .ep-section-title {
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 1rem;
+        }
+
+        .ep-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .ep-field {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .ep-label {
+            font-size: 13px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.65);
+        }
+
+        .ep-input,
+        .ep-select,
+        .ep-textarea {
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.07);
+            border: 1.5px solid rgba(255, 255, 255, 0.12);
+            border-radius: 10px;
+            font-size: 14px;
+            color: white;
+            outline: none;
+            width: 100%;
+            appearance: none;
+            -webkit-appearance: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            font-family: inherit;
+        }
+
+        .ep-input::placeholder,
+        .ep-textarea::placeholder {
+            color: rgba(255, 255, 255, 0.25);
+        }
+
+        .ep-input:focus,
+        .ep-select:focus,
+        .ep-textarea:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+        }
+
+        .ep-select-wrap {
+            position: relative;
+        }
+
+        .ep-select-wrap .ep-select {
+            padding-right: 36px;
+            cursor: pointer;
+        }
+
+        .ep-select-wrap::after {
+            content: '';
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid rgba(255,255,255,0.4);
+            pointer-events: none;
+        }
+
+        .ep-select option {
+            background: #1a1a35;
+            color: white;
+        }
+
+        .ep-textarea {
+            min-height: 90px;
+            resize: vertical;
+        }
+
+        .ep-submit-btn {
+            padding: 13px 32px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.25s;
+            margin-top: 0.5rem;
+        }
+
+        .ep-submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 22px rgba(102, 126, 234, 0.38);
+        }
+
+        @media (max-width: 768px) {
+            .ep-sections-wrapper {
+                background: rgba(255, 255, 255, 0.05);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                border-radius: 16px;
+                backdrop-filter: blur(10px);
+                padding: 1.2rem;
+                margin-bottom: 1rem;
+            }
+
+            .ep-section {
+                background: none;
+                border: none;
+                border-radius: 0;
+                padding: 1.2rem 0;
+                backdrop-filter: none;
+                margin-bottom: 0;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            }
+
+            .ep-section:first-child {
+                padding-top: 0;
+            }
+
+            .ep-section:last-child {
+                padding-bottom: 0;
+                border-bottom: none;
+            }
+
+            .ep-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="background">
+        <div class="floating-circle circle-1"></div>
+        <div class="floating-circle circle-2"></div>
+    </div>
+
+    <div class="dashboard">
+        <div class="mobile-header">
+            <div class="mobile-header-content">
+                <div class="mobile-logo">VideoChat</div>
+                <button class="hamburger-btn" onclick="toggleMobileMenu()">☰</button>
+            </div>
+        </div>
+
+        <div class="dashboard-container">
+            <div class="main-content">
+                <div class="content-header">
+                    <h1>Edytuj Profil</h1>
+                    <p>Zaktualizuj swoje dane osobowe i ustawienia</p>
+                </div>
+
+                <form id="profileEditForm">
+                <div class="ep-sections-wrapper">
+
+                    <!-- Dane konta -->
+                    <div class="ep-section">
+                        <div class="ep-section-title">Dane konta</div>
+                        <div class="ep-row">
+                            <div class="ep-field">
+                                <label class="ep-label" for="editUsername">Nazwa użytkownika</label>
+                                <input class="ep-input" type="text" id="editUsername" name="username" required autocomplete="off">
+                            </div>
+                            <div class="ep-field">
+                                <label class="ep-label" for="editEmail">Email</label>
+                                <input class="ep-input" type="email" id="editEmail" name="email" required autocomplete="off">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dane osobowe -->
+                    <div class="ep-section">
+                        <div class="ep-section-title">Dane osobowe</div>
+                        <div class="ep-row">
+                            <div class="ep-field">
+                                <label class="ep-label" for="editGender">Płeć</label>
+                                <div class="ep-select-wrap">
+                                    <select class="ep-select" id="editGender" name="gender">
+                                        <option value="">Wybierz</option>
+                                        <option value="male">Mężczyzna</option>
+                                        <option value="female">Kobieta</option>
+                                        <option value="other">Inna</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="ep-field">
+                                <label class="ep-label" for="editInterests">Cel</label>
+                                <div class="ep-select-wrap">
+                                    <select class="ep-select" id="editInterests" name="interests">
+                                        <option value="">Wybierz</option>
+                                        <option value="friends">Znajomi</option>
+                                        <option value="dating">Randki</option>
+                                        <option value="chat">Zwykły czat</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- O mnie -->
+                    <div class="ep-section">
+                        <div class="ep-section-title">O mnie</div>
+                        <div class="ep-field">
+                            <label class="ep-label" for="editBio">Opis profilu</label>
+                            <textarea class="ep-textarea" id="editBio" name="bio" placeholder="Napisz coś o sobie..."></textarea>
+                        </div>
+                    </div>
+
+                    <!-- Bezpieczeństwo -->
+                    <div class="ep-section">
+                        <div class="ep-section-title">Bezpieczeństwo</div>
+                        <div class="ep-field">
+                            <label class="ep-label" for="editPassword">Nowe hasło <span style="color:rgba(255,255,255,0.3); font-weight:400;">(opcjonalnie)</span></label>
+                            <input class="ep-input" type="password" id="editPassword" name="password" placeholder="Zostaw puste jeśli nie chcesz zmieniać">
+                        </div>
+                    </div>
+
+                </div><!-- /.ep-sections-wrapper -->
+                    <button type="submit" class="ep-submit-btn">Zapisz zmiany</button>
+                </form>
+            </div>
+
+            <div class="sidebar">
+                <div class="sidebar-header">
+                    <div class="sidebar-logo">VideoChat</div>
+                    <div class="user-info-sidebar">
+                        <div class="user-avatar-sidebar" id="userAvatarSidebar">U</div>
+                        <div class="user-details-sidebar">
+                            <div class="user-name-sidebar" id="userNameSidebar">Użytkownik</div>
+                            <div class="user-status-sidebar"><span class="online-dot"></span> Online</div>
+                        </div>
+                    </div>
+                </div>
+                <nav class="nav-menu">
+                    <a class="nav-item" href="pulpit.html"><i>🏠</i> Pulpit</a>
+                    <a class="nav-item active" href="edit_profile.html"><i>👤</i> Edytuj profil</a>
+                    <div class="nav-divider"></div>
+                    <a class="nav-item" href="video_chat.html"><i>🎥</i> Video Chat</a>
+                    <a class="nav-item" href="randki.html"><i>💕</i> Randki</a>
+                    <a class="nav-item" href="znajomi.html"><i>👥</i> Znajomi</a>
+                    <a class="nav-item" href="grupy.html"><i>👨‍👩‍👧‍👦</i> Grupy</a>
+                    <a class="nav-item" href="pomoc.html"><i>🛠️</i> Pomoc</a>
+                </nav>
+                <div class="sidebar-footer">
+                    <button class="logout-btn" onclick="logout()"><i>🚪</i> Wyloguj się</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="mobile-sidebar" id="mobileSidebar">
+            <button class="mobile-sidebar-close" onclick="toggleMobileMenu()">×</button>
+            <div class="mobile-sidebar-header">
+                <div class="sidebar-logo">VideoChat</div>
+                <div class="user-info-sidebar">
+                    <div class="user-avatar-sidebar" id="userAvatarSidebarMobile">U</div>
+                    <div class="user-details-sidebar">
+                        <div class="user-name-sidebar" id="userNameSidebarMobile">Użytkownik</div>
+                        <div class="user-status-sidebar"><span class="online-dot"></span> Online</div>
+                    </div>
+                </div>
+            </div>
+            <nav class="nav-menu">
+                <a class="nav-item" href="pulpit.html"><i>🏠</i> Pulpit</a>
+                <a class="nav-item active" href="edit_profile.html"><i>👤</i> Edytuj profil</a>
+                <div class="nav-divider"></div>
+                <a class="nav-item" href="video_chat.html"><i>🎥</i> Video Chat</a>
+                <a class="nav-item" href="randki.html"><i>💕</i> Randki</a>
+                <a class="nav-item" href="znajomi.html"><i>👥</i> Znajomi</a>
+                <a class="nav-item" href="grupy.html"><i>👨‍👩‍👧‍👦</i> Grupy</a>
+                <a class="nav-item" href="pomoc.html"><i>🛠️</i> Pomoc</a>
+            </nav>
+            <div class="sidebar-footer">
+                <button class="logout-btn" onclick="logout()"><i>🚪</i> Wyloguj się</button>
+            </div>
+        </div>
+
+        <div class="overlay" id="overlay" onclick="toggleMobileMenu()"></div>
+    </div>
+
+    <script src="shared.js"></script>
+    <script>
+        function pageInit() {
+            document.getElementById('editUsername').value  = currentUser.username  || '';
+            document.getElementById('editEmail').value     = currentUser.email     || '';
+            document.getElementById('editGender').value    = currentUser.gender    || '';
+            document.getElementById('editInterests').value = currentUser.interests || '';
+            document.getElementById('editBio').value       = currentUser.bio       || '';
+        }
+
+        document.getElementById('profileEditForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            if (!currentUser) return;
+
+            currentUser.username  = document.getElementById('editUsername').value;
+            currentUser.email     = document.getElementById('editEmail').value;
+            currentUser.gender    = document.getElementById('editGender').value;
+            currentUser.interests = document.getElementById('editInterests').value;
+            currentUser.bio       = document.getElementById('editBio').value;
+
+            const password = document.getElementById('editPassword').value;
+            if (password) currentUser.password = password;
+
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            localStorage.setItem('user_' + currentUser.email, JSON.stringify(currentUser));
+
+            updateProfileDisplay();
+            alert('Profil został zaktualizowany!');
+            window.location.href = 'pulpit.html';
+        });
+    </script>
+</body>
+</html>
