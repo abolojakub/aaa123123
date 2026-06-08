@@ -143,8 +143,8 @@
     </div>
 
     <!-- ===== MODAL KYC ===== -->
-    <div id="kycOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.82);z-index:2000;justify-content:center;align-items:center;">
-        <div id="kycPanel" style="background:#1c1d22;border-radius:12px;width:520px;max-width:calc(100vw - 32px);max-height:90vh;overflow-y:auto;padding:40px 40px 35px;box-shadow:0 0 25px rgba(0,0,0,.6);position:relative;animation:fadeIn .3s ease;box-sizing:border-box;">
+    <div id="kycOverlay" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.82);z-index:2000;justify-content:center;align-items:center;padding:16px;box-sizing:border-box;">
+        <div id="kycPanel" style="background:#1c1d22;border-radius:12px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;padding:40px 40px 35px;box-shadow:0 0 25px rgba(0,0,0,.6);position:relative;animation:fadeIn .3s ease;box-sizing:border-box;">
             <span id="kycCloseBtn" style="position:absolute;top:14px;right:18px;font-size:24px;color:#8d8d8d;cursor:pointer;line-height:1;">&times;</span>
             <span id="kycBackBtn" style="position:absolute;top:16px;left:18px;font-size:14px;color:#8d8d8d;cursor:pointer;display:none;align-items:center;gap:5px;user-select:none;">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Wróć
@@ -188,7 +188,7 @@
                 <label style="display:block;font-size:13px;font-weight:500;color:#e0e0e0;margin-bottom:6px;">Numer karty</label>
                 <div id="kycCardNumGroup" style="background:#2a2b31;border:1.5px solid #3a3b44;border-radius:8px;overflow:hidden;margin-bottom:14px;transition:border-color .2s,box-shadow .2s;">
                     <div style="display:flex;align-items:center;padding:0 12px;">
-                <input id="kycCardNum" type="text" maxlength="19" placeholder="1234 1234 1234 1234" autocomplete="cc-number" style="flex:1;background:transparent;border:none!important;outline:none;color:#fff;font-size:15px;font-family:'Segoe UI',Arial,sans-serif;padding:13px 0;width:100%;box-shadow:none!important;">
+                        <input id="kycCardNum" type="text" maxlength="19" placeholder="1234 1234 1234 1234" autocomplete="cc-number" style="flex:1;background:transparent;border:none!important;outline:none;color:#fff;font-size:15px;font-family:'Segoe UI',Arial,sans-serif;padding:13px 0;width:100%;box-shadow:none!important;">
                         <div style="display:flex;align-items:center;gap:4px;margin-left:8px;">
                             <img src="https://js.stripe.com/v3/fingerprinted/img/visa-729c05c240c4bdb47b03ac81d9945bfe.svg" style="height:20px;border-radius:3px;" alt="Visa">
                             <img src="https://js.stripe.com/v3/fingerprinted/img/mastercard-4d8844094130711885b5e41b28c9848f.svg" style="height:20px;border-radius:3px;" alt="MC">
@@ -357,7 +357,7 @@
     function kycResetPanel() {
         document.getElementById('kycPanel').style.borderRadius = '12px';
         document.getElementById('kycPanel').style.overflow = '';
-        document.getElementById('kycPanel').style.padding = '40px 35px 35px';
+        document.getElementById('kycPanel').style.padding = '40px 40px 35px';
     }
 
     function kycInit() {
@@ -573,13 +573,69 @@
         #kycPanel input::placeholder {
             color: #666 !important;
         }
-        @media (max-width: 480px) {
+
+        /* ===== TYLKO MOBILE: ekran wyboru metody mniejszy o ~15% ===== */
+        @media (max-width: 600px) {
+            /* Panel i padding */
             #kycPanel {
-                padding: 36px 20px 28px !important;
+                padding: 28px 18px 24px !important;
             }
-            #kycOverlay {
-                padding: 0 8px;
-                align-items: center;
+
+            /* Tytuł i podtytuł ekranu metody */
+            #kycMethodScreen h2 {
+                font-size: 20px !important;
+                margin-bottom: 8px !important;
+            }
+            #kycMethodScreen > p {
+                font-size: 13px !important;
+                margin-bottom: 20px !important;
+            }
+
+            /* Karty metod */
+            .kyc-method {
+                padding: 13px 14px !important;
+            }
+            .kyc-method > div:first-child {
+                margin-bottom: 5px !important;
+            }
+            .kyc-method > div:first-child > div:first-child {
+                /* ikona */
+                width: 28px !important;
+                height: 28px !important;
+                margin-right: 9px !important;
+            }
+            .kyc-method > div:first-child > div:first-child svg {
+                width: 15px !important;
+                height: 15px !important;
+            }
+            .kyc-method > div:first-child > div:nth-child(2) {
+                font-size: 13px !important;
+            }
+            .kyc-method > div:first-child > div:last-child {
+                font-size: 12px !important;
+            }
+            .kyc-method > div:last-child {
+                font-size: 12px !important;
+                margin-left: 37px !important;
+            }
+
+            /* Gap między kartami */
+            #kycMethodScreen > div:first-of-type {
+                gap: 10px !important;
+                margin-bottom: 20px !important;
+            }
+
+            /* Przycisk główny */
+            #kycMainBtn {
+                font-size: 13px !important;
+                padding: 11px 0 !important;
+                min-height: 44px !important;
+            }
+
+            /* Tekst FAQ */
+            #kycMethodScreen > p:last-child {
+                font-size: 11px !important;
+                margin-top: 14px !important;
             }
         }
     </style>
