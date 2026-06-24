@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 250" role="img" aria-label="VoidChat logo">
+    <style>
+        .void { fill: #90caf9; font-family: Arial, Helvetica, sans-serif; font-size: 180px; font-weight: 900; font-style: italic; }
+        .chat { fill: #FFFFFF; font-family: Arial, Helvetica, sans-serif; font-size: 180px; font-weight: 900; font-style: italic; }
+    </style>
+    <text x="0" y="180" class="void">Void</text>
+    <text x="430" y="180" class="chat">Chat</text>
+</svg>

