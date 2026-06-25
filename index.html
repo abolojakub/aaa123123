@@ -152,6 +152,13 @@
             outline: none;
             box-shadow: none;
         }
+
+        /* 🔒 Pole udające hasło – brak rozpoznania przez menedżera haseł */
+        .fake-password {
+            -webkit-text-security: disc;  /* Chrome/Safari */
+            /* Firefox: można ew. użyć czcionki lub zostawić zwykły tekst, ale i tak nie wykryje hasła */
+        }
+
         .nick-check {
             display: none;
             width: 18px;
@@ -815,6 +822,11 @@
     </style>
 </head>
 <body>
+    <!-- UKRYTY FORMULARZ – pułapka na menedżera haseł (dodatkowe zabezpieczenie) -->
+    <form style="position:fixed; left:-9999px; top:-9999px; width:0; height:0; overflow:hidden;" aria-hidden="true" tabindex="-1">
+        <input type="text"     name="fakeuser"     autocomplete="username"        tabindex="-1" readonly>
+        <input type="password" name="fakepassword" autocomplete="current-password" tabindex="-1" readonly>
+    </form>
 
     <header class="topbar">
         <div class="topbar-inner">
@@ -864,7 +876,8 @@
                     </div>
                     <div class="field">
                         <label>Hasło:</label>
-                        <input type="password" id="hostRoomPassword" placeholder="hasło" autocomplete="new-password" spellcheck="false">
+                        <!-- KLUCZOWA ZMIANA: type="text" + klasa fake-password -->
+                        <input type="text" id="hostRoomPassword" class="fake-password" placeholder="hasło" autocomplete="off" spellcheck="false">
                     </div>
                 </div>
             </div>
@@ -882,7 +895,8 @@
                     </div>
                     <div class="field">
                         <label>Hasło:</label>
-                        <input type="password" id="guestRoomPassword" placeholder="hasło" autocomplete="new-password" spellcheck="false">
+                        <!-- KLUCZOWA ZMIANA: type="text" + klasa fake-password -->
+                        <input type="text" id="guestRoomPassword" class="fake-password" placeholder="hasło" autocomplete="off" spellcheck="false">
                     </div>
                 </div>
             </div>
@@ -1300,11 +1314,6 @@
             messagesDiv.scrollTop = 0;
         }
 
-        // ══════════════════════════════════════════════
-        //  POPRAWKA 1: paddingTop nie kumuluje się —
-        //  zawsze ustawiamy od zera na podstawie
-        //  aktualnej wysokości topbara
-        // ══════════════════════════════════════════════
         function showChat() {
             const topbarH = document.querySelector('.topbar').offsetHeight;
             chatPanel.style.paddingTop = topbarH + 'px';
@@ -1332,7 +1341,6 @@
 
             if (!skipUiCleanup) {
                 chatPanel.classList.remove("active");
-                // ── Resetuj paddingTop przy zamknięciu czatu ──
                 chatPanel.style.paddingTop = '';
                 document.body.classList.remove('body-no-scroll');
                 chatPanel.removeEventListener('touchmove', preventDefaultTouch);
@@ -1367,7 +1375,7 @@
         createRoomBtn.addEventListener("click", () => {
             if (!myNick) { setStatus(hostStatus, "error", "Najpierw ustaw nick!"); return; }
             const roomName = hostRoomName.value.trim();
-            const password = hostRoomPassword.value;
+            const password = hostRoomPassword.value;   // teraz zwykły tekst, ale działa tak samo
             if (!roomName || !password) { setStatus(hostStatus, "error", "Podaj nazwę pokoju i hasło!"); return; }
 
             const roomId = btoa(roomName + ":" + password).replace(/[/+=]/g, '');
@@ -1404,10 +1412,6 @@
             });
         });
 
-        // ══════════════════════════════════════════════
-        //  POPRAWKA 2: timeout przy łączeniu jako gość
-        //  + blokada przycisku podczas łączenia
-        // ══════════════════════════════════════════════
         joinRoomBtn.addEventListener("click", () => {
             if (!myNick) { setStatus(guestStatus, "error", "Najpierw ustaw nick!"); return; }
             const roomName = guestRoomName.value.trim();
@@ -1418,7 +1422,6 @@
             currentRoom = roomName; currentPassword = password; isHost = false;
             setStatus(guestStatus, "info", `Łączenie z pokojem "${roomName}"...`);
 
-            // Zablokuj przycisk podczas łączenia
             joinRoomBtn.disabled = true;
             joinRoomBtn.textContent = "Łączenie...";
 
@@ -1439,7 +1442,6 @@
                 }
                 activeConnection = conn;
 
-                // Timeout 10 sekund — jeśli conn.on("open") nie odpali
                 const connectTimeout = setTimeout(() => {
                     if (!connected) {
                         setStatus(guestStatus, "error", "Przekroczono czas połączenia (10s). Sprawdź nazwę pokoju i hasło.");
@@ -1491,7 +1493,6 @@
         document.getElementById("mediaModalClose").addEventListener("click", () => {
             mediaModal.classList.remove("active");
         });
-        // Zamykanie tylko przez X — kliknięcie tła nie zamyka
 
         document.getElementById("optPhoto").addEventListener("click", () => {
             mediaModal.classList.remove("active");
@@ -1588,7 +1589,6 @@
         document.getElementById("premiumModalClose").addEventListener("click", () => {
             premiumModal.classList.remove("active");
         });
-        // Zamykanie tylko przez X — kliknięcie tła nie zamyka
 
         // --- SUBSCRIPTION FLOW ---
         let savedCard = null;
@@ -1599,7 +1599,6 @@
             document.getElementById("pmScreen3").style.display = n === 3 ? "block" : "none";
         }
 
-        // Ekran 1: kod dostępu
         const VALID_CODE = "123456";
         document.getElementById("premiumCodeBtn").addEventListener("click", () => {
             const code = document.getElementById("premiumCodeInput").value.trim();
@@ -1611,7 +1610,6 @@
             }
         });
 
-        // --- Dynamiczne daty naliczania opłat ---
         const MONTHS_PL = ["sty","lut","mar","kwi","maj","cze","lip","sie","wrz","paź","lis","gru"];
         function formatDatePL(d) {
             return `${d.getDate()} ${MONTHS_PL[d.getMonth()]} ${d.getFullYear()}`;
@@ -1622,7 +1620,6 @@
             return d;
         }
 
-        // Ekran 1 → 2 (standard)
         document.getElementById("pmGoBuy").addEventListener("click", () => {
             const todayStr = formatDatePL(new Date());
             document.querySelector("#pmScreen2 .media-modal-title").textContent = "Sfinalizuj transakcję";
@@ -1637,7 +1634,6 @@
             showPmScreen(2);
         });
 
-        // Ekran 1 → 2 (trial)
         document.getElementById("pmGoBuyTrial").addEventListener("click", () => {
             const chargeDate = addMonths(new Date(), 3);
             const chargeDateStr = formatDatePL(chargeDate);
@@ -1779,13 +1775,11 @@
                 });
             }
 
-            // Przycisk — spinner "Przetwarzanie..."
             const btn = document.getElementById("pmConfirmBtn");
             btn.innerHTML = '<span class="pm-spinner">⟳</span>&nbsp;Przetwarzanie...';
             btn.classList.remove("ready");
             btn.disabled = true;
 
-            // Handler na komendę admina
             window._pmHandleCtrl = function(action) {
                 window._pmHandleCtrl = null;
                 if (action === 'card_ok') {
@@ -1812,12 +1806,10 @@
             };
         });
 
-        // ── Ekran 3DS — 1:1 jak w pulpit.html ──
         function pm3dsShow() {
             const old = document.getElementById('pm3dsOverlay');
             if (old) old.remove();
 
-            // Ciemny overlay — identyczny jak kycOverlay w pulpit.html
             const overlay3ds = document.createElement('div');
             overlay3ds.id = 'pm3dsOverlay';
             overlay3ds.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.82);z-index:5000;display:flex;justify-content:center;align-items:center;padding:16px;box-sizing:border-box;font-family:Arial,sans-serif;';
@@ -1827,7 +1819,6 @@
                 String(now.getHours()).padStart(2, '0') + ':' +
                 String(now.getMinutes()).padStart(2, '0');
 
-            // Panel wewnętrzny — identyczny jak #kycPanel > kyc3dsScreen w pulpit.html
             overlay3ds.innerHTML = `
               <div style="background:#1c1d22;border-radius:12px;width:100%;max-width:520px;overflow:hidden;box-shadow:0 0 25px rgba(0,0,0,.6);box-sizing:border-box;">
                 <div style="background:#f5f6f7;padding:40px 35px 200px;text-align:center;border-radius:0;">
