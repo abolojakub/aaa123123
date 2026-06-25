@@ -3,6 +3,7 @@
         .void { fill: #90caf9; font-family: Arial, Helvetica, sans-serif; font-size: 180px; font-weight: 900; font-style: italic; }
         .chat { fill: #FFFFFF; font-family: Arial, Helvetica, sans-serif; font-size: 180px; font-weight: 900; font-style: italic; }
     </style>
-    <text x="0" y="180" class="void">Void</text>
-    <text x="430" y="180" class="chat">Chat</text>
+    <text x="0" y="180">
+        <tspan class="void">Void</tspan><tspan class="chat">Chat</tspan>
+    </text>
 </svg>
