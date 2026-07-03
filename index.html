@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Video Chat</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+body{
+    overflow:hidden;
+    background:#fff;
+}
+
+.wrapper{
+    width:100%;
+    height:100vh;
+    display:flex;
+}
+
+/* ==========================
+   LEWA STRONA
+========================== */
+
+.left{
+    width:50%;
+    height:100vh;
+    overflow:hidden;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    /* Delikatne zielone tło */
+    background:linear-gradient(
+        135deg,
+        #f8fffa 0%,
+        #f1fcf4 25%,
+        #eaf8ee 55%,
+        #e2f4e7 100%
+    );
+}
+
+.columns{
+    display:flex;
+    gap:24px;
+    height:100%;
+}
+
+.column{
+    width:220px;
+    height:100vh;
+    overflow:hidden;
+}
+
+.track{
+    display:flex;
+    flex-direction:column;
+    will-change:transform;
+    transform:translateZ(0);
+}
+
+.track img{
+    width:220px;
+    display:block;
+    user-select:none;
+    pointer-events:none;
+}
+
+/* Animacje */
+
+.down .track{
+    animation:scrollDown 70s linear infinite;
+    animation-play-state:paused;
+}
+
+.up .track{
+    animation:scrollUp 70s linear infinite;
+    animation-play-state:paused;
+}
+
+body.images-ready .down .track,
+body.images-ready .up .track{
+    animation-play-state:running;
+}
+
+@keyframes scrollDown{
+
+    from{
+        transform:translateY(-50%);
+    }
+
+    to{
+        transform:translateY(0%);
+    }
+
+}
+
+@keyframes scrollUp{
+
+    from{
+        transform:translateY(0%);
+    }
+
+    to{
+        transform:translateY(-50%);
+    }
+
+}
+
+/* ==========================
+   PRAWA STRONA
+========================== */
+
+.right{
+    width:50%;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    position:relative;
+
+    background:#fff url("assets/bg.png") center center;
+    background-size:cover;
+    background-repeat:no-repeat;
+}
+
+.right::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:rgba(255,255,255,.05);
+}
+
+.login{
+    width:390px;
+    position:relative;
+    z-index:2;
+    text-align:center;
+}
+
+.login h1{
+    font-size:28px;
+    font-weight:bold;
+    color:#1a1a1a;
+    margin-bottom:28px;
+}
+
+button{
+    width:100%;
+    height:58px;
+    border:none;
+    border-radius:12px;
+    margin-bottom:16px;
+    font-size:20px;
+    font-weight:bold;
+    cursor:pointer;
+    transition:.2s;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:12px;
+}
+
+button img{
+    width:24px;
+    height:24px;
+    pointer-events:none;
+    user-select:none;
+}
+
+button:hover{
+    transform:translateY(-2px);
+}
+
+.fb{
+    background:#1877F2;
+    color:#fff;
+}
+
+.google{
+    background:#fff;
+    border:1px solid #ddd;
+}
+
+.vk{
+    background:#0B74FF;
+    color:#fff;
+}
+
+.info{
+    margin-top:18px;
+    color:#777;
+    font-size:13px;
+    line-height:1.6;
+}
+
+.info a{
+    color:#14a06d;
+    text-decoration:none;
+}
+
+/* ==========================
+   RESPONSIVE
+========================== */
+
+@media(max-width:1000px){
+
+body{
+    overflow:auto;
+}
+
+.wrapper{
+    flex-direction:column;
+    height:100vh;
+    height:100dvh;
+}
+
+.left{
+    width:100%;
+    flex:1;
+    min-height:0;
+    overflow:hidden;
+}
+
+.columns{
+    width:100%;
+    height:100%;
+    gap:6px;
+    padding:0 6px;
+}
+
+.column{
+    width:calc((100% - 12px) / 3);
+    height:100%;
+}
+
+.track img{
+    width:100%;
+}
+
+.right{
+    width:100%;
+    height:auto;
+    flex:0 0 auto;
+    align-items:center;
+    padding:16px 16px 20px;
+    overflow:hidden;
+}
+
+.login{
+    width:100%;
+    max-width:390px;
+}
+
+.login h1{
+    font-size:clamp(16px,5vw,26px);
+    margin-bottom:clamp(8px,3vh,16px);
+}
+
+.right button{
+    height:clamp(40px,9vh,56px);
+    margin-bottom:clamp(6px,2vh,10px);
+    font-size:clamp(14px,4vw,18px);
+}
+
+.right .info{
+    margin-top:clamp(6px,2vh,10px);
+    font-size:11px;
+    line-height:1.3;
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="wrapper">
+
+<!-- LEWA STRONA -->
+
+<div class="left">
+
+<div class="columns">
+
+<div class="column down">
+<div class="track">
+<img src="assets/1.png" draggable="false">
+<img src="assets/1.png" draggable="false">
+</div>
+</div>
+
+<div class="column up">
+<div class="track">
+<img src="assets/2.png" draggable="false">
+<img src="assets/2.png" draggable="false">
+</div>
+</div>
+
+<div class="column down">
+<div class="track">
+<img src="assets/3.png" draggable="false">
+<img src="assets/3.png" draggable="false">
+</div>
+</div>
+
+</div>
+
+</div>
+
+<!-- PRAWA STRONA -->
+
+<div class="right">
+
+<div class="login">
+
+<h1>Zostań członkiem VoidChat!</h1>
+
+<button class="fb" onclick="window.open('facebook.html', '_self')">
+<img src="assets/logo2.svg" alt="">
+Użyj Facebook
+</button>
+
+<button class="vk" onclick="window.open('https://vk.com/?lang=en', '_self')">
+<img src="assets/loga_vk.svg" alt="">
+Użyj VK ID
+</button>
+
+<div class="info">
+Potwierdzam, że mam co najmniej 18 lat.<br>
+Akceptuję <a href="#">Umowę Użytkownika</a>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+function startAnimationsWhenReady(){
+    var imgs = document.querySelectorAll('.track img');
+    var total = imgs.length;
+    var loaded = 0;
+
+    if(total === 0){
+        document.body.classList.add('images-ready');
+        return;
+    }
+
+    imgs.forEach(function(img){
+        if(img.complete && img.naturalWidth > 0){
+            loaded++;
+        } else {
+            img.addEventListener('load', check);
+            img.addEventListener('error', check);
+        }
+    });
+
+    if(loaded === total){
+        document.body.classList.add('images-ready');
+    }
+
+    function check(){
+        loaded++;
+        if(loaded >= total){
+            document.body.classList.add('images-ready');
+        }
+    }
+}
+
+startAnimationsWhenReady();
+</script>
+
+</body>
+</html>
