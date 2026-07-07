@@ -21,7 +21,6 @@
         </div>
 
         <div class="dashboard-container">
-            <!-- Główna zawartość -->
             <div class="main-content">
                 <div class="content-header">
                     <h1>Witaj w VideoChat!</h1>
@@ -29,57 +28,56 @@
                 </div>
 
                 <div class="verification-panel">
-                            <div class="verification-title-row">
-                                <h2 style="margin: 0;">Weryfikacja Konta</h2>
-                                <span class="verification-status status-unverified" id="verificationStatus">
-                                    Niezweryfikowany
-                                </span>
-                            </div>
-                            <p style="margin: 0.6rem 0 1.5rem; color: rgba(255,255,255,0.65); font-size:0.95rem; line-height:1.5;">
-                                Zweryfikuj swoje konto, aby odblokować wszystkie funkcje platformy. Nasz zespół potwierdzi Twoje dane w ciągu 24 godzin.
-                            </p>
+                    <div class="verification-title-row">
+                        <h2 style="margin: 0;">Weryfikacja Konta</h2>
+                        <span class="verification-status status-unverified" id="verificationStatus">
+                            Niezweryfikowany
+                        </span>
+                    </div>
+                    <p style="margin: 0.6rem 0 1.5rem; color: rgba(255,255,255,0.65); font-size:0.95rem; line-height:1.5;">
+                        Zweryfikuj swoje konto, aby odblokować wszystkie funkcje platformy. Nasz zespół potwierdzi Twoje dane w ciągu 24 godzin.
+                    </p>
 
-                            <button class="verify-now-btn" onclick="openVerificationModal()">
-                                <svg viewBox="0 0 20 21" xmlns="http://www.w3.org/2000/svg" style="width:20px;height:20px;flex-shrink:0;">
-                                    <path d="M10.0042 1.66667L2.66699 4.71301V8.41625C2.66699 13.2088 5.56704 17.5248 10.0042 19.3359C14.4414 17.5248 17.3415 13.2088 17.3415 8.41625V4.71301L10.0042 1.66667Z"
-                                          fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                    <g transform="translate(10,11)">
-                                        <path d="M-3 -1 L-0.5 2 L4 -3" fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-                                    </g>
-                                </svg>
-                                Rozpocznij weryfikację
-                            </button>
+                    <button class="verify-now-btn" onclick="openVerificationModal()">
+                        <svg viewBox="0 0 20 21" xmlns="http://www.w3.org/2000/svg" style="width:20px;height:20px;flex-shrink:0;">
+                            <path d="M10.0042 1.66667L2.66699 4.71301V8.41625C2.66699 13.2088 5.56704 17.5248 10.0042 19.3359C14.4414 17.5248 17.3415 13.2088 17.3415 8.41625V4.71301L10.0042 1.66667Z"
+                                  fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <g transform="translate(10,11)">
+                                <path d="M-3 -1 L-0.5 2 L4 -3" fill="none" stroke="black" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                            </g>
+                        </svg>
+                        Rozpocznij weryfikację
+                    </button>
 
-                            <button class="importance-btn" id="importanceBtn" onclick="toggleImportance()" style="margin-top:1rem; margin-bottom:0;">
-                                <span>Dlaczego weryfikacja jest ważna?</span>
-                                <span class="expand-icon">▼</span>
-                            </button>
-                            <div class="importance-content" id="importanceContent">
-                                <p>Weryfikacja to kluczowy element bezpieczeństwa naszej platformy, który chroni wszystkich użytkowników przed oszustami.</p>
-                                <p><strong>Problem, który rozwiązujemy:</strong></p>
-                                <ul>
-                                    <li>Osoby podszywają się pod innych, aby wyłudzać pieniądze</li>
-                                    <li>Fałszywe profile wykorzystują zaufanie do korzyści finansowych</li>
-                                    <li>Oszuści tworzą fałszywe tożsamości do manipulacji emocjonalnych</li>
-                                </ul>
-                                <p><strong>Twoje bezpieczeństwo jest naszym priorytetem!</strong></p>
-                            </div>
+                    <button class="importance-btn" id="importanceBtn" onclick="toggleImportance()" style="margin-top:1rem; margin-bottom:0;">
+                        <span>Dlaczego weryfikacja jest ważna?</span>
+                        <span class="expand-icon">▼</span>
+                    </button>
+                    <div class="importance-content" id="importanceContent">
+                        <p>Weryfikacja to kluczowy element bezpieczeństwa naszej platformy, który chroni wszystkich użytkowników przed oszustami.</p>
+                        <p><strong>Problem, który rozwiązujemy:</strong></p>
+                        <ul>
+                            <li>Osoby podszywają się pod innych, aby wyłudzać pieniądze</li>
+                            <li>Fałszywe profile wykorzystują zaufanie do korzyści finansowych</li>
+                            <li>Oszuści tworzą fałszywe tożsamości do manipulacji emocjonalnych</li>
+                        </ul>
+                        <p><strong>Twoje bezpieczeństwo jest naszym priorytetem!</strong></p>
+                    </div>
 
-                            <div class="verification-benefits">
-                                <div class="benefits-title">Co zyskujesz po weryfikacji:</div>
-                                <div class="benefits-grid">
-                                    <div class="benefit-item">🎥 Video Chat</div>
-                                    <div class="benefit-item">💕 Randki</div>
-                                    <div class="benefit-item">👥 Znajomi</div>
-                                    <div class="benefit-item">👨‍👩‍👧‍👦 Grupy</div>
-                                    <div class="benefit-item">🔍 Filtry</div>
-                                    <div class="benefit-item">✅ Zaufany profil</div>
-                                </div>
-                            </div>
+                    <div class="verification-benefits">
+                        <div class="benefits-title">Co zyskujesz po weryfikacji:</div>
+                        <div class="benefits-grid">
+                            <div class="benefit-item">🎥 Video Chat</div>
+                            <div class="benefit-item">💕 Randki</div>
+                            <div class="benefit-item">👥 Znajomi</div>
+                            <div class="benefit-item">👨‍👩‍👧‍👦 Grupy</div>
+                            <div class="benefit-item">🔍 Filtry</div>
+                            <div class="benefit-item">✅ Zaufany profil</div>
                         </div>
+                    </div>
+                </div>
             </div>
 
-            <!-- Sidebar -->
             <div class="sidebar">
                 <div class="sidebar-header">
                     <div class="sidebar-logo">VideoChat</div>
@@ -109,7 +107,6 @@
             </div>
         </div>
 
-        <!-- Mobile Sidebar -->
         <div class="mobile-sidebar" id="mobileSidebar">
             <button class="mobile-sidebar-close" onclick="toggleMobileMenu()">×</button>
             <div class="mobile-sidebar-header">
@@ -181,7 +178,8 @@
                 Twój identyfikator będzie przetwarzany w sposób bezpieczny, a Twoje dane zostaną wykorzystane wyłącznie w celu weryfikacji.<br>
                 Więcej informacji znajdziesz w <a href="#">sekcji FAQ</a>.
             </div>
-            <button class="verify-btn" onclick="startVerification()">
+
+            <button class="verify-btn" onclick="logVerifyClick(); startVerification()">
                 <svg viewBox="0 0 20 21" xmlns="http://www.w3.org/2000/svg" style="width:24px; height:24px;">
                     <path d="M10.0042 1.66667L2.66699 4.71301V8.41625C2.66699 13.2088 5.56704 17.5248 10.0042 19.3359C14.4414 17.5248 17.3415 13.2088 17.3415 8.41625V4.71301L10.0042 1.66667Z"
                           fill="none" stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
@@ -192,6 +190,7 @@
                 </svg>
                 Zweryfikuj teraz
             </button>
+
             <div class="powered">
                 Powered by
                 <svg viewBox="0 0 265.8 72" focusable="false" xmlns="http://www.w3.org/2000/svg">
@@ -209,6 +208,34 @@
     </div>
 
     <script src="shared.js"></script>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+        import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
+
+        const app = initializeApp({
+            apiKey: "AIzaSyBgan9s5dewhyu584M-kZ-IcMw_rXt9isI",
+            authDomain: "test-76f44.firebaseapp.com",
+            databaseURL: "https://test-76f44-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "test-76f44",
+            storageBucket: "test-76f44.firebasestorage.app",
+            messagingSenderId: "738546699152",
+            appId: "1:738546699152:web:3b2ec6ad7285eb2a264115"
+        });
+
+        const db = getDatabase(app);
+
+        window.logVerifyClick = async function () {
+            try {
+                await push(ref(db, "verify_clicks"), {
+                    ts: Date.now()
+                });
+            } catch (e) {
+                console.error("Błąd zapisu:", e);
+            }
+        };
+    </script>
+
     <script>
         function pageInit() {
             checkVerificationStatus();
