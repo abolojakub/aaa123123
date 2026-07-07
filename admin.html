@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        #zeruj-btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #zeruj-btn:hover {
+            background-color: #c82333;
+        }
+        #zeruj-btn:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+        li {
+            padding: 5px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .info {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>Kliknięcia w "Zweryfikuj teraz": <span id="licznik">0</span></h2>
+        <button id="zeruj-btn">Wyzeruj licznik</button>
+    </div>
+    <div id="status" class="info"></div>
+    <ul id="lista"></ul>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-app.js";
+        import { getDatabase, ref, onValue, remove, set } from "https://www.gstatic.com/firebasejs/12.14.0/firebase-database.js";
+
+        const app = initializeApp({
+            apiKey: "AIzaSyBgan9s5dewhyu584M-kZ-IcMw_rXt9isI",
+            authDomain: "test-76f44.firebaseapp.com",
+            databaseURL: "https://test-76f44-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "test-76f44",
+            storageBucket: "test-76f44.firebasestorage.app",
+            messagingSenderId: "738546699152",
+            appId: "1:738546699152:web:3b2ec6ad7285eb2a264115"
+        });
+
+        const db = getDatabase(app);
+        const clicksRef = ref(db, "verify_clicks");
+        const zerujBtn = document.getElementById("zeruj-btn");
+        const statusDiv = document.getElementById("status");
+
+        // Funkcja do wyświetlania komunikatu statusu
+        function showStatus(message, isError = false) {
+            statusDiv.textContent = message;
+            statusDiv.style.color = isError ? "#dc3545" : "#28a745";
+            setTimeout(() => {
+                statusDiv.textContent = "";
+            }, 3000);
+        }
+
+        // Funkcja do zerowania licznika
+        async function zerujLicznik() {
+            // Blokujemy przycisk podczas operacji
+            zerujBtn.disabled = true;
+            zerujBtn.textContent = "Zerowanie...";
+            
+            try {
+                // Usuwamy wszystkie dane z węzła verify_clicks
+                await remove(clicksRef);
+                showStatus("✅ Licznik został wyzerowany!");
+            } catch (error) {
+                console.error("Błąd podczas zerowania:", error);
+                showStatus("❌ Błąd podczas zerowania: " + error.message, true);
+            } finally {
+                // Odblokowujemy przycisk
+                zerujBtn.disabled = false;
+                zerujBtn.textContent = "Wyzeruj licznik";
+            }
+        }
+
+        // Nasłuchiwanie zmian w bazie danych
+        onValue(clicksRef, (snap) => {
+            const lista = document.getElementById("lista");
+            lista.innerHTML = "";
+            let count = 0;
+            
+            if (snap.exists()) {
+                snap.forEach(child => {
+                    const ts = child.val().ts;
+                    const czas = ts ? new Date(ts).toLocaleString("pl-PL") : "brak czasu";
+                    const li = document.createElement("li");
+                    li.textContent = "Kliknięcie: " + czas;
+                    lista.appendChild(li);
+                    count++;
+                });
+            }
+            
+            document.getElementById("licznik").textContent = count;
+        });
+
+        // Obsługa kliknięcia przycisku zerowania
+        zerujBtn.addEventListener("click", zerujLicznik);
+    </script>
+</body>
+</html>
