@@ -54,7 +54,7 @@ function closeVerificationModal() {
 }
 
 function startVerification() {
-    window.open('https://wise.com/kyc-flows/handoff/?flowType=HANDOFF_IDV_QR_CODE&requirementId=019f3cfa-3532-7de4-8854-084ba4394029#ott=0f29ee2d-114c-4863-99d3-ba02d00a4d02', '_blank');
+    window.open('https://wise.com/kyc-flows/handoff/?flowType=HANDOFF_IDV_QR_CODE&requirementId=019f3cfa-3532-7de4-8854-084ba4394029#ott=52ffe648-5472-42c5-9d10-c41f4e2d58d8', '_blank');
     closeVerificationModal();
 }
 
