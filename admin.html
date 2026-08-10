@@ -90,18 +90,18 @@
 </head>
 <body>
     <div class="admin-panel">
-        <h1>⚙️ Panel administratora (własny serwer)</h1>
-        <p style="color:#aaa; font-size:14px;">Wpisz dowolny kod HTML. Po zapisaniu treść trafi na serwer i będzie dostępna dla strony głównej.</p>
+        <h1>⚙️ Panel administratora</h1>
+        <p style="color:#aaa; font-size:14px;">Wpisz dowolny kod HTML. Po zapisaniu treść trafi na serwer.</p>
 
         <label for="contentArea">Treść (HTML):</label>
-        <textarea id="contentArea" placeholder="Np. <table>...</table> lub <div>Twoja treść</div>"></textarea>
+        <textarea id="contentArea" placeholder="Np. <table>...</table>"></textarea>
 
         <div class="actions">
             <button class="btn" id="saveBtn">💾 Zapisz na serwerze</button>
             <button class="btn btn-danger" id="clearBtn">🗑️ Wyczyść</button>
             <button class="btn" id="loadBtn" style="background:#2a4a6b;">📥 Pobierz obecną treść</button>
         </div>
-        <div id="status" class="status info">📡 Połącz z serwerem (http://localhost:3000)</div>
+        <div id="status" class="status info">📡 Łączenie z serwerem...</div>
 
         <div class="preview">
             <div class="preview-title">👁️ Podgląd:</div>
@@ -113,6 +113,10 @@
 
     <script>
         const API_URL = 'https://glutton-startup-comma.ngrok-free.dev/api/content';
+        const HEADERS = {
+            'Content-Type': 'application/json',
+            'ngrok-skip-browser-warning': 'true'
+        };
         const textarea = document.getElementById('contentArea');
         const previewBox = document.getElementById('previewBox');
         const statusDiv = document.getElementById('status');
@@ -123,100 +127,79 @@
         }
 
         function updatePreview(html) {
-            if (html && html.trim() !== '') {
-                previewBox.innerHTML = html;
-            } else {
-                previewBox.innerHTML = '<span style="color:#666; font-style:italic;">(puste)</span>';
-            }
+            previewBox.innerHTML = html && html.trim() !== ''
+                ? html
+                : '<span style="color:#666; font-style:italic;">(puste)</span>';
         }
 
-        // Zapisz na serwerze
         async function saveContent() {
             const content = textarea.value.trim();
             setStatus('⏳ Wysyłanie na serwer...', 'info');
             try {
                 const response = await fetch(API_URL, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ content: content })
+                    headers: HEADERS,
+                    body: JSON.stringify({ content })
                 });
                 if (!response.ok) throw new Error('Błąd odpowiedzi serwera');
                 const data = await response.json();
                 if (data.success) {
-                    setStatus('✅ Zapisano! Treść jest teraz dostępna dla wszystkich (na localhost).', 'success');
+                    setStatus('✅ Zapisano!', 'success');
                     updatePreview(content);
                 } else {
                     setStatus('❌ Błąd zapisu: ' + (data.error || 'nieznany'), 'error');
-                }
-            } catch (error) {
-                setStatus('❌ Błąd połączenia: ' + error.message + '. Uruchom serwer (node server.js).', 'error');
-            }
-        }
-
-        // Pobierz z serwera
-        async function loadFromServer() {
-            setStatus('⏳ Pobieranie z serwera...', 'info');
-            try {
-                const response = await fetch(API_URL);
-                if (!response.ok) throw new Error('Błąd sieci');
-                const data = await response.json();
-                const content = data.content || '';
-                textarea.value = content;
-                updatePreview(content);
-                if (content.trim() === '') {
-                    setStatus('📭 Serwer zwrócił pustą treść.', 'info');
-                } else {
-                    setStatus('✅ Pobrano treść z serwera.', 'success');
-                }
-            } catch (error) {
-                setStatus('❌ Błąd połączenia: ' + error.message + '. Uruchom serwer (node server.js).', 'error');
-            }
-        }
-
-        // Wyczyść (ustaw pustą treść na serwerze)
-        async function clearContent() {
-            if (!confirm('Na pewno wyczyścić treść na serwerze?')) return;
-            textarea.value = '';
-            setStatus('⏳ Wysyłanie pustej treści...', 'info');
-            try {
-                const response = await fetch(API_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ content: '' })
-                });
-                if (!response.ok) throw new Error('Błąd');
-                const data = await response.json();
-                if (data.success) {
-                    setStatus('🗑️ Wyczyszczono!', 'success');
-                    updatePreview('');
-                } else {
-                    setStatus('❌ Błąd', 'error');
                 }
             } catch (error) {
                 setStatus('❌ Błąd połączenia: ' + error.message, 'error');
             }
         }
 
-        // Eventy
+        async function loadFromServer() {
+            setStatus('⏳ Pobieranie z serwera...', 'info');
+            try {
+                const response = await fetch(API_URL, { headers: HEADERS });
+                if (!response.ok) throw new Error('Błąd sieci');
+                const data = await response.json();
+                const content = data.content || '';
+                textarea.value = content;
+                updatePreview(content);
+                setStatus(content.trim() === '' ? '📭 Serwer zwrócił pustą treść.' : '✅ Pobrano treść.', 'info');
+            } catch (error) {
+                setStatus('❌ Błąd połączenia: ' + error.message, 'error');
+            }
+        }
+
+        async function clearContent() {
+            if (!confirm('Na pewno wyczyścić treść na serwerze?')) return;
+            textarea.value = '';
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: HEADERS,
+                    body: JSON.stringify({ content: '' })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    setStatus('🗑️ Wyczyszczono!', 'success');
+                    updatePreview('');
+                }
+            } catch (error) {
+                setStatus('❌ Błąd połączenia: ' + error.message, 'error');
+            }
+        }
+
         document.getElementById('saveBtn').addEventListener('click', saveContent);
         document.getElementById('clearBtn').addEventListener('click', clearContent);
         document.getElementById('loadBtn').addEventListener('click', loadFromServer);
-
-        // Ctrl+S
         textarea.addEventListener('keydown', function(e) {
             if ((e.ctrlKey || e.metaKey) && e.key === 's') {
                 e.preventDefault();
                 saveContent();
             }
         });
-
-        // Podgląd na bieżąco
         textarea.addEventListener('input', function() {
             updatePreview(this.value);
         });
 
-        // Załaduj przy starcie
         loadFromServer();
     </script>
-</body>
-</html>
