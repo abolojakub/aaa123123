@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strona główna</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a2a4a;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container { text-align: center; }
+        #registerBtn {
+            background: #2e7d32;
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            font-size: 20px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        #registerBtn:hover { background: #3a9e42; }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-box {
+            background: #1c1d22;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            color: #eee;
+        }
+        .modal-close {
+            position: absolute;
+            top: 12px; right: 20px;
+            font-size: 28px;
+            color: #aaa;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+        .modal-close:hover { color: #fff; }
+        .empty-placeholder {
+            color: #888;
+            font-style: italic;
+            padding: 20px;
+            text-align: center;
+        }
+        #dynamicContent {
+            margin-top: 10px;
+        }
+        .loading {
+            color: #90caf9;
+            text-align: center;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button id="registerBtn">📝 Rejestracja</button>
+    </div>
+
+    <div class="modal-overlay" id="registerModal">
+        <div class="modal-box">
+            <button class="modal-close" id="modalClose">&times;</button>
+            <h2>Rejestracja</h2>
+            <div id="dynamicContent">
+                <div class="loading">⏳ Ładowanie treści z serwera...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api/content';
+
+        async function loadContent() {
+            const container = document.getElementById('dynamicContent');
+            container.innerHTML = '<div class="loading">⏳ Ładowanie...</div>';
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) throw new Error('Błąd sieci');
+                const data = await response.json();
+                const content = data.content || '';
+                if (content.trim() !== '') {
+                    container.innerHTML = content;
+                } else {
+                    container.innerHTML = `<div class="empty-placeholder">Brak treści – zapisz coś w panelu admina (http://localhost:3000/admin.html).</div>`;
+                }
+            } catch (error) {
+                container.innerHTML = `<div class="empty-placeholder" style="color:#ff8a8a;">❌ Błąd połączenia z serwerem. Upewnij się, że serwer działa (node server.js).</div>`;
+                console.error('Błąd:', error);
+            }
+        }
+
+        document.getElementById('registerBtn').addEventListener('click', function() {
+            document.getElementById('registerModal').classList.add('active');
+            loadContent();
+        });
+
+        document.getElementById('modalClose').addEventListener('click', function() {
+            document.getElementById('registerModal').classList.remove('active');
+        });
+        document.getElementById('registerModal').addEventListener('click', function(e) {
+            if (e.target === this) this.classList.remove('active');
+        });
+    </script>
+</body>
+</html>
