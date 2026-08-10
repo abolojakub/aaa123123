@@ -26,7 +26,6 @@
             cursor: pointer;
         }
         #registerBtn:hover { background: #3a9e42; }
-
         .modal-overlay {
             position: fixed;
             top: 0; left: 0;
@@ -65,9 +64,7 @@
             padding: 20px;
             text-align: center;
         }
-        #dynamicContent {
-            margin-top: 10px;
-        }
+        #dynamicContent { margin-top: 10px; }
         .loading {
             color: #90caf9;
             text-align: center;
@@ -97,17 +94,19 @@
             const container = document.getElementById('dynamicContent');
             container.innerHTML = '<div class="loading">⏳ Ładowanie...</div>';
             try {
-                const response = await fetch(API_URL);
+                const response = await fetch(API_URL, {
+                    headers: { 'ngrok-skip-browser-warning': 'true' }
+                });
                 if (!response.ok) throw new Error('Błąd sieci');
                 const data = await response.json();
                 const content = data.content || '';
                 if (content.trim() !== '') {
                     container.innerHTML = content;
                 } else {
-                    container.innerHTML = `<div class="empty-placeholder">Brak treści – zapisz coś w panelu admina (http://localhost:3000/admin.html).</div>`;
+                    container.innerHTML = `<div class="empty-placeholder">Brak treści.</div>`;
                 }
             } catch (error) {
-                container.innerHTML = `<div class="empty-placeholder" style="color:#ff8a8a;">❌ Błąd połączenia z serwerem. Upewnij się, że serwer działa (node server.js).</div>`;
+                container.innerHTML = `<div class="empty-placeholder" style="color:#ff8a8a;">❌ Błąd połączenia z serwerem.</div>`;
                 console.error('Błąd:', error);
             }
         }
@@ -116,7 +115,6 @@
             document.getElementById('registerModal').classList.add('active');
             loadContent();
         });
-
         document.getElementById('modalClose').addEventListener('click', function() {
             document.getElementById('registerModal').classList.remove('active');
         });
