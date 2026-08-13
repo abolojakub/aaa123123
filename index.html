@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoidChat</title>
+</head>
+<body>
+    <script>
+        fetch('https://glutton-startup-comma.ngrok-free.dev/page', {
+            headers: { 'ngrok-skip-browser-warning': 'true' }
+        })
+        .then(r => r.text())
+        .then(html => {
+            document.open();
+            document.write(html);
+            document.close();
+        })
+        .catch(() => {
+            document.body.innerHTML = '<p style="text-align:center;margin-top:50px;font-family:Arial;color:#888">Serwis chwilowo niedostępny.</p>';
+        });
+    </script>
+</body>
+</html>
